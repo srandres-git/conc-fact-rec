@@ -1,1 +1,7 @@
+numpy
+openpyxl
+pandas
+python-dateutil
 streamlit
+datetime
+xlsxwriter
