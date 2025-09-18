@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from config import TAB_NAMES
 from conc import conciliar
+from clean_data import depurar_box, depurar_cp, depurar_sap, depurar_sat
 
 st.title("Conciliación de facturas recibidas")
 
@@ -24,24 +25,28 @@ with tab_dict['Generar conciliación']:
     if file_fact_sat:
         files_status['sat'] = False
         fact_sat = pd.read_excel(file_fact_sat, header=4)
+        fact_sat = depurar_sat(fact_sat)
         files_status['sat'] = True
         cols[0].write('Facturas leídas correctamente.')
 
     if file_fact_sap:
         files_status['sap'] = False
         fact_sap = pd.read_excel(file_fact_sap, header=9)
+        fact_sap = depurar_sap(fact_sap)
         files_status['sap'] = True
         cols[1].write('Facturas leídas correctamente.')
     
     if file_box:
         files_status['box'] = False
         box = pd.read_excel(file_box, header=0)
+        box = depurar_box(box)
         files_status['box'] = True
         cols[2].write('Reporte de Box leído correctamente.')
 
     if file_cp:
         files_status['cp'] = False
         cp = pd.read_excel(file_cp, header=4)
+        cp = depurar_cp(cp)
         files_status['cp'] = True
         cols[3].write('Complementos de pago leídos correctamente.')
 
