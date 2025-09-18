@@ -73,6 +73,34 @@ NUM_COLS_CP = [
 DATE_COLS_CP = [
     'Fecha', 'FechaPago',
 ]
+
+# Renombramiento de columnas de los reportes base
+RENAME_COLS_SAP = {
+    'UUID Corregido': 'UUID SAP',
+    'Estado de factura': 'Estatus SAP',
+    'Referencia externa': 'Ref. externa SAP',
+    'Importe de la factura': 'Total SAP XML',
+    # 'Creado por': 'Ejecutivo CxP'
+}
+
+# ejecutivos
+EJECUTIVO_SAP_MAP = {
+    'MANUEL QUIROZ / CARMEN MORENO':'CARMEN MORENO / MANUEL QUIROZ',
+    'MANUEL QUIROZ (USD) / CARMEN MORENO (MXN)':'CARMEN MORENO / MANUEL QUIROZ',
+    'ARMEN MORENO': 'CARMEN MORENO',
+    'MARIA  DEL CARMEN': 'CARMEN MORENO',
+    'CARMEN ORENO': 'CARMEN MORENO',
+    'PAOLA AGUIRRE/ ALFREDO ZAMUDIO': 'PAOLA AGUIRRE / ALFREDO ZAMUDIO',
+    'CARMEN MORENO\n': 'CARMEN MORENO',
+    'PAGUIRRE': 'PAOLA AGUIRRE',
+    'CMORENO': 'CARMEN MORENO',
+    'MQUIROZ': 'MANUEL QUIROZ',
+    'EVERGARA': 'ENRIQUE VERGARA',
+    'AZAMUDIO': 'ALFREDO ZAMUDIO',
+    '_SUPPINV': np.nan,
+    'CTELLEZ2': np.nan,
+    '': np.nan
+}
 """GUI"""
 
 # tabs en las que se divide la app
