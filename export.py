@@ -46,7 +46,7 @@ def export_conciliacion_facturas(fact_sat: pd.DataFrame, output_file: str, cols_
             max_len = max(fact_sat[col_name].astype(str).map(len).max() if col_name in fact_sat.columns else 0, len(col_name))
             col_len = max_len + 2 if max_len < 30 else 30
             # Aplica formato numérico si corresponde
-            if is_numeric(col_name):
+            if is_numeric(fact_sat,col_name):
                 worksheet.set_column(col_num, col_num, col_len, comma_format)
                 
                 # Subtotales en la primera fila
