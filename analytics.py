@@ -13,8 +13,8 @@ def create_dashboard(conciliacion: pd.DataFrame):
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Facturas", total_facturas)
-    col2.metric("Vigentes que no están en SAP", facturas_no_sap)
-    col3.metric("Faltantes en Box", facturas_no_box)
+    col2.metric("Faltantes SAP", facturas_no_sap)
+    col3.metric("Faltantes Box", facturas_no_box)
     col4.metric("Pagadas sin CP", facturas_no_cp)
 
     # Gráficos de barras para estatus
