@@ -30,6 +30,9 @@ with tab_dict['Generar conciliación']:
             cols[0].write('Facturas leídas correctamente.')
         else:
             files_status['sat'] = True
+    else:
+        files_status['sat'] = False
+        st.session_state['fact_sat'] = None
 
     if file_fact_sap:
         if st.session_state.get('fact_sap') is None:
@@ -39,6 +42,9 @@ with tab_dict['Generar conciliación']:
             cols[1].write('Facturas SAP leídas correctamente.')
         else:
             files_status['sap'] = True
+    else:
+        files_status['sap'] = False
+        st.session_state['fact_sap'] = None
     
     if file_box:
         if st.session_state.get('box') is None:
@@ -48,6 +54,9 @@ with tab_dict['Generar conciliación']:
             cols[2].write('Box leídas correctamente.')
         else:
             files_status['box'] = True
+    else:
+        files_status['box'] = False
+        st.session_state['box'] = None
 
     if file_cp:
         if st.session_state.get('cp') is None:
@@ -57,6 +66,9 @@ with tab_dict['Generar conciliación']:
             cols[3].write('Complementos de pago leídos correctamente.')
         else:
             files_status['cp'] = True
+    else:
+        files_status['cp'] = False
+        st.session_state['cp'] = None
 
     st.session_state['conc_button'] = st.container(key='conc_button')
     st.session_state['conc_container'] = st.container(key='conc_container')
