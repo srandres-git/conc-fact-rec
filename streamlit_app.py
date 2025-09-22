@@ -33,7 +33,7 @@ with tab_dict['Generar conciliación']:
 
     if file_fact_sap:
         if st.session_state.get('fact_sap') is None:
-            st.session_state['fact_sap'] = pd.read_excel(file_fact_sap, header=0)
+            st.session_state['fact_sap'] = pd.read_excel(file_fact_sap, header=9)
             st.session_state['fact_sap'] = depurar_sap(st.session_state['fact_sap'])
             files_status['sap'] = True
             cols[1].write('Facturas SAP leídas correctamente.')
@@ -51,7 +51,7 @@ with tab_dict['Generar conciliación']:
 
     if file_cp:
         if st.session_state.get('cp') is None:
-            st.session_state['cp'] = pd.read_excel(file_cp, header=0)
+            st.session_state['cp'] = pd.read_excel(file_cp, header=4)
             st.session_state['cp'] = depurar_cp(st.session_state['cp'])
             files_status['cp'] = True
             cols[3].write('Complementos de pago leídos correctamente.')
