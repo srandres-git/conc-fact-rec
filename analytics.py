@@ -18,9 +18,9 @@ def create_dashboard(conciliacion: pd.DataFrame):
     col4.metric("Pagadas sin CP", facturas_no_cp)
 
     # Gráficos de barras para estatus
-    estatus_sap_counts = conciliacion['Estatus SAP'].value_counts().sort_values(ascending=False)
-    estatus_box_counts = conciliacion['Estatus Box'].value_counts().sort_values(ascending=False)
-    estatus_cp_counts = conciliacion['Estatus CP'].value_counts().sort_values(ascending=False)
+    estatus_sap_counts = conciliacion['Estatus SAP'].value_counts().sort_values(ascending=False, ignore_index=True)
+    estatus_box_counts = conciliacion['Estatus Box'].value_counts().sort_values(ascending=False, ignore_index=True)
+    estatus_cp_counts = conciliacion['Estatus CP'].value_counts().sort_values(ascending=False, ignore_index=True)
 
     st.subheader('Estatus en SAP')
     st.bar_chart(estatus_sap_counts)
@@ -34,6 +34,5 @@ def create_dashboard(conciliacion: pd.DataFrame):
     # Análisis de diferencias
     st.subheader('Análisis de Diferencias entre SAT y SAP')
     diff_mxn = conciliacion['Dif. Total MXN']
-    diff_xml = conciliacion['Dif. Total XML']
 
     st.write(f"Diferencias en MXN - Total: {diff_mxn.sum():,.2f}, Promedio: {diff_mxn.mean():,.2f}, Máximo: {diff_mxn.max():,.2f}")
