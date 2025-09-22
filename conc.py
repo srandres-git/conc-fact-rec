@@ -1,7 +1,9 @@
+import io
 import pandas as pd
 import numpy as np
 import streamlit as st
 from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
+from export import export_conciliacion_facturas
 from utils import assign_service_type, find_service, get_provs
 
 def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
@@ -64,7 +66,7 @@ def sat_x_cp(fact_sat: pd.DataFrame, cp: pd.DataFrame)->pd.DataFrame:
     return fact_sat
 
 
-def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame):
+def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame, output_file=""):
     # Realizamos los cruces de los reportes base
     with st.session_state['conc_container']: # update
         st.write('Cruzando los reportes iniciales...')
@@ -120,3 +122,11 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     fact_sat['Tipo de servicio'] = fact_sat.apply(assign_service_type, axis=1)
 
     st.session_state['conciliacion'] = fact_sat[COLS_CONC]
+
+    # exportamos el reporte de conciliación
+    if output_file=="":
+        output_file = io.BytesIO()
+    with st.session_state['conc_container']: # update
+        st.write('Generando reporte de conciliación...')
+    export_conciliacion_facturas(st.session_state['conciliacion'], output_file, COLS_CONC)
+    st.session_state['output_file'] = output_file
