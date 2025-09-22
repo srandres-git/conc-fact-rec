@@ -51,7 +51,7 @@ with tab_dict['Generar conciliación']:
         cols[3].write('Complementos de pago leídos correctamente.')
 
     st.session_state['conc_button'] = st.container(key='conc_button')
-    st.session_state['conc'] = st.container(key='conc')
+    st.session_state['conc_container'] = st.container(key='conc_container')
     if sum(files_status.values())==4:
         with st.session_state['conc_button']:
             conciliacion = st.button('Conciliar', on_click=conciliar, args=[fact_sat,fact_sap,box,cp])

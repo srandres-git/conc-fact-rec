@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-from config import RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
+from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
+from utils import assign_service_type, find_service, get_provs
 
 def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
     """Cruce de facturas de SAT vs SAP. Ambos reportes iniciales depurados."""
@@ -69,5 +70,40 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     fact_sat = sat_x_box(fact_sat, box)
     fact_sat = sat_x_cp(fact_sat, cp)
 
-    with st.session_state['conc']:
-        st.write(fact_sat)
+    # asignamos el ID de proveedor
+    rfc_list = fact_sat['Emisor RFC'].str.upper().str.strip().unique().tolist()
+    provs = get_provs(rfc_list, bucket_size=40)
+    provs.replace({'Ejecutivo CPP SAP': EJECUTIVO_SAP_MAP}, inplace=True)
+    fact_sat = fact_sat.merge(provs[['ID Proveedor SAP','RFC Proveedor', 'Ejecutivo CPP SAP']], left_on='Emisor RFC', right_on='RFC Proveedor', how='left', suffixes=('', '_prov'))
+    fact_sat['ID Proveedor SAP'] = fact_sat['ID Proveedor SAP'].fillna('No identificado')
+
+    # asignamos comentarios según los estatus
+    fact_sat['Comentario'] = fact_sat.apply(lambda row: COMENTARIOS.get((row['Estatus'], row['Estatus SAP'], row['Estatus CP']), 'Revisar // Caso no contemplado'), axis=1)
+    # arreglamos los de método de pago PUE
+    fact_sat['Comentario'].where((fact_sat['Método Pago']=='PPD')\
+                                |~(fact_sat['Comentario'].isin(ESTATUS_NA_PUE)),\
+                                fact_sat['Comentario'].str.replace('Revisar', 'OK')+' (PUE)',
+                                inplace=True)
+    
+    # asignamos el ejecutivo de CxP
+    ejecutivos_cxp = pd.DataFrame(st.secrets["ejecutivos_cxp"])
+    # inicialmente cruzamos con los datos históricos de la tabla de ejecutivos
+    fact_sat = fact_sat.merge(ejecutivos_cxp, left_on=['Emisor RFC', 'Moneda'], right_on=['rfc', 'moneda'], how='left',)
+    # Creamos la columna 'Ejecutivo CxP' y la llenamos como sigue:
+    # primero con los de la columna 'Creado por' (proveniente de fact_sap)
+    # los que queden vacíos, con el valor de la columna 'ejecutivo_cxp' (proveniente de los datos históricos)
+    # los que queden vacíos, con la columna 'Ejecutivo CPP SAP' (proveniente de la base de proveedores prov)
+    # los que queden vacíos, son asignados 'No identificado'
+    fact_sat['Ejecutivo CxP'] = fact_sat['Creado por'] \
+        .fillna(fact_sat['ejecutivo_cxp']) \
+        .fillna(fact_sat['Ejecutivo CPP SAP']) \
+        .fillna('No identificado')
+
+    # asignamos el número de servicio
+    fact_sat['Servicio'] = fact_sat.apply(find_service, axis=1)
+
+    # asignamos el tipo de servicio
+    fact_sat['Tipo de servicio'] = fact_sat.apply(assign_service_type, axis=1)
+
+    with st.session_state['conc_container']:
+        st.write(fact_sat[COLS_CONC])
