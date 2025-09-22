@@ -67,6 +67,9 @@ def sat_x_cp(fact_sat: pd.DataFrame, cp: pd.DataFrame)->pd.DataFrame:
 
 
 def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame, output_file=""):
+    # reiniciamos las variables de sesión
+    st.session_state['conciliacion'] = None
+    st.session_state['output_file'] = None
     # Realizamos los cruces de los reportes base
     with st.session_state['conc_container']: # update
         st.write('Cruzando los reportes iniciales...')
