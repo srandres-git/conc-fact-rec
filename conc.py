@@ -66,18 +66,26 @@ def sat_x_cp(fact_sat: pd.DataFrame, cp: pd.DataFrame)->pd.DataFrame:
 
 def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame):
     # Realizamos los cruces de los reportes base
+    with st.session_state['conc_container']: # update
+        st.write('Cruzando los reportes iniciales...')
     fact_sat = sat_x_sap(fact_sat,fact_sap)
     fact_sat = sat_x_box(fact_sat, box)
     fact_sat = sat_x_cp(fact_sat, cp)
 
     # asignamos el ID de proveedor
+    with st.session_state['conc_container']: # update
+        st.write('Asignando ID de proveedor...')
     rfc_list = fact_sat['Emisor RFC'].str.upper().str.strip().unique().tolist()
+    with st.session_state['conc_container']: # update
+        st.write(f'Buscando datos de {len(rfc_list)} proveedores en SAP...')
     provs = get_provs(rfc_list, bucket_size=40)
     provs.replace({'Ejecutivo CPP SAP': EJECUTIVO_SAP_MAP}, inplace=True)
     fact_sat = fact_sat.merge(provs[['ID Proveedor SAP','RFC Proveedor', 'Ejecutivo CPP SAP']], left_on='Emisor RFC', right_on='RFC Proveedor', how='left', suffixes=('', '_prov'))
     fact_sat['ID Proveedor SAP'] = fact_sat['ID Proveedor SAP'].fillna('No identificado')
 
     # asignamos comentarios según los estatus
+    with st.session_state['conc_container']: # update
+        st.write('Asignando comentarios según estatus...')
     fact_sat['Comentario'] = fact_sat.apply(lambda row: COMENTARIOS.get((row['Estatus'], row['Estatus SAP'], row['Estatus CP']), 'Revisar // Caso no contemplado'), axis=1)
     # arreglamos los de método de pago PUE
     fact_sat['Comentario'].where((fact_sat['Método Pago']=='PPD')\
@@ -86,6 +94,8 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
                                 inplace=True)
     
     # asignamos el ejecutivo de CxP
+    with st.session_state['conc_container']: # update
+        st.write('Asignando ejecutivo de CxP...')
     ejecutivos_cxp = pd.DataFrame(st.secrets["ejecutivos_cxp"])
     # inicialmente cruzamos con los datos históricos de la tabla de ejecutivos
     fact_sat = fact_sat.merge(ejecutivos_cxp, left_on=['Emisor RFC', 'Moneda'], right_on=['rfc', 'moneda'], how='left',)
@@ -98,11 +108,15 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
         .fillna(fact_sat['ejecutivo_cxp']) \
         .fillna(fact_sat['Ejecutivo CPP SAP']) \
         .fillna('No identificado')
-
+    
     # asignamos el número de servicio
+    with st.session_state['conc_container']: # update
+        st.write('Asignando número de servicio...')
     fact_sat['Servicio'] = fact_sat.apply(find_service, axis=1)
 
     # asignamos el tipo de servicio
+    with st.session_state['conc_container']: # update
+        st.write('Asignando tipo de servicio...')
     fact_sat['Tipo de servicio'] = fact_sat.apply(assign_service_type, axis=1)
 
     st.session_state['conciliacion'] = fact_sat[COLS_CONC]
