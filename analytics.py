@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-def create_dashboard(conciliacion: pd.Dataframe):
+def create_dashboard(conciliacion: pd.DataFrame):
     """Crea un dashboard con estadísticas y gráficos de la conciliación."""
     st.title('Resumen de Conciliación de Facturas Recibidas')
 
