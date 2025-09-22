@@ -105,5 +105,4 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     # asignamos el tipo de servicio
     fact_sat['Tipo de servicio'] = fact_sat.apply(assign_service_type, axis=1)
 
-    with st.session_state['conc_container']:
-        st.write(fact_sat[COLS_CONC])
+    st.session_state['conciliacion'] = fact_sat[COLS_CONC]

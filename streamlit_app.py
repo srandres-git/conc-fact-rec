@@ -55,3 +55,7 @@ with tab_dict['Generar conciliación']:
     if sum(files_status.values())==4:
         with st.session_state['conc_button']:
             conciliacion = st.button('Conciliar', on_click=conciliar, args=[fact_sat,fact_sap,box,cp])
+
+    if st.session_state.get('conciliacion') is not None:
+        with st.session_state['conc_container']:
+            st.write(st.session_state['conciliacion'])
