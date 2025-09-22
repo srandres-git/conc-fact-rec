@@ -24,8 +24,7 @@ with tab_dict['Generar conciliación']:
     # leemos los reportes
     if file_fact_sat:
         if st.session_state.get('fact_sat') is None:
-            st.session_state['fact_sat'] = pd.read_excel(file_fact_sat, header=4)
-            st.session_state['fact_sat'] = depurar_sat(st.session_state['fact_sat'])
+            st.session_state['fact_sat'] = depurar_sat(pd.read_excel(file_fact_sat, header=4))
             files_status['sat'] = True
             cols[0].write('Facturas leídas correctamente.')
         else:
@@ -36,8 +35,7 @@ with tab_dict['Generar conciliación']:
 
     if file_fact_sap:
         if st.session_state.get('fact_sap') is None:
-            st.session_state['fact_sap'] = pd.read_excel(file_fact_sap, header=9)
-            st.session_state['fact_sap'] = depurar_sap(st.session_state['fact_sap'])
+            st.session_state['fact_sap'] = depurar_sap(pd.read_excel(file_fact_sap, header=9))
             files_status['sap'] = True
             cols[1].write('Facturas SAP leídas correctamente.')
         else:
@@ -48,8 +46,7 @@ with tab_dict['Generar conciliación']:
     
     if file_box:
         if st.session_state.get('box') is None:
-            st.session_state['box'] = pd.read_excel(file_box, header=0)
-            st.session_state['box'] = depurar_box(st.session_state['box'])
+            st.session_state['box'] = depurar_box(pd.read_excel(file_box, header=0))
             files_status['box'] = True
             cols[2].write('Box leídas correctamente.')
         else:
@@ -60,8 +57,7 @@ with tab_dict['Generar conciliación']:
 
     if file_cp:
         if st.session_state.get('cp') is None:
-            st.session_state['cp'] = pd.read_excel(file_cp, header=4)
-            st.session_state['cp'] = depurar_cp(st.session_state['cp'])
+            st.session_state['cp'] = depurar_cp(pd.read_excel(file_cp, header=4))
             files_status['cp'] = True
             cols[3].write('Complementos de pago leídos correctamente.')
         else:
