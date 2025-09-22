@@ -7,15 +7,15 @@ def create_dashboard(conciliacion: pd.DataFrame):
 
     # Estadísticas generales
     total_facturas = len(conciliacion)
-    facturas_sap = len(conciliacion[conciliacion['Estatus SAP'] != 'No está SAP'])
-    facturas_box = len(conciliacion[conciliacion['Estatus Box'] == 'Encontrado'])
-    facturas_cp = len(conciliacion[conciliacion['Estatus CP'] != 'No tiene CP'])
+    facturas_no_sap = len(conciliacion[conciliacion['Comentario']=='Revisar // Vigente SAT - No está en SAP'])
+    facturas_no_box = len(conciliacion[conciliacion['Estatus Box'] == 'No está Box'])
+    facturas_no_cp = len(conciliacion[conciliacion['Comentario'] == 'Revisar // Vigente SAT - Pagado SAP - Sin CP'])
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Facturas", total_facturas)
-    col2.metric("Facturas en SAP", facturas_sap)
-    col3.metric("Facturas en Box", facturas_box)
-    col4.metric("Facturas con CP", facturas_cp)
+    col2.metric("Vigentes que no están en SAP", facturas_no_sap)
+    col3.metric("Faltantes en Box", facturas_no_box)
+    col4.metric("Pagadas sin CP", facturas_no_cp)
 
     # Gráficos de barras para estatus
     estatus_sap_counts = conciliacion['Estatus SAP'].value_counts()
@@ -38,6 +38,3 @@ def create_dashboard(conciliacion: pd.DataFrame):
 
     st.write(f"Diferencias en MXN - Promedio: {diff_mxn.mean():.2f}, Máximo: {diff_mxn.max():.2f}")
     st.write(f"Diferencias en XML - Promedio: {diff_xml.mean():.2f}, Máximo: {diff_xml.max():.2f}")
-
-    st.histogram(diff_mxn, bins=30, title='Distribución de Diferencias en MXN')
-    st.histogram(diff_xml, bins=30, title='Distribución de Diferencias en XML')
