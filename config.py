@@ -167,4 +167,4 @@ ESTATUS_NA_PUE = ['Revisar // Vigente SAT - Pagado SAP - Tiene CP cancelado', 'R
 """GUI"""
 
 # tabs en las que se divide la app
-TAB_NAMES = ['Generar conciliación', 'Dashboard', 'Análisis conciliación previa']
+TAB_NAMES = ['Generar conciliación', 'Dashboard', ]

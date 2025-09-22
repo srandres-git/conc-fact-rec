@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from analytics import create_dashboard
 from config import TAB_NAMES
 from conc import conciliar
 from clean_data import depurar_box, depurar_cp, depurar_sap, depurar_sat
@@ -82,3 +83,10 @@ with tab_dict['Generar conciliación']:
     if st.session_state.get('output_file') is not None:
         st.session_state['output_file'].seek(0)  # move to the beginning of the BytesIO buffer
         st.download_button('Descargar reporte de conciliación', data=st.session_state['output_file'], file_name='Conciliacion_Facturas_Recibidas.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+# pestaña del dashboard
+with tab_dict['Dashboard']:
+    if st.session_state.get('conciliacion') is not None:
+        create_dashboard(st.session_state['conciliacion'])
+    else:
+        st.info('Primero debes generar la conciliación en la pestaña "Generar conciliación".', icon="ℹ️")

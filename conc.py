@@ -72,17 +72,17 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     st.session_state['output_file'] = None
     # Realizamos los cruces de los reportes base
     with st.session_state['conc_container']: # update
-        st.write('Cruzando los reportes iniciales...')
+        st.info('Cruzando los reportes iniciales...', icon="ℹ️")
     fact_sat = sat_x_sap(fact_sat,fact_sap)
     fact_sat = sat_x_box(fact_sat, box)
     fact_sat = sat_x_cp(fact_sat, cp)
 
     # asignamos el ID de proveedor
     with st.session_state['conc_container']: # update
-        st.write('Asignando ID de proveedor...')
+        st.info('Asignando ID de proveedor...', icon="ℹ️")
     rfc_list = fact_sat['Emisor RFC'].str.upper().str.strip().unique().tolist()
     with st.session_state['conc_container']: # update
-        st.write(f'Buscando datos de {len(rfc_list)} proveedores en SAP...')
+        st.info(f'Buscando datos de {len(rfc_list)} proveedores en SAP...', icon="ℹ️")
     provs = get_provs(rfc_list, bucket_size=40)
     provs.replace({'Ejecutivo CPP SAP': EJECUTIVO_SAP_MAP}, inplace=True)
     fact_sat = fact_sat.merge(provs[['ID Proveedor SAP','RFC Proveedor', 'Ejecutivo CPP SAP']], left_on='Emisor RFC', right_on='RFC Proveedor', how='left', suffixes=('', '_prov'))
@@ -90,7 +90,7 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
 
     # asignamos comentarios según los estatus
     with st.session_state['conc_container']: # update
-        st.write('Asignando comentarios según estatus...')
+        st.info('Asignando comentarios según estatus...', icon="ℹ️")
     fact_sat['Comentario'] = fact_sat.apply(lambda row: COMENTARIOS.get((row['Estatus'], row['Estatus SAP'], row['Estatus CP']), 'Revisar // Caso no contemplado'), axis=1)
     # arreglamos los de método de pago PUE
     fact_sat['Comentario'].where((fact_sat['Método Pago']=='PPD')\
@@ -100,7 +100,7 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     
     # asignamos el ejecutivo de CxP
     with st.session_state['conc_container']: # update
-        st.write('Asignando ejecutivo de CxP...')
+        st.info('Asignando ejecutivo de CxP...', icon="ℹ️")
     ejecutivos_cxp = pd.DataFrame(st.secrets["ejecutivos_cxp"])
     # inicialmente cruzamos con los datos históricos de la tabla de ejecutivos
     fact_sat = fact_sat.merge(ejecutivos_cxp, left_on=['Emisor RFC', 'Moneda'], right_on=['rfc', 'moneda'], how='left',)
@@ -116,12 +116,12 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     
     # asignamos el número de servicio
     with st.session_state['conc_container']: # update
-        st.write('Asignando número de servicio...')
+        st.info('Asignando número de servicio...', icon="ℹ️")
     fact_sat['Servicio'] = fact_sat.apply(find_service, axis=1)
 
     # asignamos el tipo de servicio
     with st.session_state['conc_container']: # update
-        st.write('Asignando tipo de servicio...')
+        st.info('Asignando tipo de servicio...', icon="ℹ️")
     fact_sat['Tipo de servicio'] = fact_sat.apply(assign_service_type, axis=1)
 
     st.session_state['conciliacion'] = fact_sat[COLS_CONC]
@@ -130,6 +130,6 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     if output_file=="":
         output_file = io.BytesIO()
     with st.session_state['conc_container']: # update
-        st.write('Generando reporte de conciliación...')
+        st.info('Generando reporte de conciliación...', icon="ℹ️")
     export_conciliacion_facturas(st.session_state['conciliacion'], output_file, COLS_CONC)
     st.session_state['output_file'] = output_file
