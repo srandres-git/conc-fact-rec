@@ -12,6 +12,8 @@ def create_dashboard(conciliacion: pd.DataFrame):
     dtable_estatus(conciliacion)
     # Facturas no encontradas en SAP por mes
     dtable_no_sap_mes(conciliacion)
+    # Facturas no encontradas en SAP por mes y estatus en Box
+    dtable_no_sap_mes_box(conciliacion)
 
     
 
