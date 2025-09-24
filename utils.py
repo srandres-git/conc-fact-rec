@@ -198,7 +198,7 @@ def dynamic_table(
     cols: list[str],
     values: dict[str, str],  # {column: aggfunc}
     filters: dict[str, list],
-    container,
+    # container,
     format_func: callable = None,
     sort_args: dict = None,
     top_n: int = None,
@@ -226,7 +226,7 @@ def dynamic_table(
         unique_vals = df[col].dropna().unique().tolist()
         if preselected:
             preselected = [val for val in preselected if val in unique_vals]# correct preselected to make sure the value exists
-        selected = container.multiselect(
+        selected = st.multiselect(
             f"Filtro por {col}",
             options=unique_vals,
             default=preselected
@@ -261,4 +261,4 @@ def dynamic_table(
     # 
 
     # --- Display ---
-    container.table(pivot_df, border='horizontal')
+    st.table(pivot_df, border='horizontal')

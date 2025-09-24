@@ -5,6 +5,7 @@ from config import TAB_NAMES
 from conc import conciliar
 from clean_data import depurar_box, depurar_cp, depurar_sap, depurar_sat
 
+st.set_page_config(layout="wide")
 st.title("Conciliación de facturas recibidas")
 
 # generamos las pestañas 
