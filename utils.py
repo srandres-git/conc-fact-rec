@@ -75,7 +75,7 @@ def assign_service_type(row:pd.Series):
     elif 'Servicios de transferencia de fondos y canje y cambios' in producto:
         return 'Compra de divisas'
     elif 'Seguros de asistencia médica y hospitalización' in producto \
-        or 'Servicios de seguros para estructuras y propiedades y posesiones' in producto:
+        or ('Servicios de seguros para estructuras y propiedades y posesiones' in producto and not re.match(r'T[\d]{4,5}', proveedor)):
         return 'Seguros y fianzas'
     elif rfc_emisor=='IMS421231I45':
         return 'IMSS'
