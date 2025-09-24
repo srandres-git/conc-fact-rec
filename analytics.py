@@ -71,14 +71,14 @@ def dtable_no_sap_mes_box(conciliación):
     )
 
 def dtable_no_sap_top(conciliacion: pd.DataFrame, top_n:int=35):
-    """"Tabala dinámica de facturas faltantes en SAP por Emisor Nombre (top N)."""
+    """"Tabla dinámica de facturas faltantes en SAP por Emisor Nombre (top N)."""
     st.header(f'Facturas no encontradas en SAP por Proveedor (Top {top_n})')
     # se preselecciona el comentario 'Revisar // Vigente SAT - No está en SAP'
     dynamic_table(
         conciliacion,
         rows= ['Emisor Nombre'],
         cols= [],
-        values={'Total SAT MXN':'sum','UUID':'count'},
+        values={'Total SAT MXN':'sum',},
         filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,},
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)\
