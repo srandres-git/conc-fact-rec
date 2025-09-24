@@ -229,7 +229,9 @@ def dynamic_table(
         selected = st.multiselect(
             f"Filtro por {col}",
             options=unique_vals,
-            default=preselected
+            default=preselected,
+            # generate a unique key based on the column name
+            key=f"filter_{col.replace(' ','_')}"
         )
         if selected:
             filtered_df = filtered_df[filtered_df[col].isin(selected)]
