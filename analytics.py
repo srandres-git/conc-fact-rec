@@ -14,7 +14,8 @@ def create_dashboard(conciliacion: pd.DataFrame):
     dtable_no_sap_mes(conciliacion)
     # Facturas no encontradas en SAP por mes y estatus en Box
     dtable_no_sap_mes_box(conciliacion)
-
+    # Facturas no encontradas en SAP por Emisor Nombre (top 35)
+    dtable_no_sap_top(conciliacion, top_n=35)
     
 
 def dtable_estatus(conciliacion: pd.DataFrame):
@@ -67,4 +68,22 @@ def dtable_no_sap_mes_box(conciliación):
             else f"{x:,}" if isinstance(x, int) \
             else x,
         # sort_args={'by': 'Mes', 'ascending':False},
+    )
+
+def dtable_no_sap_top(conciliacion: pd.DataFrame, top_n:int=35):
+    """"Tabala dinámica de facturas faltantes en SAP por Emisor Nombre (top N)."""
+    st.header(f'Facturas no encontradas en SAP por Proveedor (Top {top_n})')
+    # se preselecciona el comentario 'Revisar // Vigente SAT - No está en SAP'
+    dynamic_table(
+        conciliacion,
+        rows= ['Emisor Nombre'],
+        cols= [],
+        values={'Total SAT MXN':'sum','UUID':'count'},
+        filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,},
+        # container=st.container(),
+        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)\
+            else f"{x:,}" if isinstance(x, int) \
+            else x,
+        sort_args={'by': 'Total SAT MXN', 'ascending':False},
+        top_n=top_n,
     )
