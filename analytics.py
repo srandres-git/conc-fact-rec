@@ -61,7 +61,7 @@ def dtable_no_sap_mes_box(conciliación):
         conciliación,
         rows= [ 'Estatus Box'],
         cols= ['Mes'],
-        values={'Total SAT MXN':'sum','UUID':'count'},
+        values={'Total SAT MXN':'sum',},
         filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Ejecutivo CxP':None,},
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
@@ -78,7 +78,7 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame, top_n:int=35):
         conciliacion,
         rows= ['Emisor Nombre'],
         cols= [],
-        values={'Total SAT MXN':'sum',},
+        values={'Total SAT MXN':'sum','UUID':'count'},
         filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,},
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)\
