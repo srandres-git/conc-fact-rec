@@ -224,6 +224,7 @@ def dynamic_table(
     filtered_df = df.copy()
     for col, preselected in filters.items():
         unique_vals = df[col].dropna().unique().tolist()
+        preselected = [val for val in preselected if val in unique_vals]# correct preselected to make sure the value exists
         selected = container.multiselect(
             f"Filtro por {col}",
             options=unique_vals,
