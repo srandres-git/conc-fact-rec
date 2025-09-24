@@ -23,13 +23,14 @@ def dtable_estatus(conciliacion: pd.DataFrame):
         rows= ['Comentario'],
         cols= [],
         values={'Total SAT MXN':'sum','Total SAP MXN':'sum', 'Dif. Total MXN':'sum', 'UUID':'count'},
-        filters={'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None, 'Tipo de servicio':SERVS_TRANSPORTE},
+        filters={'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None, },
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
             else f":red[{x}]" if 'Revisar' in x and isinstance(x, str) \
             else f":green[{x}]" if 'OK' in x and isinstance(x, str)\
-            else x
+            else x,
+        sort_args={'by': 'Total SAT MXN', 'ascending':False},
     )
 
 def dtable_no_sap_mes(conciliacion: pd.DataFrame):
@@ -41,9 +42,27 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame):
         rows= ['Mes'],
         cols= [],
         values={'Total SAT MXN':'sum','UUID':'count'},
-        filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'], 'Estatus Box':None, 'Ejecutivo CxP':None, 'Tipo de servicio':SERVS_TRANSPORTE},
+        filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Estatus Box':None, 'Ejecutivo CxP':None,},
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
-            else x
+            else x,
+        sort_args={'by': 'Total SAT MXN', 'ascending':False},
+    )
+
+def dtable_no_sap_mes_box(conciliación):
+    """Realiza la tabla dinámica de facturas faltantes en SAP por mes y estatus en Box."""
+    st.header('Facturas no encontradas en SAP por Mes y Estatus en Box')
+    # se preselecciona el comentario 'Revisar // Vigente SAT - No está en SAP'
+    dynamic_table(
+        conciliación,
+        rows= [ 'Estatus Box'],
+        cols= ['Mes'],
+        values={'Total SAT MXN':'sum','UUID':'count'},
+        filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Ejecutivo CxP':None,},
+        # container=st.container(),
+        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
+            else f"{x:,}" if isinstance(x, int) \
+            else x,
+        # sort_args={'by': 'Mes', 'ascending':False},
     )

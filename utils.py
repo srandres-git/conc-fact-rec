@@ -227,7 +227,7 @@ def dynamic_table(
         if preselected:
             preselected = [val for val in preselected if val in unique_vals]# correct preselected to make sure the value exists
         selected = st.multiselect(
-            f"Filtro por {col}",
+            f"{col}",
             options=unique_vals,
             default=preselected,
             # generate a unique random key to avoid "Duplicate Widget ID" error
