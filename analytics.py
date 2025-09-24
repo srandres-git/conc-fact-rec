@@ -1,38 +1,22 @@
 import pandas as pd
 import streamlit as st
 
+from utils import dynamic_table
+from config import SERVS_TRANSPORTE
+
 def create_dashboard(conciliacion: pd.DataFrame):
     """Crea un dashboard con estadísticas y gráficos de la conciliación."""
     st.title('Resumen de Conciliación de Facturas Recibidas')
 
-    # Estadísticas generales
-    total_facturas = len(conciliacion)
-    facturas_no_sap = len(conciliacion[conciliacion['Comentario']=='Revisar // Vigente SAT - No está en SAP'])
-    facturas_no_box = len(conciliacion[conciliacion['Estatus Box'] == 'No está Box'])
-    facturas_no_cp = len(conciliacion[conciliacion['Comentario'] == 'Revisar // Vigente SAT - Pagado SAP - Sin CP'])
+    # Resumen por comentarios de estatus
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Facturas", total_facturas)
-    col2.metric("Faltantes SAP", facturas_no_sap)
-    col3.metric("Faltantes Box", facturas_no_box)
-    col4.metric("Pagadas sin CP", facturas_no_cp)
-
-    # Gráficos de barras para estatus
-    estatus_sap_counts = conciliacion['Estatus SAP'].value_counts().sort_values(ascending=False, ignore_index=True)
-    estatus_box_counts = conciliacion['Estatus Box'].value_counts().sort_values(ascending=False, ignore_index=True)
-    estatus_cp_counts = conciliacion['Estatus CP'].value_counts().sort_values(ascending=False, ignore_index=True)
-
-    st.subheader('Estatus en SAP')
-    st.bar_chart(estatus_sap_counts)
-
-    st.subheader('Estatus en Box')
-    st.bar_chart(estatus_box_counts)
-
-    st.subheader('Estatus en Complementos de Pago')
-    st.bar_chart(estatus_cp_counts)
-
-    # Análisis de diferencias
-    st.subheader('Análisis de Diferencias entre SAT y SAP')
-    diff_mxn = conciliacion['Dif. Total MXN']
-
-    st.write(f"Diferencias en MXN - Total: {diff_mxn.sum():,.2f}, Promedio: {diff_mxn.mean():,.2f}, Máximo: {diff_mxn.max():,.2f}")
+    st.header('Resumen por Comentarios de Estatus')
+    dynamic_table(
+        conciliacion,
+        rows= ['Comentario'],
+        cols= [],
+        values={'Total SAT MXN':'sum','Total SAP MXN':'sum', 'Dif. Total MXN':'sum', 'UUID':'count'},
+        filters={'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None, 'Tipo de servicio':SERVS_TRANSPORTE},
+        container=st.container(),
+        format_func= lambda x: f":red[{x}]" if 'Revisar' in x else f":green[{x}]" if 'OK' in x else f"{x:,.2f}" if isinstance(x, float) else x
+    )

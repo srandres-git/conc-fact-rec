@@ -163,6 +163,8 @@ COMENTARIOS = {
 # los siguientes estatus no aplican para PUE:
 ESTATUS_NA_PUE = ['Revisar // Vigente SAT - Pagado SAP - Tiene CP cancelado', 'Revisar // Vigente SAT - Parcialmente pagado SAP - Tiene CP cancelado', \
           'Revisar // Vigente SAT - Pagado SAP - Sin CP', 'Revisar // Vigente SAT - Parcialmente pagado SAP - Sin CP']
+# los tipos de servicio que corresponden a servicio de transporte
+SERVS_TRANSPORTE = ['Terrestre', 'AE', 'AI', 'ME', 'MI']
 
 """GUI"""
 

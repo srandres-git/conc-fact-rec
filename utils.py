@@ -190,3 +190,73 @@ def is_numeric(df:pd.DataFrame,col:str):
     """Verifica si una columna de un DataFrame es numérica."""
     return pd.api.types.is_numeric_dtype(df[col])
 
+# Dynamic table functionality
+
+def dynamic_table(
+    df: pd.DataFrame,
+    rows: list[str],
+    cols: list[str],
+    values: dict[str, str],  # {column: aggfunc}
+    filters: dict[str, list],
+    container,
+    format_func: callable = None,
+    sort_args: dict = None,
+    top_n: int = None,
+    bottom_n: int = None,
+):
+    """
+    Create a dynamic pivot-like table in Streamlit with filters.
+
+    Args:
+        df: DataFrame
+        rows: list of columns to use as rows
+        cols: list of columns to use as columns
+        values: dict of {column: aggfunc}
+        filters: dict of {column: list of preselected values}
+        container: Streamlit container to display the table
+        format_func: Optional function to format cell values
+        sort_args: Optional keyword arguments for sorting the table
+        top_n: Optional int to show only top N rows
+        bottom_n: Optional int to show only bottom N rows
+    """
+
+    # --- Filtering widgets ---
+    filtered_df = df.copy()
+    for col, preselected in filters.items():
+        unique_vals = df[col].dropna().unique().tolist()
+        selected = container.multiselect(
+            f"Filtro por {col}",
+            options=unique_vals,
+            default=preselected
+        )
+        if selected:
+            filtered_df = filtered_df[filtered_df[col].isin(selected)]
+
+    # --- Pivot table ---
+    pivot_df = pd.pivot_table(
+        filtered_df,
+        index=rows if rows else None,
+        columns=cols if cols else None,
+        values=list(values.keys()),
+        aggfunc=values,
+        fill_value=0
+    )
+    # sort the table if args provided
+    if sort_args:
+        pivot_df = pivot_df.sort_values(**sort_args)
+    # show only top N rows if specified
+    if top_n:
+        pivot_df = pivot_df.head(top_n)
+    # show only bottom N rows if specified
+    if bottom_n:
+        pivot_df = pivot_df.tail(bottom_n)
+    # Reset index and start it on 1 so it shows nicely in Streamlit
+    pivot_df = pivot_df.reset_index()
+    pivot_df.index += 1
+     # Apply formatting function if provided
+    if format_func:
+        pivot_df = pivot_df.applymap(format_func)
+    # 
+
+    # --- Display ---
+    container.table(pivot_df, border='horizontal')
