@@ -230,8 +230,8 @@ def dynamic_table(
             f"Filtro por {col}",
             options=unique_vals,
             default=preselected,
-            # generate a unique key based on the column name
-            key=f"filter_{col.replace(' ','_')}"
+            # generate a unique random key to avoid "Duplicate Widget ID" error
+            key=f"filter_{col.replace(' ','_')}_{np.random.randint(0,1e9)}"
         )
         if selected:
             filtered_df = filtered_df[filtered_df[col].isin(selected)]
