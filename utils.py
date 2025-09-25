@@ -238,6 +238,7 @@ def dynamic_table(
                 key=ms_key
             )
         selected = st.session_state['sstate'+ms_key]
+        st.session_state['sstate'+ms_key]
         if selected:
             filtered_df = filtered_df[filtered_df[col].isin(selected)]
 
