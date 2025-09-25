@@ -229,7 +229,7 @@ def dynamic_table(
         if preselected:
             preselected = [val for val in preselected if val in unique_vals]# correct preselected to make sure the value exists
         ms_key = f"ms_{name}_{col.replace(' ','_')}"
-        if st.session_state.get(ms_key) is None:
+        if st.session_state.get('sstate_'+ms_key) is None:
             selected = st.multiselect(
                 f"{col}",
                 options=unique_vals,
@@ -237,9 +237,9 @@ def dynamic_table(
                 # generate a unique key using the name and column name
                 key=ms_key
             )
-            st.session_state[ms_key] = selected
+            st.session_state['sstate_'+ms_key] = selected
         else:
-            selected = st.session_state[ms_key]
+            selected = st.session_state['sstate_'+ms_key]
         if selected:
             filtered_df = filtered_df[filtered_df[col].isin(selected)]
 
