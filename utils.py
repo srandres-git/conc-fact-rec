@@ -198,6 +198,7 @@ def dynamic_table(
     cols: list[str],
     values: dict[str, str],  # {column: aggfunc}
     filters: dict[str, list],
+    name: str,
     # container,
     format_func: callable = None,
     sort_args: dict = None,
@@ -213,6 +214,7 @@ def dynamic_table(
         cols: list of columns to use as columns
         values: dict of {column: aggfunc}
         filters: dict of {column: list of preselected values}
+        name: Name of the table (used for generating unique keys)
         container: Streamlit container to display the table
         format_func: Optional function to format cell values
         sort_args: Optional keyword arguments for sorting the table
@@ -226,13 +228,18 @@ def dynamic_table(
         unique_vals = df[col].dropna().unique().tolist()
         if preselected:
             preselected = [val for val in preselected if val in unique_vals]# correct preselected to make sure the value exists
-        selected = st.multiselect(
-            f"{col}",
-            options=unique_vals,
-            default=preselected,
-            # generate a unique random key to avoid "Duplicate Widget ID" error
-            key=f"filter_{col.replace(' ','_')}_{np.random.randint(0,1e9)}"
-        )
+        ms_key = f"ms_{name}_{col.replace(' ','_')}"
+        if st.session_state.get(ms_key) is None:
+            selected = st.multiselect(
+                f"{col}",
+                options=unique_vals,
+                default=preselected,
+                # generate a unique key using the name and column name
+                key=ms_key
+            )
+            st.session_state[ms_key] = selected
+        else:
+            selected = st.session_state[ms_key]
         if selected:
             filtered_df = filtered_df[filtered_df[col].isin(selected)]
 

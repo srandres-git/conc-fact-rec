@@ -7,7 +7,8 @@ from config import SERVS_TRANSPORTE
 def create_dashboard(conciliacion: pd.DataFrame):
     """Crea un dashboard con estadísticas y gráficos de la conciliación."""
     st.title('Resumen de Conciliación de Facturas Recibidas')
-
+    # TODO: agregar gráficos
+    # TODO: usar session_state para guardar los filtros seleccionados
     # Resumen por comentarios de estatus
     dtable_estatus(conciliacion)
     # Facturas no encontradas en SAP por mes
@@ -27,6 +28,7 @@ def dtable_estatus(conciliacion: pd.DataFrame):
         cols= [],
         values={'Total SAT MXN':'sum','Total SAP MXN':'sum', 'Dif. Total MXN':'sum', 'UUID':'count'},
         filters={'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None, },
+        name='dtable_estatus',
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
@@ -46,6 +48,7 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame):
         cols= [],
         values={'Total SAT MXN':'sum','UUID':'count'},
         filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Estatus Box':None, 'Ejecutivo CxP':None,},
+        name='dtable_no_sap_mes',
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
@@ -63,6 +66,7 @@ def dtable_no_sap_mes_box(conciliación):
         cols= ['Mes'],
         values={'Total SAT MXN':'sum',},
         filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Ejecutivo CxP':None,},
+        name='dtable_no_sap_mes_box',
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
@@ -80,6 +84,7 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame, top_n:int=35):
         cols= [],
         values={'Total SAT MXN':'sum','UUID':'count'},
         filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,},
+        name='dtable_no_sap_top',
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)\
             else f"{x:,}" if isinstance(x, int) \
