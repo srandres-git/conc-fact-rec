@@ -10,13 +10,17 @@ def create_dashboard(conciliacion: pd.DataFrame):
     # TODO: agregar gráficos
     # TODO: usar session_state para guardar los filtros seleccionados
     # Resumen por comentarios de estatus
-    dtable_estatus(conciliacion)
+    if st.session_state.get('dtable_estatus') is None:
+        dtable_estatus(conciliacion)
     # Facturas no encontradas en SAP por mes
-    dtable_no_sap_mes(conciliacion)
+    if st.session_state.get('dtable_no_sap_mes') is None:
+        dtable_no_sap_mes(conciliacion)
     # Facturas no encontradas en SAP por mes y estatus en Box
-    dtable_no_sap_mes_box(conciliacion)
+    if st.session_state.get('dtable_no_sap_mes_box') is None:
+        dtable_no_sap_mes_box(conciliacion)
     # Facturas no encontradas en SAP por Emisor Nombre (top 35)
-    dtable_no_sap_top(conciliacion, top_n=35)
+    if st.session_state.get('dtable_no_sap_top') is None:
+        dtable_no_sap_top(conciliacion, top_n=35)
     
 
 def dtable_estatus(conciliacion: pd.DataFrame):

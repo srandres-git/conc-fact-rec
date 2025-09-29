@@ -270,4 +270,4 @@ def dynamic_table(
     # 
 
     # --- Display ---
-    st.table(pivot_df, border='horizontal')
+    st.table(pivot_df, border='horizontal',key=f"{name}")
