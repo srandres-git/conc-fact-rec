@@ -87,7 +87,11 @@ with tab_dict['Generar conciliación']:
 
 # pestaña del dashboard
 with tab_dict['Dashboard']:
+    # añadimos un file uploader para cargar una conciliación previa
+    file_conc = st.file_uploader('Cargar conciliación previa', type='xlsx', accept_multiple_files=False, key='file_conc')
+    if file_conc:
+        st.session_state['conciliacion'] = pd.read_excel(file_conc, header=1)
     if st.session_state.get('conciliacion') is not None:
         create_dashboard(st.session_state['conciliacion'])
     else:
-        st.info('Primero debes generar la conciliación en la pestaña "Generar conciliación".', icon="ℹ️")
+        st.info('Primero debes generar la conciliación en la pestaña "Generar conciliación" o cargar una conciliación previa.', icon="ℹ️")
