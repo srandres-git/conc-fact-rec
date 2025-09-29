@@ -70,6 +70,7 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     # reiniciamos las variables de sesión
     st.session_state['conciliacion'] = None
     st.session_state['output_file'] = None
+    st.session_state['dashboard_loaded'] = False
     # Realizamos los cruces de los reportes base
     with st.session_state['conc_container']: # update
         st.info('Cruzando los reportes iniciales...', icon="ℹ️")
