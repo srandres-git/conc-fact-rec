@@ -269,6 +269,12 @@ def dynamic_table(
         pivot_df = pivot_df.applymap(format_func)
     # 
 
-    # --- Display ---
-    st.table(pivot_df, border='horizontal')
+    # --- Display persistent container ---
+    if f"table_container_{name}" not in st.session_state:
+        st.session_state[f"table_container_{name}"] = st.container()
+
+    with st.session_state[f"table_container_{name}"]:
+        st.table(pivot_df, border='horizontal')
+
+    # Keep the resulting table in memory for possible later use
     st.session_state[name] = pivot_df

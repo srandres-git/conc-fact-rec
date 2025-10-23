@@ -8,20 +8,22 @@ def create_dashboard(conciliacion: pd.DataFrame):
     """Crea un dashboard con estadísticas y gráficos de la conciliación."""
     st.title('Resumen de Conciliación de Facturas Recibidas')
     # TODO: agregar gráficos
-    # TODO: usar session_state para guardar los filtros seleccionados
-    # Resumen por comentarios de estatus
-    # if st.session_state.get('dtable_estatus') is None:
-    dtable_estatus(conciliacion)
-    # Facturas no encontradas en SAP por mes
-    # if st.session_state.get('dtable_no_sap_mes') is None:
-    dtable_no_sap_mes(conciliacion)
-    # Facturas no encontradas en SAP por mes y estatus en Box
-    # if st.session_state.get('dtable_no_sap_mes_box') is None:
-    dtable_no_sap_mes_box(conciliacion)
-    # Facturas no encontradas en SAP por Emisor Nombre (top 35)
-    # if st.session_state.get('dtable_no_sap_top') is None:
-    dtable_no_sap_top(conciliacion, top_n=35)
-    
+    if 'dashboard_containers' not in st.session_state:
+        st.session_state['dashboard_containers'] = {
+            'estatus': st.container(),
+            'no_sap_mes': st.container(),
+            'no_sap_mes_box': st.container(),
+            'no_sap_top': st.container()
+        }
+
+    with st.session_state['dashboard_containers']['estatus']:
+        dtable_estatus(conciliacion)
+    with st.session_state['dashboard_containers']['no_sap_mes']:
+        dtable_no_sap_mes(conciliacion)
+    with st.session_state['dashboard_containers']['no_sap_mes_box']:
+        dtable_no_sap_mes_box(conciliacion)
+    with st.session_state['dashboard_containers']['no_sap_top']:
+        dtable_no_sap_top(conciliacion)
 
 def dtable_estatus(conciliacion: pd.DataFrame):
     """Realiza la tabla dinámica de resumen de comentarios de estatus."""
