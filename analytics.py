@@ -27,7 +27,6 @@ def create_dashboard(conciliacion: pd.DataFrame):
 
 def dtable_estatus(conciliacion: pd.DataFrame):
     """Realiza la tabla dinámica de resumen de comentarios de estatus."""
-    st.header('Resumen por Comentarios de Estatus')
     filters={'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None, }
     name='dtable_estatus'
     filters = update_filters(filters,name)
@@ -38,6 +37,7 @@ def dtable_estatus(conciliacion: pd.DataFrame):
         values={'Total SAT MXN':'sum','Total SAP MXN':'sum', 'Dif. Total MXN':'sum', 'UUID':'count'},
         filters=filters,
         name='dtable_estatus',
+        header='Resumen por Comentarios de Estatus',
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
@@ -49,7 +49,6 @@ def dtable_estatus(conciliacion: pd.DataFrame):
 
 def dtable_no_sap_mes(conciliacion: pd.DataFrame):
     """Realiza la tabla dinámica de facturas faltantes en SAP por mes."""
-    st.header('Facturas no encontradas en SAP por Mes')
     filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Estatus Box':None, 'Ejecutivo CxP':None,}
     name='dtable_no_sap_mes'
     filters = update_filters(filters,name)
@@ -61,6 +60,7 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame):
         values={'Total SAT MXN':'sum','UUID':'count'},
         filters=filters,
         name=name,
+        header='Facturas no encontradas en SAP por Mes',
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
@@ -70,7 +70,6 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame):
 
 def dtable_no_sap_mes_box(conciliación):
     """Realiza la tabla dinámica de facturas faltantes en SAP por mes y estatus en Box."""
-    st.header('Facturas no encontradas en SAP por Mes y Estatus en Box')
     filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Ejecutivo CxP':None,}
     name='dtable_no_sap_mes_box'
     filters = update_filters(filters,name)
@@ -82,6 +81,7 @@ def dtable_no_sap_mes_box(conciliación):
         values={'Total SAT MXN':'sum',},
         filters=filters,
         name=name,
+        header='Facturas no encontradas en SAP por Mes y Estatus en Box',
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
@@ -91,7 +91,6 @@ def dtable_no_sap_mes_box(conciliación):
 
 def dtable_no_sap_top(conciliacion: pd.DataFrame, top_n:int=35):
     """"Tabla dinámica de facturas faltantes en SAP por Emisor Nombre (top N)."""
-    st.header(f'Facturas no encontradas en SAP por Proveedor (Top {top_n})')
     filters={'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,}
     name='dtable_no_sap_top'
     filters = update_filters(filters,name)
@@ -103,6 +102,7 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame, top_n:int=35):
         values={'Total SAT MXN':'sum','UUID':'count'},
         filters=filters,
         name=name,
+        header=f'Facturas no encontradas en SAP por Proveedor (Top {top_n})',
         # container=st.container(),
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)\
             else f"{x:,}" if isinstance(x, int) \
@@ -118,6 +118,7 @@ def dynamic_table(
     values: dict[str, str],  # {column: aggfunc}
     filters: dict[str, list],
     name: str,
+    header: str,
     # container,
     format_func: callable = None,
     sort_args: dict = None,
@@ -142,7 +143,8 @@ def dynamic_table(
     """
     if f"table_container_{name}" not in st.session_state:
         st.session_state[f"table_container_{name}"] = st.container()
-
+    with st.session_state[f"table_container_{name}"]:
+        st.header(header)
     # --- Filtering widgets ---
     filtered_df = df.copy()
     for col, preselected in filters.items():
@@ -186,10 +188,8 @@ def dynamic_table(
      # Apply formatting function if provided
     if format_func:
         pivot_df = pivot_df.applymap(format_func)
-    # 
 
-    # --- Display persistent container ---
-    
+    # --- Display persistent container ---    
 
     with st.session_state[f"table_container_{name}"]:
         st.table(pivot_df, border='horizontal')
