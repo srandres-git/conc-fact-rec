@@ -140,6 +140,8 @@ def dynamic_table(
         top_n: Optional int to show only top N rows
         bottom_n: Optional int to show only bottom N rows
     """
+    if f"table_container_{name}" not in st.session_state:
+        st.session_state[f"table_container_{name}"] = st.container()
 
     # --- Filtering widgets ---
     filtered_df = df.copy()
@@ -148,13 +150,14 @@ def dynamic_table(
         if preselected:
             preselected = [val for val in preselected if val in unique_vals]# correct preselected to make sure the value exists
         ms_key = multiselect_key(name, col)
-        selected = st.multiselect(
-            f"{col}",
-            options=unique_vals,
-            default=preselected,
-            # generate a unique key using the name and column name
-            key=ms_key
-        )
+        with st.session_state.get(f"filter_container_{name}", st.container()):
+            selected = st.multiselect(
+                f"{col}",
+                options=unique_vals,
+                default=preselected,
+                # generate a unique key using the name and column name
+                key=ms_key
+            )
         # display the multiselect with the selected values        
         if selected:
             filtered_df = filtered_df[filtered_df[col].isin(selected)]
@@ -186,8 +189,7 @@ def dynamic_table(
     # 
 
     # --- Display persistent container ---
-    if f"table_container_{name}" not in st.session_state:
-        st.session_state[f"table_container_{name}"] = st.container()
+    
 
     with st.session_state[f"table_container_{name}"]:
         st.table(pivot_df, border='horizontal')
