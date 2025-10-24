@@ -191,90 +191,24 @@ def is_numeric(df:pd.DataFrame,col:str):
     return pd.api.types.is_numeric_dtype(df[col])
 
 # Dynamic table functionality
+def multiselect_key(name: str, col: str) -> str:
+    """Genera una clave única para el multiselect de un filtro en la tabla dinámica."""
+    return f"ms_{name}_{col.replace(' ','_')}"
 
-def dynamic_table(
-    df: pd.DataFrame,
-    rows: list[str],
-    cols: list[str],
-    values: dict[str, str],  # {column: aggfunc}
-    filters: dict[str, list],
-    name: str,
-    # container,
-    format_func: callable = None,
-    sort_args: dict = None,
-    top_n: int = None,
-    bottom_n: int = None,
-):
-    """
-    Create a dynamic pivot-like table in Streamlit with filters.
-
-    Args:
-        df: DataFrame
-        rows: list of columns to use as rows
-        cols: list of columns to use as columns
-        values: dict of {column: aggfunc}
-        filters: dict of {column: list of preselected values}
-        name: Name of the table (used for generating unique keys)
-        container: Streamlit container to display the table
-        format_func: Optional function to format cell values
-        sort_args: Optional keyword arguments for sorting the table
-        top_n: Optional int to show only top N rows
-        bottom_n: Optional int to show only bottom N rows
-    """
-
-    # --- Filtering widgets ---
-    filtered_df = df.copy()
-    for col, preselected in filters.items():
-        unique_vals = df[col].dropna().unique().tolist()
-        if preselected:
-            preselected = [val for val in preselected if val in unique_vals]# correct preselected to make sure the value exists
-        ms_key = f"ms_{name}_{col.replace(' ','_')}"
-        if st.session_state.get(ms_key) is None:
-            selected = st.multiselect(
-                f"{col}",
-                options=unique_vals,
-                default=preselected,
-                # generate a unique key using the name and column name
-                key=ms_key
-            )
+def update_filters(filters:dict, name:str):
+    """Actualiza los filtros de la tabla dinámica según las selecciones del usuario en Streamlit."""
+    updated_filters = {}
+    for col, values in filters.items():
+        if values is None:
+            updated_filters[col] = None
         else:
-            selected = st.session_state.get(ms_key) 
-        # display the multiselect with the selected values        
-        if selected:
-            filtered_df = filtered_df[filtered_df[col].isin(selected)]
-
-    # --- Pivot table ---
-    pivot_df = pd.pivot_table(
-        filtered_df,
-        index=rows if rows else None,
-        columns=cols if cols else None,
-        values=list(values.keys()),
-        aggfunc=values,
-        fill_value=0
-    )
-    # sort the table if args provided
-    if sort_args:
-        pivot_df = pivot_df.sort_values(**sort_args)
-    # show only top N rows if specified
-    if top_n:
-        pivot_df = pivot_df.head(top_n)
-    # show only bottom N rows if specified
-    if bottom_n:
-        pivot_df = pivot_df.tail(bottom_n)
-    # Reset index and start it on 1 so it shows nicely in Streamlit
-    pivot_df = pivot_df.reset_index()
-    pivot_df.index += 1
-     # Apply formatting function if provided
-    if format_func:
-        pivot_df = pivot_df.applymap(format_func)
-    # 
-
-    # --- Display persistent container ---
-    if f"table_container_{name}" not in st.session_state:
-        st.session_state[f"table_container_{name}"] = st.container()
-
-    with st.session_state[f"table_container_{name}"]:
-        st.table(pivot_df, border='horizontal')
-
-    # Keep the resulting table in memory for possible later use
-    st.session_state[name] = pivot_df
+            key = multiselect_key(name, col)
+            if st.session_state.get(key) is not None:
+                selected_values = st.session_state[key]
+            else:
+                selected_values = values
+            if len(selected_values) == 0:
+                updated_filters[col] = None
+            else:
+                updated_filters[col] = selected_values
+    return updated_filters
