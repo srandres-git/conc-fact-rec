@@ -20,40 +20,48 @@ def create_dashboard(conciliacion: pd.DataFrame):
         # create the multiselect filters
         st.header('Resumen por Comentarios de Estatus')
         for col, preselected in FILTERS['estatus'].items():
+            options = conciliacion[col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
             st.multiselect(
                 f'{col}',
-                options=conciliacion[col].dropna().unique().tolist(),
-                default=preselected,
+                options=options,
+                default=default,
                 key=multiselect_key('dtable_estatus', col)
             )
         dtable_estatus(conciliacion)
     with st.session_state['dashboard_containers']['no_sap_mes']:
         st.header('Facturas no encontradas en SAP por Mes')
         for col, preselected in FILTERS['no_sap_mes'].items():
+            options = conciliacion[col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
             st.multiselect(
                 f'{col}',
-                options=conciliacion[col].dropna().unique().tolist(),
-                default=preselected,
+                options=options,
+                default=default,
                 key=multiselect_key('dtable_no_sap_mes', col)
             )
         dtable_no_sap_mes(conciliacion)
     with st.session_state['dashboard_containers']['no_sap_mes_box']:
         st.header('Facturas no encontradas en SAP por Mes y Estatus en Box')
         for col, preselected in FILTERS['no sap_mes_box'].items():
+            options = conciliacion[col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
             st.multiselect(
                 f'{col}',
-                options=conciliacion[col].dropna().unique().tolist(),
-                default=preselected,
+                options=options,
+                default=default,
                 key=multiselect_key('dtable_no_sap_mes_box', col)
             )
         dtable_no_sap_mes_box(conciliacion)
     with st.session_state['dashboard_containers']['no_sap_top']:
         st.header('Facturas no encontradas en SAP por Proveedor (Top 35)')
         for col, preselected in FILTERS['no_sap_top'].items():
+            options = conciliacion[col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
             st.multiselect(
                 f'{col}',
-                options=conciliacion[col].dropna().unique().tolist(),
-                default=preselected,
+                options=options,
+                default=default,
                 key=multiselect_key('dtable_no_sap_top', col)
             )
         dtable_no_sap_top(conciliacion)
