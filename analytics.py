@@ -28,7 +28,7 @@ def create_dashboard(conciliacion: pd.DataFrame):
                 default=default,
                 key=multiselect_key('dtable_estatus', col)
             )
-        dtable_estatus(conciliacion)
+        dtable_estatus(conciliacion, filters=FILTERS['estatus'])
     with st.session_state['dashboard_containers']['no_sap_mes']:
         st.header('Facturas no encontradas en SAP por Mes')
         for col, preselected in FILTERS['no_sap_mes'].items():
@@ -40,7 +40,7 @@ def create_dashboard(conciliacion: pd.DataFrame):
                 default=default,
                 key=multiselect_key('dtable_no_sap_mes', col)
             )
-        dtable_no_sap_mes(conciliacion)
+        dtable_no_sap_mes(conciliacion, filters=FILTERS['no_sap_mes'])
     with st.session_state['dashboard_containers']['no_sap_mes_box']:
         st.header('Facturas no encontradas en SAP por Mes y Estatus en Box')
         for col, preselected in FILTERS['no sap_mes_box'].items():
@@ -52,7 +52,7 @@ def create_dashboard(conciliacion: pd.DataFrame):
                 default=default,
                 key=multiselect_key('dtable_no_sap_mes_box', col)
             )
-        dtable_no_sap_mes_box(conciliacion)
+        dtable_no_sap_mes_box(conciliacion, filters=FILTERS['no sap_mes_box'])
     with st.session_state['dashboard_containers']['no_sap_top']:
         st.header('Facturas no encontradas en SAP por Proveedor (Top 35)')
         for col, preselected in FILTERS['no_sap_top'].items():
@@ -64,7 +64,7 @@ def create_dashboard(conciliacion: pd.DataFrame):
                 default=default,
                 key=multiselect_key('dtable_no_sap_top', col)
             )
-        dtable_no_sap_top(conciliacion)
+        dtable_no_sap_top(conciliacion, filters=FILTERS['no_sap_top'], top_n=35)
 
 def dtable_estatus(conciliacion: pd.DataFrame,filters: dict[str, list]={}):
     """Realiza la tabla dinámica de resumen de comentarios de estatus."""
@@ -254,7 +254,7 @@ def pivot_table(
     bottom_n: int = None,
 ):
     """
-    Create a dynamic pivot-like table in Streamlit with filters.
+    Create a dynamic pivot-like table.
 
     Args:
         df: DataFrame
