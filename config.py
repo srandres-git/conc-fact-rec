@@ -170,3 +170,12 @@ SERVS_TRANSPORTE = ['Terrestre', 'AE', 'AI', 'ME', 'MI']
 
 # tabs en las que se divide la app
 TAB_NAMES = ['Generar conciliación', 'Dashboard', ]
+
+# valores por default de los filtros en el dashboard
+
+FILTERS = {
+    'estatus':{'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None, },
+    'no_sap_mes': {'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Estatus Box':None, 'Ejecutivo CxP':None,},
+    'no sap_mes_box': {'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Ejecutivo CxP':None,},
+    'no_sap_top':{'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,}
+}
