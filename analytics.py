@@ -270,7 +270,7 @@ def pivot_table(
         bottom_n: Optional int to show only bottom N rows
     """
     # --- Filtering ---
-    filtered_df = df[cols+rows+filters.keys()].copy()
+    filtered_df = df[cols+rows+list(filters.keys())].copy()
     for col, selected_vals in filters.items():
         unique_vals = filtered_df[col].dropna().unique().tolist()
         if selected_vals:
