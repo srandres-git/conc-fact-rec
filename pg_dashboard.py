@@ -21,7 +21,7 @@ if uploaded_file is not None:
 
 # Si ya tenemos una conciliación (cargada o generada)
 # Creamos tabs para mostrar las distintas tablas del dashboard
-tab_estatus, tab_no_sap_mes, tab_no_sap_box, tab_no_sap_top = st.tabs([
+tab_estatus, tab_no_sap_mes, tab_no_sap_mes_box, tab_no_sap_top = st.tabs([
     'Por estatus',
     'Faltantes en SAP por mes',
     'Faltantes en SAP por carpeta Box',
@@ -62,10 +62,10 @@ with tab_no_sap_mes:
         dtable_no_sap_mes(st.session_state['conciliacion'], filters=filters)
     else:
         st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
-with tab_no_sap_box:
+with tab_no_sap_mes_box:
     st.header('Facturas no encontradas en SAP por carpeta Box')
     if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
-        name = 'no_sap_box'
+        name = 'no_sap_mes_box'
         for col, preselected in FILTERS[name].items():
             options = st.session_state['conciliacion'][col].dropna().unique().tolist()
             default = [val for val in preselected if val in options] if preselected else None
