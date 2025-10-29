@@ -210,7 +210,7 @@ def pivot_table(
         unique_vals = filtered_df[col].dropna().unique().tolist()
         if selected_vals:
             selected_vals = [val for val in selected_vals if val in unique_vals]# correct preselected to make sure the value exists
-            filtered_df[filtered_df[col].isin(selected_vals)]
+            filtered_df = filtered_df[filtered_df[col].isin(selected_vals)]
 
     # --- Pivot table ---
     pivot_df = pd.pivot_table(
