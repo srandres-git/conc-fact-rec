@@ -69,7 +69,7 @@ from utils import multiselect_key, get_multiselect_values
 #             )
 #         dtable_no_sap_top(conciliacion, filters=FILTERS['no_sap_top'], top_n=35)
 
-@st.experimental_fragment
+@st.fragment
 def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
     """Realiza la tabla dinámica de resumen de comentarios de estatus."""       
     for col, preselected in FILTERS[name].items():
@@ -98,7 +98,7 @@ def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
     st.table(pivot_df, border='horizontal')
    
 
-@st.experimental_fragment
+@st.fragment
 def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
     """Realiza la tabla dinámica de facturas faltantes en SAP por mes."""
     for col, preselected in FILTERS[name].items():
@@ -124,7 +124,7 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
     )
     st.table(pivot_df, border='horizontal')
     
-@st.experimental_fragment
+@st.fragment
 def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
     """Realiza la tabla dinámica de facturas faltantes en SAP por mes y estatus en Box."""
     for col, preselected in FILTERS[name].items():
@@ -149,7 +149,7 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
     )
     st.table(pivot_df, border='horizontal')
 
-@st.experimental_fragment
+@st.fragment
 def dtable_no_sap_top(conciliacion: pd.DataFrame, name = 'no_sap_top', top_n:int=35):
     """"Tabla dinámica de facturas faltantes en SAP por Emisor Nombre (top N)."""
     for col, preselected in FILTERS[name].items():
