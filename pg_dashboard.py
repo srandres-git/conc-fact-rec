@@ -27,6 +27,7 @@ tab_estatus, tab_no_sap_mes, tab_no_sap_mes_box, tab_no_sap_top = st.tabs([
     'Faltantes en SAP por carpeta Box',
     'Top proveedores faltantes en SAP'
 ])
+filters = {}
 with tab_estatus:
     st.header('Resumen por Comentarios de Estatus')
     if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
@@ -34,14 +35,14 @@ with tab_estatus:
         for col, preselected in FILTERS[name].items():
             options = st.session_state['conciliacion'][col].dropna().unique().tolist()
             default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
+            filters[name][col] = st.multiselect(
                 f'{col}',
                 options=options,
                 default=default,
                 key=multiselect_key('dtable_'+name, col)
-            )
-        filters = get_multiselect_values('dtable_'+name, FILTERS[name])
-        dtable_estatus(st.session_state['conciliacion'], filters=filters)
+            )            
+        # filters = get_multiselect_values('dtable_'+name, FILTERS[name])
+        dtable_estatus(st.session_state['conciliacion'], filters=filters[name])
     else:
         st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
 with tab_no_sap_mes:
@@ -51,15 +52,15 @@ with tab_no_sap_mes:
         for col, preselected in FILTERS[name].items():
             options = st.session_state['conciliacion'][col].dropna().unique().tolist()
             default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
+            filters[name][col] = st.multiselect(
                 f'{col}',
                 options=options,
                 default=default,
                 key=multiselect_key('dtable_'+name, col)
             )
-        filters = get_multiselect_values('dtable_'+name, FILTERS[name])
+        # filters = get_multiselect_values('dtable_'+name, FILTERS[name])
         # dtable_no_sap_mes(st.session_state['conciliacion'], filters=FILTERS['no_sap_mes'])
-        dtable_no_sap_mes(st.session_state['conciliacion'], filters=filters)
+        dtable_no_sap_mes(st.session_state['conciliacion'], filters=filters[name])
     else:
         st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
 with tab_no_sap_mes_box:
@@ -69,15 +70,15 @@ with tab_no_sap_mes_box:
         for col, preselected in FILTERS[name].items():
             options = st.session_state['conciliacion'][col].dropna().unique().tolist()
             default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
+            filters[name][col] = st.multiselect(
                 f'{col}',
                 options=options,
                 default=default,
                 key=multiselect_key('dtable_'+name, col)
             )
-        filters = get_multiselect_values('dtable_'+name, FILTERS[name])
+        # filters = get_multiselect_values('dtable_'+name, FILTERS[name])
         # dtable_no_sap_box(st.session_state['conciliacion'], filters=FILTERS['no_sap_box'])
-        dtable_no_sap_mes_box(st.session_state['conciliacion'], filters=filters)
+        dtable_no_sap_mes_box(st.session_state['conciliacion'], filters=filters[name])
     else:
         st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
 with tab_no_sap_top:
@@ -87,14 +88,14 @@ with tab_no_sap_top:
         for col, preselected in FILTERS[name].items():
             options = st.session_state['conciliacion'][col].dropna().unique().tolist()
             default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
+            filters[name][col] = st.multiselect(
                 f'{col}',
                 options=options,
                 default=default,
                 key=multiselect_key('dtable_'+name, col)
             )
-        filters = get_multiselect_values('dtable_'+name, FILTERS[name])
+        # filters = get_multiselect_values('dtable_'+name, FILTERS[name])
         # dtable_no_sap_top_proveedores(st.session_state['conciliacion'], filters=FILTERS['no_sap_top'])
-        dtable_no_sap_top(st.session_state['conciliacion'], filters=filters)
+        dtable_no_sap_top(st.session_state['conciliacion'], filters=filters[name])
     else:
         st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
