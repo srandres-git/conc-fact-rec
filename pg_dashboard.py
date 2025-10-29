@@ -27,7 +27,12 @@ tab_estatus, tab_no_sap_mes, tab_no_sap_mes_box, tab_no_sap_top = st.tabs([
     'Faltantes en SAP por carpeta Box',
     'Top proveedores faltantes en SAP'
 ])
-filters = {}
+filters = {
+    'estatus':{},
+    'no_sap_mes':{},
+    'no_sap_mes_box':{},
+    'no_sap_top':{}
+}
 with tab_estatus:
     st.header('Resumen por Comentarios de Estatus')
     if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
