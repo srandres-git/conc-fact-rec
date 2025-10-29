@@ -71,122 +71,110 @@ from utils import multiselect_key, get_multiselect_values
 
 @st.experimental_fragment
 def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
-    """Realiza la tabla dinámica de resumen de comentarios de estatus."""
-    if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:        
-        for col, preselected in FILTERS[name].items():
-            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
-            default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
-                f'{col}',
-                options=options,
-                default=default,
-                key=multiselect_key('ms_'+name, col)
-            )
-        filters = get_multiselect_values('ms_'+name, FILTERS[name])
-        pivot_df = pivot_table(
-            conciliacion,
-            rows= ['Comentario'],
-            cols= [],
-            values={'Total SAT MXN':'sum','Total SAP MXN':'sum', 'Dif. Total MXN':'sum', 'UUID':'count'},
-            filters=filters,
-            format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
-                else f"{x:,}" if isinstance(x, int) \
-                else f":red[{x}]" if 'Revisar' in x and isinstance(x, str) \
-                else f":green[{x}]" if 'OK' in x and isinstance(x, str)\
-                else x,
-            sort_args={'by': 'Total SAT MXN', 'ascending':False},
+    """Realiza la tabla dinámica de resumen de comentarios de estatus."""       
+    for col, preselected in FILTERS[name].items():
+        options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+        default = [val for val in preselected if val in options] if preselected else None
+        st.multiselect(
+            f'{col}',
+            options=options,
+            default=default,
+            key=multiselect_key('ms_'+name, col)
         )
-        st.table(pivot_df, border='horizontal')
-    else:
-        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
+    filters = get_multiselect_values('ms_'+name, FILTERS[name])
+    pivot_df = pivot_table(
+        conciliacion,
+        rows= ['Comentario'],
+        cols= [],
+        values={'Total SAT MXN':'sum','Total SAP MXN':'sum', 'Dif. Total MXN':'sum', 'UUID':'count'},
+        filters=filters,
+        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
+            else f"{x:,}" if isinstance(x, int) \
+            else f":red[{x}]" if 'Revisar' in x and isinstance(x, str) \
+            else f":green[{x}]" if 'OK' in x and isinstance(x, str)\
+            else x,
+        sort_args={'by': 'Total SAT MXN', 'ascending':False},
+    )
+    st.table(pivot_df, border='horizontal')
    
 
 @st.experimental_fragment
 def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
     """Realiza la tabla dinámica de facturas faltantes en SAP por mes."""
-    if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
-        for col, preselected in FILTERS[name].items():
-            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
-            default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
-                f'{col}',
-                options=options,
-                default=default,
-                key=multiselect_key('ms_'+name, col)
-            )
-        filters = get_multiselect_values('ms_'+name, FILTERS[name])
-        pivot_df = pivot_table(
-            conciliacion,
-            rows= ['Mes'],
-            cols= [],
-            values={'Total SAT MXN':'sum','UUID':'count'},
-            filters=filters,
-            format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
-                else f"{x:,}" if isinstance(x, int) \
-                else x,
-            sort_args={'by': 'Total SAT MXN', 'ascending':False},
+    for col, preselected in FILTERS[name].items():
+        options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+        default = [val for val in preselected if val in options] if preselected else None
+        st.multiselect(
+            f'{col}',
+            options=options,
+            default=default,
+            key=multiselect_key('ms_'+name, col)
         )
-        st.table(pivot_df, border='horizontal')
-    else:
-        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
-
+    filters = get_multiselect_values('ms_'+name, FILTERS[name])
+    pivot_df = pivot_table(
+        conciliacion,
+        rows= ['Mes'],
+        cols= [],
+        values={'Total SAT MXN':'sum','UUID':'count'},
+        filters=filters,
+        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
+            else f"{x:,}" if isinstance(x, int) \
+            else x,
+        sort_args={'by': 'Total SAT MXN', 'ascending':False},
+    )
+    st.table(pivot_df, border='horizontal')
+    
 @st.experimental_fragment
 def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
     """Realiza la tabla dinámica de facturas faltantes en SAP por mes y estatus en Box."""
-    if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
-        for col, preselected in FILTERS[name].items():
-            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
-            default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
-                f'{col}',
-                options=options,
-                default=default,
-                key=multiselect_key('ms_'+name, col)
-            )
-        filters = get_multiselect_values('ms_'+name, FILTERS[name])
-        pivot_df = pivot_table(
-            conciliacion,
-            rows= ['Estatus Box'],
-            cols= ['Mes'],
-            values={'Total SAT MXN':'sum'},
-            filters=filters,
-            format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
-                else f"{x:,}" if isinstance(x, int) \
-                else x
+    for col, preselected in FILTERS[name].items():
+        options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+        default = [val for val in preselected if val in options] if preselected else None
+        st.multiselect(
+            f'{col}',
+            options=options,
+            default=default,
+            key=multiselect_key('ms_'+name, col)
         )
-        st.table(pivot_df, border='horizontal')
-    else:
-        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
+    filters = get_multiselect_values('ms_'+name, FILTERS[name])
+    pivot_df = pivot_table(
+        conciliacion,
+        rows= ['Estatus Box'],
+        cols= ['Mes'],
+        values={'Total SAT MXN':'sum'},
+        filters=filters,
+        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
+            else f"{x:,}" if isinstance(x, int) \
+            else x
+    )
+    st.table(pivot_df, border='horizontal')
 
 @st.experimental_fragment
 def dtable_no_sap_top(conciliacion: pd.DataFrame, name = 'no_sap_top', top_n:int=35):
     """"Tabla dinámica de facturas faltantes en SAP por Emisor Nombre (top N)."""
-    if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
-        for col, preselected in FILTERS[name].items():
-            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
-            default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
-                f'{col}',
-                options=options,
-                default=default,
-                key=multiselect_key('ms_'+name, col)
-            )
-        filters = get_multiselect_values('ms_'+name, FILTERS[name])
-        pivot_df = pivot_table(
-            conciliacion,
-            rows= ['Emisor Nombre'],
-            cols= [],
-            values={'Total SAT MXN':'sum','UUID':'count'},
-            filters=filters,
-            format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)\
-                else f"{x:,}" if isinstance(x, int) \
-                else x,
-            sort_args={'by': 'Total SAT MXN', 'ascending':False},
-            top_n=top_n,
+    for col, preselected in FILTERS[name].items():
+        options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+        default = [val for val in preselected if val in options] if preselected else None
+        st.multiselect(
+            f'{col}',
+            options=options,
+            default=default,
+            key=multiselect_key('ms_'+name, col)
         )
-        st.table(pivot_df, border='horizontal')
-    else:
-        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
+    filters = get_multiselect_values('ms_'+name, FILTERS[name])
+    pivot_df = pivot_table(
+        conciliacion,
+        rows= ['Emisor Nombre'],
+        cols= [],
+        values={'Total SAT MXN':'sum','UUID':'count'},
+        filters=filters,
+        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)\
+            else f"{x:,}" if isinstance(x, int) \
+            else x,
+        sort_args={'by': 'Total SAT MXN', 'ascending':False},
+        top_n=top_n,
+    )
+    st.table(pivot_df, border='horizontal')
 
 def pivot_table(
     df: pd.DataFrame,

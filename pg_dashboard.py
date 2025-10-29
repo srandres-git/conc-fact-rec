@@ -33,15 +33,18 @@ filters = {
     'no_sap_mes_box':{},
     'no_sap_top':{}
 }
-with tab_estatus:
-    st.header('Resumen por Comentarios de Estatus')
-    dtable_estatus(st.session_state['conciliacon'])
-with tab_no_sap_mes:
-    st.header('Facturas no encontradas en SAP por Mes')
-    dtable_no_sap_mes(st.session_state['conciliacion'])
-with tab_no_sap_mes_box:
-    st.header('Facturas no encontradas en SAP por carpeta Box')
-    dtable_no_sap_mes_box(st.session_state['conciliacion'])
-with tab_no_sap_top:
-    st.header('Top proveedores con más facturas faltantes en SAP')
-    dtable_no_sap_top(st.session_state['conciliacion'])
+if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
+    with tab_estatus:
+        st.header('Resumen por Comentarios de Estatus')
+        dtable_estatus(st.session_state['conciliacon'])
+    with tab_no_sap_mes:
+        st.header('Facturas no encontradas en SAP por Mes')
+        dtable_no_sap_mes(st.session_state['conciliacion'])
+    with tab_no_sap_mes_box:
+        st.header('Facturas no encontradas en SAP por carpeta Box')
+        dtable_no_sap_mes_box(st.session_state['conciliacion'])
+    with tab_no_sap_top:
+        st.header('Top proveedores con más facturas faltantes en SAP')
+        dtable_no_sap_top(st.session_state['conciliacion'])
+else:
+        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
