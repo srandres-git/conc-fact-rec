@@ -36,7 +36,7 @@ filters = {
 if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
     with tab_estatus:
         st.header('Resumen por Comentarios de Estatus')
-        dtable_estatus(st.session_state['conciliacon'])
+        dtable_estatus(st.session_state['conciliacion'])
     with tab_no_sap_mes:
         st.header('Facturas no encontradas en SAP por Mes')
         dtable_no_sap_mes(st.session_state['conciliacion'])
