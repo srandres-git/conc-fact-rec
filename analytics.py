@@ -82,6 +82,7 @@ def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
             key=multiselect_key('ms_'+name, col)
         )
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
+    st.write(filters)
     pivot_df = pivot_table(
         conciliacion,
         rows= ['Comentario'],
