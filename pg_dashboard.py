@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
-from analytics import create_dashboard
+from analytics import dtable_estatus, dtable_no_sap_mes, dtable_no_sap_mes_box, dtable_no_sap_top
+from utils import multiselect_key, get_multiselect_values
+from config import FILTERS
 # pestaña del dashboard
-
+st.set_page_config(layout="wide")
+st.title("Resumen de conciliación")
 # --- Cargar conciliación previa o usar la generada ---
 uploaded_file = st.file_uploader(
     'Cargar conciliación previa',
@@ -17,26 +20,81 @@ if uploaded_file is not None:
     st.session_state['dashboard_loaded'] = False
 
 # Si ya tenemos una conciliación (cargada o generada)
-if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
-    # Creamos el dashboard sólo una vez y lo mantenemos entre actualizaciones
-    if not st.session_state.get('dashboard_loaded', False):
-        create_dashboard(st.session_state['conciliacion'])
-        st.session_state['dashboard_loaded'] = True
+# Creamos tabs para mostrar las distintas tablas del dashboard
+tab_estatus, tab_no_sap_mes, tab_no_sap_box, tab_no_sap_top = st.tabs([
+    'Por estatus',
+    'Faltantes en SAP por mes',
+    'Faltantes en SAP por carpeta Box',
+    'Top proveedores faltantes en SAP'
+])
+with tab_estatus:
+    st.header('Resumen por Comentarios de Estatus')
+    if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
+        name = 'estatus'
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('dtable_'+name, col)
+            )
+        filters = get_multiselect_values('dtable_'+name, FILTERS[name])
+        dtable_estatus(st.session_state['conciliacion'], filters=filters)
     else:
-        # Re-renderizamos los contenedores persistentes si ya está cargado
-        dashboard_containers = st.session_state.get('dashboard_containers', {})
-        if dashboard_containers:
-            with dashboard_containers['estatus']:
-                pass  # el contenido ya existe
-            with dashboard_containers['no_sap_mes']:
-                pass
-            with dashboard_containers['no_sap_mes_box']:
-                pass
-            with dashboard_containers['no_sap_top']:
-                pass
-else:
-    st.info(
-        'Primero debes generar la conciliación en la pestaña "Generar conciliación" '
-        'o cargar una conciliación previa.',
-        icon="ℹ️"
-    )
+        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
+with tab_no_sap_mes:
+    st.header('Facturas no encontradas en SAP por Mes')
+    if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
+        name = 'no_sap_mes'
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('dtable_'+name, col)
+            )
+        filters = get_multiselect_values('dtable_'+name, FILTERS[name])
+        # dtable_no_sap_mes(st.session_state['conciliacion'], filters=FILTERS['no_sap_mes'])
+        dtable_no_sap_mes(st.session_state['conciliacion'], filters=filters)
+    else:
+        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
+with tab_no_sap_box:
+    st.header('Facturas no encontradas en SAP por carpeta Box')
+    if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
+        name = 'no_sap_box'
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('dtable_'+name, col)
+            )
+        filters = get_multiselect_values('dtable_'+name, FILTERS[name])
+        # dtable_no_sap_box(st.session_state['conciliacion'], filters=FILTERS['no_sap_box'])
+        dtable_no_sap_mes_box(st.session_state['conciliacion'], filters=filters)
+    else:
+        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
+with tab_no_sap_top:
+    st.header('Top proveedores con más facturas faltantes en SAP')
+    if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
+        name = 'no_sap_top'
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('dtable_'+name, col)
+            )
+        filters = get_multiselect_values('dtable_'+name, FILTERS[name])
+        # dtable_no_sap_top_proveedores(st.session_state['conciliacion'], filters=FILTERS['no_sap_top'])
+        dtable_no_sap_top(st.session_state['conciliacion'], filters=filters)
+    else:
+        st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")

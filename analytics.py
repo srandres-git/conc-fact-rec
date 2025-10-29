@@ -1,70 +1,71 @@
 import pandas as pd
 import streamlit as st
 
-from utils import multiselect_key, update_filters
-from config import FILTERS
+# from utils import multiselect_key, update_filters
+# from config import FILTERS
 
-def create_dashboard(conciliacion: pd.DataFrame):
-    """Crea un dashboard con estadísticas y gráficos de la conciliación."""
-    st.title('Resumen de Conciliación de Facturas Recibidas')
-    # TODO: agregar gráficos
-    if 'dashboard_containers' not in st.session_state:
-        st.session_state['dashboard_containers'] = {
-            'estatus': st.container(),
-            'no_sap_mes': st.container(),
-            'no_sap_mes_box': st.container(),
-            'no_sap_top': st.container()
-        }
+# def create_dashboard(conciliacion: pd.DataFrame):
+#     """Crea un dashboard con estadísticas y gráficos de la conciliación."""
+#     st.title('Resumen de Conciliación de Facturas Recibidas')
+#     # TODO: agregar gráficos
+#     if 'dashboard_containers' not in st.session_state:
+#         st.session_state['dashboard_containers'] = {
+#             'estatus': st.container(),
+#             'no_sap_mes': st.container(),
+#             'no_sap_mes_box': st.container(),
+#             'no_sap_top': st.container()
+#         }
 
-    with st.session_state['dashboard_containers']['estatus']:
-        # create the multiselect filters
-        st.header('Resumen por Comentarios de Estatus')
-        for col, preselected in FILTERS['estatus'].items():
-            options = conciliacion[col].dropna().unique().tolist()
-            default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
-                f'{col}',
-                options=options,
-                default=default,
-                key=multiselect_key('dtable_estatus', col)
-            )
-        dtable_estatus(conciliacion, filters=FILTERS['estatus'])
-    with st.session_state['dashboard_containers']['no_sap_mes']:
-        st.header('Facturas no encontradas en SAP por Mes')
-        for col, preselected in FILTERS['no_sap_mes'].items():
-            options = conciliacion[col].dropna().unique().tolist()
-            default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
-                f'{col}',
-                options=options,
-                default=default,
-                key=multiselect_key('dtable_no_sap_mes', col)
-            )
-        dtable_no_sap_mes(conciliacion, filters=FILTERS['no_sap_mes'])
-    with st.session_state['dashboard_containers']['no_sap_mes_box']:
-        st.header('Facturas no encontradas en SAP por Mes y Estatus en Box')
-        for col, preselected in FILTERS['no sap_mes_box'].items():
-            options = conciliacion[col].dropna().unique().tolist()
-            default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
-                f'{col}',
-                options=options,
-                default=default,
-                key=multiselect_key('dtable_no_sap_mes_box', col)
-            )
-        dtable_no_sap_mes_box(conciliacion, filters=FILTERS['no sap_mes_box'])
-    with st.session_state['dashboard_containers']['no_sap_top']:
-        st.header('Facturas no encontradas en SAP por Proveedor (Top 35)')
-        for col, preselected in FILTERS['no_sap_top'].items():
-            options = conciliacion[col].dropna().unique().tolist()
-            default = [val for val in preselected if val in options] if preselected else None
-            st.multiselect(
-                f'{col}',
-                options=options,
-                default=default,
-                key=multiselect_key('dtable_no_sap_top', col)
-            )
-        dtable_no_sap_top(conciliacion, filters=FILTERS['no_sap_top'], top_n=35)
+#     with st.session_state['dashboard_containers']['estatus']:
+#         # create the multiselect filters
+#         st.header('Resumen por Comentarios de Estatus')
+#         for col, preselected in FILTERS['estatus'].items():
+#             options = conciliacion[col].dropna().unique().tolist()
+#             default = [val for val in preselected if val in options] if preselected else None
+#             st.multiselect(
+#                 f'{col}',
+#                 options=options,
+#                 default=default,
+#                 key=multiselect_key('dtable_estatus', col)
+#             )
+#         filters = {col: st.session_state[multiselect_key('dtable_estatus', col)] for col in FILTERS['estatus'].keys()}
+#         dtable_estatus(conciliacion, filters=filters)
+#     with st.session_state['dashboard_containers']['no_sap_mes']:
+#         st.header('Facturas no encontradas en SAP por Mes')
+#         for col, preselected in FILTERS['no_sap_mes'].items():
+#             options = conciliacion[col].dropna().unique().tolist()
+#             default = [val for val in preselected if val in options] if preselected else None
+#             st.multiselect(
+#                 f'{col}',
+#                 options=options,
+#                 default=default,
+#                 key=multiselect_key('dtable_no_sap_mes', col)
+#             )
+#         dtable_no_sap_mes(conciliacion, filters=FILTERS['no_sap_mes'])
+#     with st.session_state['dashboard_containers']['no_sap_mes_box']:
+#         st.header('Facturas no encontradas en SAP por Mes y Estatus en Box')
+#         for col, preselected in FILTERS['no sap_mes_box'].items():
+#             options = conciliacion[col].dropna().unique().tolist()
+#             default = [val for val in preselected if val in options] if preselected else None
+#             st.multiselect(
+#                 f'{col}',
+#                 options=options,
+#                 default=default,
+#                 key=multiselect_key('dtable_no_sap_mes_box', col)
+#             )
+#         dtable_no_sap_mes_box(conciliacion, filters=FILTERS['no sap_mes_box'])
+#     with st.session_state['dashboard_containers']['no_sap_top']:
+#         st.header('Facturas no encontradas en SAP por Proveedor (Top 35)')
+#         for col, preselected in FILTERS['no_sap_top'].items():
+#             options = conciliacion[col].dropna().unique().tolist()
+#             default = [val for val in preselected if val in options] if preselected else None
+#             st.multiselect(
+#                 f'{col}',
+#                 options=options,
+#                 default=default,
+#                 key=multiselect_key('dtable_no_sap_top', col)
+#             )
+#         dtable_no_sap_top(conciliacion, filters=FILTERS['no_sap_top'], top_n=35)
 
 def dtable_estatus(conciliacion: pd.DataFrame,filters: dict[str, list]={}):
     """Realiza la tabla dinámica de resumen de comentarios de estatus."""
@@ -156,98 +157,12 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame,filters: dict[str, list]={}, to
     )
     st.table(pivot_df, border='horizontal')
 
-# def dynamic_table(
-#     df: pd.DataFrame,
-#     rows: list[str],
-#     cols: list[str],
-#     values: dict[str, str],  # {column: aggfunc}
-#     filters: dict[str, list],
-#     name: str,
-#     header: str,
-#     # container,
-#     format_func: callable = None,
-#     sort_args: dict = None,
-#     top_n: int = None,
-#     bottom_n: int = None,
-# ):
-#     """
-#     Create a dynamic pivot-like table in Streamlit with filters.
-
-#     Args:
-#         df: DataFrame
-#         rows: list of columns to use as rows
-#         cols: list of columns to use as columns
-#         values: dict of {column: aggfunc}
-#         filters: dict of {column: list of preselected values}
-#         name: Name of the table (used for generating unique keys)
-#         container: Streamlit container to display the table
-#         format_func: Optional function to format cell values
-#         sort_args: Optional keyword arguments for sorting the table
-#         top_n: Optional int to show only top N rows
-#         bottom_n: Optional int to show only bottom N rows
-#     """
-#     if f"table_container_{name}" not in st.session_state:
-#         st.session_state[f"table_container_{name}"] = st.container()
-#     with st.session_state[f"table_container_{name}"]:
-#         st.header(header)
-#     # --- Filtering widgets ---
-#     filtered_df = df.copy()
-#     for col, preselected in filters.items():
-#         unique_vals = df[col].dropna().unique().tolist()
-#         if preselected:
-#             preselected = [val for val in preselected if val in unique_vals]# correct preselected to make sure the value exists
-#         ms_key = multiselect_key(name, col)
-#         with st.session_state.get(f"filter_container_{name}", st.container()):
-#             selected = st.multiselect(
-#                 f"{col}",
-#                 options=unique_vals,
-#                 default=preselected,
-#                 # generate a unique key using the name and column name
-#                 key=ms_key
-#             )
-#         # display the multiselect with the selected values        
-#         if selected:
-#             filtered_df = filtered_df[filtered_df[col].isin(selected)]
-
-#     # --- Pivot table ---
-#     pivot_df = pd.pivot_table(
-#         filtered_df,
-#         index=rows if rows else None,
-#         columns=cols if cols else None,
-#         values=list(values.keys()),
-#         aggfunc=values,
-#         fill_value=0
-#     )
-#     # sort the table if args provided
-#     if sort_args:
-#         pivot_df = pivot_df.sort_values(**sort_args)
-#     # show only top N rows if specified
-#     if top_n:
-#         pivot_df = pivot_df.head(top_n)
-#     # show only bottom N rows if specified
-#     if bottom_n:
-#         pivot_df = pivot_df.tail(bottom_n)
-#     # Reset index and start it on 1 so it shows nicely in Streamlit
-#     pivot_df = pivot_df.reset_index()
-#     pivot_df.index += 1
-#      # Apply formatting function if provided
-#     if format_func:
-#         pivot_df = pivot_df.applymap(format_func)
-
-#     # --- Display persistent container ---    
-
-#     with st.session_state[f"table_container_{name}"]:
-#         st.table(pivot_df, border='horizontal')
-
-#     # Keep the resulting table in memory for possible later use
-#     st.session_state[name] = pivot_df
-
 def pivot_table(
     df: pd.DataFrame,
     rows: list[str],
     cols: list[str],
     values: dict[str, str],  # {column: aggfunc}
-    filters: dict[str, list],
+    filters: dict[str, list], # {column: list of preselected values}
     format_func: callable = None,
     sort_args: dict = None,
     top_n: int = None,

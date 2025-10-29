@@ -212,3 +212,14 @@ def update_filters(filters:dict, name:str):
             else:
                 updated_filters[col] = selected_values
     return updated_filters
+
+def get_multiselect_values(name:str, default_filters:dict):
+    """Obtiene los valores seleccionados en los multiselects de los filtros de la tabla dinámica."""
+    selected_values = {}
+    for col in default_filters.keys():
+        key = multiselect_key(name, col)
+        if st.session_state.get(key) is not None:
+            selected_values[col] = st.session_state[key]
+        else:
+            selected_values[col] = default_filters[col]
+    return selected_values
