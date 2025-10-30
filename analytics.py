@@ -3,72 +3,6 @@ import streamlit as st
 from config import FILTERS, MONTH_ORDER
 from utils import multiselect_key, get_multiselect_values
 
-# from utils import multiselect_key, update_filters
-# from config import FILTERS
-
-# def create_dashboard(conciliacion: pd.DataFrame):
-#     """Crea un dashboard con estadísticas y gráficos de la conciliación."""
-#     st.title('Resumen de Conciliación de Facturas Recibidas')
-#     # TODO: agregar gráficos
-#     if 'dashboard_containers' not in st.session_state:
-#         st.session_state['dashboard_containers'] = {
-#             'estatus': st.container(),
-#             'no_sap_mes': st.container(),
-#             'no_sap_mes_box': st.container(),
-#             'no_sap_top': st.container()
-#         }
-
-#     with st.session_state['dashboard_containers']['estatus']:
-#         # create the multiselect filters
-#         st.header('Resumen por Comentarios de Estatus')
-#         for col, preselected in FILTERS['estatus'].items():
-#             options = conciliacion[col].dropna().unique().tolist()
-#             default = [val for val in preselected if val in options] if preselected else None
-#             st.multiselect(
-#                 f'{col}',
-#                 options=options,
-#                 default=default,
-#                 key=multiselect_key('dtable_estatus', col)
-#             )
-#         filters = {col: st.session_state[multiselect_key('dtable_estatus', col)] for col in FILTERS['estatus'].keys()}
-#         dtable_estatus(conciliacion, filters=filters)
-#     with st.session_state['dashboard_containers']['no_sap_mes']:
-#         st.header('Facturas no encontradas en SAP por Mes')
-#         for col, preselected in FILTERS['no_sap_mes'].items():
-#             options = conciliacion[col].dropna().unique().tolist()
-#             default = [val for val in preselected if val in options] if preselected else None
-#             st.multiselect(
-#                 f'{col}',
-#                 options=options,
-#                 default=default,
-#                 key=multiselect_key('dtable_no_sap_mes', col)
-#             )
-#         dtable_no_sap_mes(conciliacion, filters=FILTERS['no_sap_mes'])
-#     with st.session_state['dashboard_containers']['no_sap_mes_box']:
-#         st.header('Facturas no encontradas en SAP por Mes y Estatus en Box')
-#         for col, preselected in FILTERS['no sap_mes_box'].items():
-#             options = conciliacion[col].dropna().unique().tolist()
-#             default = [val for val in preselected if val in options] if preselected else None
-#             st.multiselect(
-#                 f'{col}',
-#                 options=options,
-#                 default=default,
-#                 key=multiselect_key('dtable_no_sap_mes_box', col)
-#             )
-#         dtable_no_sap_mes_box(conciliacion, filters=FILTERS['no sap_mes_box'])
-#     with st.session_state['dashboard_containers']['no_sap_top']:
-#         st.header('Facturas no encontradas en SAP por Proveedor (Top 35)')
-#         for col, preselected in FILTERS['no_sap_top'].items():
-#             options = conciliacion[col].dropna().unique().tolist()
-#             default = [val for val in preselected if val in options] if preselected else None
-#             st.multiselect(
-#                 f'{col}',
-#                 options=options,
-#                 default=default,
-#                 key=multiselect_key('dtable_no_sap_top', col)
-#             )
-#         dtable_no_sap_top(conciliacion, filters=FILTERS['no_sap_top'], top_n=35)
-
 @st.fragment
 def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
     """Realiza la tabla dinámica de resumen de comentarios de estatus."""       
@@ -146,7 +80,8 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
             else x
-    ).reindex(columns = MONTH_ORDER)
+    )
+    st.write(pivot_df.columns.to_list())
     st.table(pivot_df, border='horizontal')
 
 @st.fragment
