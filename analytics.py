@@ -80,7 +80,7 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
             else x
-    ).sort_index(axis=1, level=1, key=lambda x: pd.Categorical(x, categories=MONTH_ORDER, ordered=True))
+    ).sort_index(axis=1, level=1, key=lambda x: pd.Categorical(x, categories=''+MONTH_ORDER, ordered=True))
     st.table(pivot_df, border='horizontal')
 
 @st.fragment
