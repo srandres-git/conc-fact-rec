@@ -55,13 +55,13 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
         #     else f"{x:,}" if isinstance(x, int) \
         #     else x,
         sort_args={'by': 'Total SAT MXN', 'ascending':False},
-    ).style.format({
-        "Total SAT MXN": "{:,.2f}",
-        "UUID": "{:,}"
-    })
+    )
     pivot_df['Mes'] = pd.Categorical(pivot_df['Mes'], categories=MONTH_ORDER, ordered=True)
     pivot_df.set_index('Mes', inplace=True)
-    st.table(pivot_df, border='horizontal')
+    st.table(pivot_df.style.format({
+        "Total SAT MXN": "{:,.2f}",
+        "UUID": "{:,}"
+    }), border='horizontal')
     st.bar_chart(pivot_df, y='Total SAT MXN', sort=True)
 
     
