@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from config import FILTERS
+from config import FILTERS, MONTH_ORDER
 from utils import multiselect_key, get_multiselect_values
 
 # from utils import multiselect_key, update_filters
@@ -146,7 +146,7 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
             else x
-    )
+    ).reindex(columns = MONTH_ORDER)
     st.table(pivot_df, border='horizontal')
 
 @st.fragment

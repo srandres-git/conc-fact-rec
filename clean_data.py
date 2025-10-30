@@ -2,7 +2,8 @@ import pandas as pd
 from utils import clean_dtypes, sort_df
 from config import NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, \
     NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, DATE_COLS_BOX, \
-    NUM_COLS_CP, DATE_COLS_CP
+    NUM_COLS_CP, DATE_COLS_CP, \
+    MONTH_MAP_ENG_ESP
 
 
 def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
@@ -25,6 +26,8 @@ def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
 
     # agregamos la columna de Mes según la fecha de emisión en formato 'MMM'
     fact_sat['Mes'] = fact_sat['Emisión'].dt.strftime('%b')
+    # mapeamos los nombres de meses en español
+    fact_sat['Mes'] = fact_sat['Mes'].map(MONTH_MAP_ENG_ESP)
 
     rename_cols_fact_sat = {
         'Total': 'Total SAT MXN',

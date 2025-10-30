@@ -166,6 +166,22 @@ ESTATUS_NA_PUE = ['Revisar // Vigente SAT - Pagado SAP - Tiene CP cancelado', 'R
 # los tipos de servicio que corresponden a servicio de transporte
 SERVS_TRANSPORTE = ['Terrestre', 'AE', 'AI', 'ME', 'MI']
 
+# Mapeo de meses inglés a español
+MONTH_MAP_ENG_ESP = {
+    'Jan': 'Enero',
+    'Feb': 'Febrero',
+    'Mar': 'Marzo',
+    'Apr': 'Abril',
+    'May': 'Mayo',
+    'Jun': 'Junio',
+    'Jul': 'Julio',
+    'Aug': 'Agosto',
+    'Sep': 'Septiembre',
+    'Oct': 'Octubre',
+    'Nov': 'Noviembre',
+    'Dec': 'Diciembre',
+}
+
 """GUI"""
 
 # tabs en las que se divide la app
@@ -179,3 +195,4 @@ FILTERS = {
     'no_sap_mes_box': {'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Ejecutivo CxP':None,},
     'no_sap_top':{'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,}
 }
+MONTH_ORDER = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
