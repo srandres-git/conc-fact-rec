@@ -59,7 +59,7 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
     pivot_df['Mes'] = pd.Categorical(pivot_df['Mes'], categories=MONTH_ORDER, ordered=True)
     pivot_df.set_index('Mes', inplace=True)
     st.table(pivot_df, border='horizontal')
-    st.bar_chart(pivot_df, sort=True)
+    st.bar_chart(pivot_df, y='Total SAT MXN', sort=True)
 
     
 @st.fragment
