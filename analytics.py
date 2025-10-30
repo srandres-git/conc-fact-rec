@@ -5,16 +5,17 @@ from utils import multiselect_key, get_multiselect_values
 
 @st.fragment
 def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
-    """Realiza la tabla dinámica de resumen de comentarios de estatus."""       
-    for col, preselected in FILTERS[name].items():
-        options = st.session_state['conciliacion'][col].dropna().unique().tolist()
-        default = [val for val in preselected if val in options] if preselected else None
-        st.multiselect(
-            f'{col}',
-            options=options,
-            default=default,
-            key=multiselect_key('ms_'+name, col)
-        )
+    """Realiza la tabla dinámica de resumen de comentarios de estatus."""  
+    with st.expander("Filtros", icon='⚙️'):
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('ms_'+name, col)
+            )
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
     pivot_df = pivot_table(
         conciliacion,
@@ -35,15 +36,16 @@ def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
 @st.fragment
 def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
     """Realiza la tabla dinámica de facturas faltantes en SAP por mes."""
-    for col, preselected in FILTERS[name].items():
-        options = st.session_state['conciliacion'][col].dropna().unique().tolist()
-        default = [val for val in preselected if val in options] if preselected else None
-        st.multiselect(
-            f'{col}',
-            options=options,
-            default=default,
-            key=multiselect_key('ms_'+name, col)
-        )
+    with st.expander("Filtros", icon='⚙️'):
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('ms_'+name, col)
+            )
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
     pivot_df = pivot_table(
         conciliacion,
@@ -68,15 +70,16 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
 @st.fragment
 def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
     """Realiza la tabla dinámica de facturas faltantes en SAP por mes y estatus en Box."""
-    for col, preselected in FILTERS[name].items():
-        options = st.session_state['conciliacion'][col].dropna().unique().tolist()
-        default = [val for val in preselected if val in options] if preselected else None
-        st.multiselect(
-            f'{col}',
-            options=options,
-            default=default,
-            key=multiselect_key('ms_'+name, col)
-        )
+    with st.expander("Filtros", icon='⚙️'):
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('ms_'+name, col)
+            )
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
     pivot_df = pivot_table(
         conciliacion,
@@ -93,15 +96,16 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
 @st.fragment
 def dtable_no_sap_top(conciliacion: pd.DataFrame, name = 'no_sap_top', top_n:int=35):
     """"Tabla dinámica de facturas faltantes en SAP por Emisor Nombre (top N)."""
-    for col, preselected in FILTERS[name].items():
-        options = st.session_state['conciliacion'][col].dropna().unique().tolist()
-        default = [val for val in preselected if val in options] if preselected else None
-        st.multiselect(
-            f'{col}',
-            options=options,
-            default=default,
-            key=multiselect_key('ms_'+name, col)
-        )
+    with st.expander("Filtros", icon='⚙️'):
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('ms_'+name, col)
+            )
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
     pivot_df = pivot_table(
         conciliacion,
