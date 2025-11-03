@@ -30,13 +30,17 @@ def create_file_uploader(name: str, label:str, header:int=0):
 
 # leemos los reportes y agregamos los file uploaders
 with cols[0]:
-    st.session_state['fact_sat'] =  create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
+    if st.session_state.get('fact_sat') is None:
+        create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
 with cols[1]:
-    st.session_state['fact_sap'] = create_file_uploader('fact_sap', 'Facturas SAP', header=9)
+    if st.session_state.get('fact_sap') is None:
+        create_file_uploader('fact_sap', 'Facturas SAP', header=9)
 with cols[2]:
-    st.session_state['box'] = create_file_uploader('box', 'Box', header=0)
+    if st.session_state.get('box') is None:
+        create_file_uploader('box', 'Box', header=0)
 with cols[3]:
-    st.session_state['cp'] = create_file_uploader('cp', 'Complementos de pago', header=4)
+    if st.session_state.get('cp') is None:
+        create_file_uploader('cp', 'Complementos de pago', header=4)
 
 with st.session_state['conc_button']:
     conciliacion = st.button('Conciliar', on_click=conciliar,

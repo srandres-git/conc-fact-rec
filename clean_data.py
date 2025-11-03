@@ -97,7 +97,7 @@ def depurar_cp(cp: pd.DataFrame)-> pd.DataFrame:
 
 # file reader functionality
 def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)->pd.DataFrame:
-    """Lee un archivo Excel validando que contenga las columnas esperadas."""
+    """Lee un archivo Excel validando que contenga las columnas esperadas y asigna el resultado a session_state."""
     try:
         df = pd.read_excel(file, header=header)
         missing_cols = [col for col in expected_columns if col not in df.columns]
@@ -110,6 +110,7 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
             if cleaning_function_name:
                 cleaning_function = globals()[cleaning_function_name]
                 df = cleaning_function(df)
+            st.session_state[session_name] = df
             st.success('Archivo leído correctamente.', icon="✅")
             return df
     except Exception as e:
