@@ -57,7 +57,7 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
         sort_args={'by': 'Total SAT MXN', 'ascending':False},
         total_row=True,
     )
-    pivot_df['Mes'] = pd.Categorical(pivot_df['Mes'], categories=MONTH_ORDER+'Total', ordered=True)
+    pivot_df['Mes'] = pd.Categorical(pivot_df['Mes'], categories=MONTH_ORDER+['Total'], ordered=True)
     pivot_df.set_index('Mes', inplace=True)
     pivot_df.sort_index(inplace=True)
     st.table(pivot_df.style.format({
