@@ -27,6 +27,7 @@ def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
             else f"{x:,}" if isinstance(x, int) \
             else f":red[{x}]" if 'Revisar' in x and isinstance(x, str) \
             else f":green[{x}]" if 'OK' in x and isinstance(x, str)\
+            else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
             else x,
         sort_args={'by': 'Total SAT MXN', 'ascending':False},
         total_row=True,
@@ -66,7 +67,7 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
     }), border='horizontal')
     #quitamos 'Total' de la gráfica
     pivot_df = pivot_df[pivot_df.index != 'Total']
-    st.bar_chart(pivot_df, y='Total SAT MXN', sort=True)
+    st.bar_chart(pivot_df, y='Total SAT MXN', sort=True, color="#1fb45d")
 
     
 @st.fragment
@@ -93,6 +94,7 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
         total_row=True,
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
+            else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
             else x
     ).sort_index(axis=1, level=1, key=lambda x: pd.Categorical(x, categories=['']+MONTH_ORDER, ordered=True))
     st.table(pivot_df, border='horizontal')
@@ -119,6 +121,7 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame, name = 'no_sap_top', top_n:int
         filters=filters,
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)\
             else f"{x:,}" if isinstance(x, int) \
+            else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
             else x,
         sort_args={'by': 'Total SAT MXN', 'ascending':False},
         top_n=top_n,

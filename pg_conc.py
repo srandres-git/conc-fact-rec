@@ -1,69 +1,62 @@
 import streamlit as st
 import pandas as pd
-from config import TAB_NAMES
+from config import TAB_NAMES, EXPECTED_COLS
 from conc import conciliar
-from clean_data import depurar_box, depurar_cp, depurar_sap, depurar_sat
+from utils import read_excel_file
 
 st.set_page_config(layout="wide")
 st.title("Conciliación de facturas recibidas")
 
 cols = st.columns(4)
 
-files_status = {file:False for file in ['sat','sap','box','cp']}
-# agregamos los file uploaders
 file_fact_sat = cols[0].file_uploader('Facturas recibidas SAT',type='xlsx',accept_multiple_files=False)
 file_fact_sap = cols[1].file_uploader('Facturas SAP',type='xlsx',accept_multiple_files=False)
 file_box = cols[2].file_uploader('Box', type='xlsx', accept_multiple_files=False)
 file_cp = cols[3].file_uploader('Complementos de pago', type='xlsx', accept_multiple_files=False)
 
-# leemos los reportes
-if file_fact_sat:
-    if st.session_state.get('fact_sat') is None:
-        st.session_state['fact_sat'] = depurar_sat(pd.read_excel(file_fact_sat, header=4))
-        files_status['sat'] = True
-        cols[0].info('Facturas leídas correctamente.', icon="✅")
-    else:
-        files_status['sat'] = True
-else:
-    files_status['sat'] = False
-    st.session_state['fact_sat'] = None
+# leemos los reportes y agregamos los file uploaders
+with cols[0]:
+    if file_fact_sat:
+        read_excel_file(
+            file_fact_sat,
+            session_name='fact_sat',
+            expected_columns=EXPECTED_COLS['fact_sat'],
+            header=4
+        )
+with cols[1]:
+    if file_fact_sap:
+        read_excel_file(
+            file_fact_sap,
+            session_name='fact_sap',
+            expected_columns=EXPECTED_COLS['fact_sap'],
+            header=9
+        )
 
-if file_fact_sap:
-    if st.session_state.get('fact_sap') is None:
-        st.session_state['fact_sap'] = depurar_sap(pd.read_excel(file_fact_sap, header=9))
-        files_status['sap'] = True
-        cols[1].info('Facturas SAP leídas correctamente.', icon="✅")
-    else:
-        files_status['sap'] = True
-else:
-    files_status['sap'] = False
-    st.session_state['fact_sap'] = None
+with cols[2]:
+    if file_box:
+        read_excel_file(
+            file_box,
+            session_name='box',
+            expected_columns=EXPECTED_COLS['box'],
+            header=0
+        )
 
-if file_box:
-    if st.session_state.get('box') is None:
-        st.session_state['box'] = depurar_box(pd.read_excel(file_box, header=0))
-        files_status['box'] = True
-        cols[2].info('Box leídas correctamente.', icon="✅")
-    else:
-        files_status['box'] = True
-else:
-    files_status['box'] = False
-    st.session_state['box'] = None
+with cols[3]:
+    if file_cp:
+        read_excel_file(
+            file_cp,
+            session_name='cp',
+            expected_columns=EXPECTED_COLS['cp'],
+            header=4
+        )
 
-if file_cp:
-    if st.session_state.get('cp') is None:
-        st.session_state['cp'] = depurar_cp(pd.read_excel(file_cp, header=4))
-        files_status['cp'] = True
-        cols[3].info('Complementos de pago leídos correctamente.', icon="✅")
-    else:
-        files_status['cp'] = True
-else:
-    files_status['cp'] = False
-    st.session_state['cp'] = None
 
 st.session_state['conc_button'] = st.container(key='conc_button')
 st.session_state['conc_container'] = st.container(key='conc_container')
-if sum(files_status.values())==4:
+if st.session_state.get('fact_sat') is not None and \
+    st.session_state.get('fact_sap') is not None and \
+    st.session_state.get('box') is not None and \
+    st.session_state.get('cp') is not None:
     with st.session_state['conc_button']:
         conciliacion = st.button('Conciliar', on_click=conciliar,
                                 args=(st.session_state['fact_sat'], 

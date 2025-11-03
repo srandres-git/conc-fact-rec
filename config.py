@@ -105,6 +105,23 @@ COLS_CONC = [
     'Tipo Cambio', 'Moneda', 'Forma Pago', 'Método Pago', # verde
 ]
 
+# columnas esperadas en cada reporte inicial
+EXPECTED_COLS = {
+    'fact_sat': NUM_COLS_FACT_SAT+DATE_COLS_FACT_SAT+[
+        'UUID','Moneda','CFDI Relacionado', 'UUID Sustitución'
+    ],
+    'fact_sap': NUM_COLS_FACT_SAP+DATE_COLS_FACT_SAP+[
+        'UUID Corregido', 'Estado de factura', 'Referencia externa','Creado por'
+    ],
+    'box': [
+        'UUID', 'Estatus', 'Ruta_Archivo', 'Fecha_Modificacion'
+    ],
+    'cp': NUM_COLS_CP+DATE_COLS_CP+[
+        'UUID Relacionado', 'Estado del comprobante',
+    ],
+}
+
+
 # ejecutivos
 EJECUTIVO_SAP_MAP = {
     'MANUEL QUIROZ / CARMEN MORENO':'CARMEN MORENO / MANUEL QUIROZ',
@@ -196,3 +213,11 @@ FILTERS = {
     'no_sap_top':{'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,}
 }
 MONTH_ORDER = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+
+# mapeo de funciones de depuración para cada reporte
+CLEANING_FUNCTIONS = {
+    'fact_sat': 'depurar_sat',
+    'fact_sap': 'depurar_sap',
+    'box': 'depurar_box',
+    'cp': 'depurar_cp',
+}
