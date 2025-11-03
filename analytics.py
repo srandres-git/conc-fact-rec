@@ -57,13 +57,15 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
         sort_args={'by': 'Total SAT MXN', 'ascending':False},
         total_row=True,
     )
-    pivot_df['Mes'] = pd.Categorical(pivot_df['Mes'], categories=MONTH_ORDER, ordered=True)
+    pivot_df['Mes'] = pd.Categorical(pivot_df['Mes'], categories=MONTH_ORDER+'Total', ordered=True)
     pivot_df.set_index('Mes', inplace=True)
     pivot_df.sort_index(inplace=True)
     st.table(pivot_df.style.format({
         "Total SAT MXN": "{:,.2f}",
         "UUID": "{:,}"
     }), border='horizontal')
+    #quitamos 'Total' de la gráfica
+    pivot_df = pivot_df[pivot_df.index != 'Total']
     st.bar_chart(pivot_df, y='Total SAT MXN', sort=True)
 
     
@@ -185,7 +187,6 @@ def pivot_table(
     if total_row:
         total_series = pd.DataFrame(pivot_df.sum(numeric_only=True)).T
         total_series.index = pd.Index(['Total'], name=pivot_df.index.name)
-        st.write(total_series)
         pivot_df = pd.concat([pivot_df, total_series])
     # Add total column if specified
     if total_col:
