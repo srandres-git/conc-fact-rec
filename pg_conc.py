@@ -8,7 +8,8 @@ st.set_page_config(layout="wide")
 st.title("Conciliación de facturas recibidas")
 
 cols = st.columns(4)
-
+st.session_state['conc_button'] = st.container(key='conc_button')
+st.session_state['conc_container'] = st.container(key='conc_container')
 @st.fragment
 def create_file_uploader(name: str, label:str, header:int=0):
     """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
@@ -31,19 +32,12 @@ with cols[2]:
 with cols[3]:
     create_file_uploader('cp', 'Complementos de pago', header=4)
 
-
-st.session_state['conc_button'] = st.container(key='conc_button')
-st.session_state['conc_container'] = st.container(key='conc_container')
-if st.session_state.get('fact_sat') is not None and \
-    st.session_state.get('fact_sap') is not None and \
-    st.session_state.get('box') is not None and \
-    st.session_state.get('cp') is not None:
-    with st.session_state['conc_button']:
-        conciliacion = st.button('Conciliar', on_click=conciliar,
-                                args=(st.session_state['fact_sat'], 
-                                        st.session_state['fact_sap'], 
-                                        st.session_state['box'], 
-                                        st.session_state['cp'],))
+with st.session_state['conc_button']:
+    conciliacion = st.button('Conciliar', on_click=conciliar,
+                            args=(st.session_state['fact_sat'], 
+                                    st.session_state['fact_sap'], 
+                                    st.session_state['box'], 
+                                    st.session_state['cp'],))
 
 if st.session_state.get('conciliacion') is not None:
     with st.session_state['conc_container']:
