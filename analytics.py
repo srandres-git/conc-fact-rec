@@ -29,6 +29,7 @@ def dtable_estatus(conciliacion: pd.DataFrame, name = 'estatus'):
             else f":green[{x}]" if 'OK' in x and isinstance(x, str)\
             else x,
         sort_args={'by': 'Total SAT MXN', 'ascending':False},
+        total_row=True,
     )
     st.table(pivot_df, border='horizontal')
    
@@ -53,13 +54,11 @@ def dtable_no_sap_mes(conciliacion: pd.DataFrame, name = 'no_sap_mes'):
         cols= [],
         values={'Total SAT MXN':'sum','UUID':'count'},
         filters=filters,
-        # format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
-        #     else f"{x:,}" if isinstance(x, int) \
-        #     else x,
         sort_args={'by': 'Total SAT MXN', 'ascending':False},
+        total_row=True,
     )
     pivot_df['Mes'] = pd.Categorical(pivot_df['Mes'], categories=MONTH_ORDER, ordered=True)
-    pivot_df.set_index('Mes', inplace=True)
+    pivot_df.set_index('Mes', inplace=True).sort_index(inplace=True)
     st.table(pivot_df.style.format({
         "Total SAT MXN": "{:,.2f}",
         "UUID": "{:,}"
@@ -87,6 +86,8 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
         cols= ['Mes'],
         values={'Total SAT MXN':'sum'},
         filters=filters,
+        total_col=True,
+        total_row=True,
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
             else x
@@ -118,6 +119,7 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame, name = 'no_sap_top', top_n:int
             else x,
         sort_args={'by': 'Total SAT MXN', 'ascending':False},
         top_n=top_n,
+        total_row=True,
     )
     st.table(pivot_df, border='horizontal')
 
@@ -131,6 +133,8 @@ def pivot_table(
     sort_args: dict = None,
     top_n: int = None,
     bottom_n: int = None,
+    total_row: bool = False,
+    total_col: bool = False,
 ):
     """
     Create a dynamic pivot-like table.
@@ -147,6 +151,8 @@ def pivot_table(
         sort_args: Optional keyword arguments for sorting the table
         top_n: Optional int to show only top N rows
         bottom_n: Optional int to show only bottom N rows
+        total_row: Whether to add a total row
+        total_col: Whether to add a total column
     """
     # --- Filtering ---
     filtered_df = df[cols+rows+list(values.keys())+list(filters.keys())].copy()
@@ -174,6 +180,14 @@ def pivot_table(
     # show only bottom N rows if specified
     if bottom_n:
         pivot_df = pivot_df.tail(bottom_n)
+    # Add total row if specified
+    if total_row:
+        total_series = pivot_df.sum(numeric_only=True)
+        total_series.name = 'Total'
+        pivot_df = pivot_df.append(total_series)
+    # Add total column if specified
+    if total_col:
+        pivot_df['Total'] = pivot_df.sum(axis=1, numeric_only=True)
     # Reset index and start it on 1 so it shows nicely in Streamlit
     pivot_df = pivot_df.reset_index()
     pivot_df.index += 1
