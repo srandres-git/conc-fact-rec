@@ -185,9 +185,13 @@ def pivot_table(
         pivot_df = pivot_df.tail(bottom_n)
     # Add total row if specified
     if total_row:
+        # save column types to avoid issues when concatenating
+        types_dict = pivot_df.dtypes.to_dict()
         total_series = pd.DataFrame(pivot_df.sum(numeric_only=True)).T
         total_series.index = pd.Index(['Total'], name=pivot_df.index.name)
         pivot_df = pd.concat([pivot_df, total_series])
+        # restore column types
+        pivot_df = pivot_df.astype(types_dict)
     # Add total column if specified
     if total_col:
         pivot_df['Total'] = pivot_df.sum(axis=1, numeric_only=True)
