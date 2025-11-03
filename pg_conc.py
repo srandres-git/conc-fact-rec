@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
-from config import TAB_NAMES, EXPECTED_COLS
+from config import EXPECTED_COLS
 from conc import conciliar
-from utils import read_excel_file
+from clean_data import read_excel_file
 
 st.set_page_config(layout="wide")
 st.title("Conciliación de facturas recibidas")
