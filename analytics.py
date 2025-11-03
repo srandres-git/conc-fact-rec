@@ -184,7 +184,7 @@ def pivot_table(
     # Add total row if specified
     if total_row:
         total_series = pd.DataFrame(pivot_df.sum(numeric_only=True)).T
-        total_series["Mes"] = "Total"
+        total_series.index = pd.Index(['Total'], name=pivot_df.index.name)
         st.write(total_series)
         pivot_df = pd.concat([pivot_df, total_series])
     # Add total column if specified
