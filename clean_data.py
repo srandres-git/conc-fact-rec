@@ -1,9 +1,10 @@
 import pandas as pd
+import streamlit as st
 from utils import clean_dtypes, sort_df
 from config import NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, \
     NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, DATE_COLS_BOX, \
     NUM_COLS_CP, DATE_COLS_CP, \
-    MONTH_MAP_ENG_ESP
+    MONTH_MAP_ENG_ESP, CLEANING_FUNCTIONS
 
 
 def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
@@ -93,3 +94,26 @@ def depurar_cp(cp: pd.DataFrame)-> pd.DataFrame:
     cp = sort_df(cp, 'Estatus', status_order_cp, drop_dup_col='UUIDRel')
 
     return cp
+
+# file reader functionality
+@st.fragment
+def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)->None:
+    """Lee un archivo Excel validando que contenga las columnas esperadas y lo guarda en session_state."""
+    try:
+        df = pd.read_excel(file, header=header)
+        missing_cols = [col for col in expected_columns if col not in df.columns]
+        if len(missing_cols) > 0:
+            st.error(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
+            return None
+        else:
+            # depuramos el DataFrame según la función correspondiente (si existe)
+            cleaning_function_name = CLEANING_FUNCTIONS.get(session_name, None)
+            if cleaning_function_name:
+                cleaning_function = globals()[cleaning_function_name]
+                df = cleaning_function(df)
+            st.session_state[session_name] = df
+            st.success('Archivo leído correctamente.', icon="✅")
+            return df
+    except Exception as e:
+        st.error(f'Error al leer el archivo: {e}', icon="❌")
+        return None
