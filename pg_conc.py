@@ -9,46 +9,27 @@ st.title("Conciliación de facturas recibidas")
 
 cols = st.columns(4)
 
-file_fact_sat = cols[0].file_uploader('Facturas recibidas SAT',type='xlsx',accept_multiple_files=False)
-file_fact_sap = cols[1].file_uploader('Facturas SAP',type='xlsx',accept_multiple_files=False)
-file_box = cols[2].file_uploader('Box', type='xlsx', accept_multiple_files=False)
-file_cp = cols[3].file_uploader('Complementos de pago', type='xlsx', accept_multiple_files=False)
+@st.fragment
+def create_file_uploader(name: str, label:str, header:int=0):
+    """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
+    st.file_uploader(label, type='xlsx', accept_multiple_files=False, key=name+'_uploader')
+    if st.session_state.get(name+'_uploader') is not None:
+        read_excel_file(
+            st.session_state[name+'_uploader'],
+            session_name=name,
+            expected_columns=EXPECTED_COLS[name],
+            header=header
+        )
 
 # leemos los reportes y agregamos los file uploaders
 with cols[0]:
-    if file_fact_sat:
-        read_excel_file(
-            file_fact_sat,
-            session_name='fact_sat',
-            expected_columns=EXPECTED_COLS['fact_sat'],
-            header=4
-        )
+    create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
 with cols[1]:
-    if file_fact_sap:
-        read_excel_file(
-            file_fact_sap,
-            session_name='fact_sap',
-            expected_columns=EXPECTED_COLS['fact_sap'],
-            header=9
-        )
-
+    create_file_uploader('fact_sap', 'Facturas SAP', header=9)
 with cols[2]:
-    if file_box:
-        read_excel_file(
-            file_box,
-            session_name='box',
-            expected_columns=EXPECTED_COLS['box'],
-            header=0
-        )
-
+    create_file_uploader('box', 'Box', header=0)
 with cols[3]:
-    if file_cp:
-        read_excel_file(
-            file_cp,
-            session_name='cp',
-            expected_columns=EXPECTED_COLS['cp'],
-            header=4
-        )
+    create_file_uploader('cp', 'Complementos de pago', header=4)
 
 
 st.session_state['conc_button'] = st.container(key='conc_button')

@@ -108,7 +108,7 @@ COLS_CONC = [
 # columnas esperadas en cada reporte inicial
 EXPECTED_COLS = {
     'fact_sat': NUM_COLS_FACT_SAT+DATE_COLS_FACT_SAT+[
-        'UUID','Moneda','CFDI Relacionado', 'UUID Sustitución'
+        'UUID','Moneda','CFDI Relacionado', 'UUID Sustitución', 'Estatus'
     ],
     'fact_sap': NUM_COLS_FACT_SAP+DATE_COLS_FACT_SAP+[
         'UUID Corregido', 'Estado de factura', 'Referencia externa','Creado por'
@@ -117,7 +117,7 @@ EXPECTED_COLS = {
         'UUID', 'Estatus', 'Ruta_Archivo', 'Fecha_Modificacion'
     ],
     'cp': NUM_COLS_CP+DATE_COLS_CP+[
-        'UUID Relacionado', 'Estado del comprobante',
+        'UUIDRel', 'Estatus',
     ],
 }
 
