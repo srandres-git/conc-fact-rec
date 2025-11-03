@@ -10,6 +10,11 @@ st.title("Conciliación de facturas recibidas")
 cols = st.columns(4)
 st.session_state['conc_button'] = st.container(key='conc_button')
 st.session_state['conc_container'] = st.container(key='conc_container')
+st.session_state['fact_sat'] = None
+st.session_state['fact_sap'] = None
+st.session_state['box'] = None
+st.session_state['cp'] = None
+
 @st.fragment
 def create_file_uploader(name: str, label:str, header:int=0):
     """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
