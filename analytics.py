@@ -183,10 +183,10 @@ def pivot_table(
         pivot_df = pivot_df.tail(bottom_n)
     # Add total row if specified
     if total_row:
-        total_series = pivot_df.sum(numeric_only=True)
-        total_series.name = 'Total'
+        total_series = pd.DataFrame(df.sum(numeric_only=True)).T
+        total_series["Mes"] = "Total"
         st.write(total_series)
-        pivot_df = pd.concat([total_series.to_frame().T,pivot_df, ])
+        pivot_df = pd.concat([pivot_df, total_series.to_frame().T])
     # Add total column if specified
     if total_col:
         pivot_df['Total'] = pivot_df.sum(axis=1, numeric_only=True)
