@@ -20,22 +20,23 @@ def create_file_uploader(name: str, label:str, header:int=0):
     """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
     st.file_uploader(label, type='xlsx', accept_multiple_files=False, key=name+'_uploader')
     if st.session_state.get(name+'_uploader') is not None:
-        read_excel_file(
+        return read_excel_file(
             st.session_state[name+'_uploader'],
             session_name=name,
             expected_columns=EXPECTED_COLS[name],
             header=header
         )
+        
 
 # leemos los reportes y agregamos los file uploaders
 with cols[0]:
-    create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
+    st.session_state['fact_sat'] =  create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
 with cols[1]:
-    create_file_uploader('fact_sap', 'Facturas SAP', header=9)
+    st.session_state['fact_sap'] = create_file_uploader('fact_sap', 'Facturas SAP', header=9)
 with cols[2]:
-    create_file_uploader('box', 'Box', header=0)
+    st.session_state['box'] = create_file_uploader('box', 'Box', header=0)
 with cols[3]:
-    create_file_uploader('cp', 'Complementos de pago', header=4)
+    st.session_state['cp'] = create_file_uploader('cp', 'Complementos de pago', header=4)
 
 with st.session_state['conc_button']:
     conciliacion = st.button('Conciliar', on_click=conciliar,
