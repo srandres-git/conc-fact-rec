@@ -97,7 +97,7 @@ COLS_CONC = [
     'Emisión', # verde
     'Mes', # azul
     'Fecha de pago', # amarillo
-    'Mes de pago', # azul
+    'Mes de pago', # amarillo
     'Fecha Sustitución', 'Uso CFDI', # verde
     'ID Proveedor SAP', # amarillo
     'Emisor RFC', 'Emisor Nombre', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción', 'Conceptos Descripción', 'Conceptos ClaveProdServ SAT', # verde
