@@ -112,6 +112,8 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame, name = 'no_sap_top', top_n:int
                 default=default,
                 key=multiselect_key('ms_'+name, col)
             )
+        # agregamos widget para seleccionar top N
+        top_n = st.number_input('Mostrar los principales:', min_value=1, max_value=100, value=top_n, step=1, key='top_n_'+name)
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
     pivot_df = pivot_table(
         conciliacion,
