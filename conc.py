@@ -9,7 +9,7 @@ from utils import assign_service_type, find_service, get_provs
 def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
     """Cruce de facturas de SAT vs SAP. Ambos reportes iniciales depurados."""
 
-    fact_sat = fact_sat.merge(fact_sap[['UUID Corregido','Estado de factura','Referencia externa','Creado por','Importe de la factura']], left_on='UUID', right_on='UUID Corregido', how='left', suffixes=('', '_sap'))
+    fact_sat = fact_sat.merge(fact_sap[['UUID Corregido','Estado de factura','Referencia externa','Creado por','Importe de la factura', 'Fecha de compensación', 'Mes de pago']], left_on='UUID', right_on='UUID Corregido', how='left', suffixes=('', '_sap'))
     fact_sat.rename(columns=RENAME_COLS_SAP, inplace=True)
     fact_sat.replace({'Creado por': EJECUTIVO_SAP_MAP}, inplace=True)
 
