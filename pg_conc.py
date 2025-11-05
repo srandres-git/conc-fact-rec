@@ -43,7 +43,7 @@ with cols[3]:
         create_file_uploader('cp', 'Complementos de pago', header=4)
 
 with st.session_state['conc_button']:
-    if st.session_state.get('conciliacion') is None:
+    # if st.session_state.get('conciliacion') is None:
         conciliacion = st.button('Conciliar', on_click=conciliar,
                                 args=(st.session_state['fact_sat'], 
                                         st.session_state['fact_sap'], 
