@@ -11,7 +11,7 @@ cols = st.columns(4)
 st.session_state['conc_button'] = st.container(key='conc_button')
 st.session_state['conc_container'] = st.container(key='conc_container')
 # si no existen las variables de sesión, las inicializamos
-for var in ['fact_sat', 'fact_sap', 'box', 'cp', 'conciliacion', 'output_file', 'dashboard_loaded']:
+for var in ['fact_sat', 'fact_sap', 'box', 'cp', 'conciliacion', ]:
     if var not in st.session_state:
         st.session_state[var] = None
 
@@ -44,11 +44,11 @@ with cols[3]:
 
 with st.session_state['conc_button']:
     # if st.session_state.get('conciliacion') is None:
-        conciliacion = st.button('Conciliar', on_click=conciliar,
-                                args=(st.session_state['fact_sat'], 
-                                        st.session_state['fact_sap'], 
-                                        st.session_state['box'], 
-                                        st.session_state['cp'],))
+        conciliacion = st.button('Conciliar', on_click=conciliar,)
+                                # args=(st.session_state['fact_sat'], 
+                                #         st.session_state['fact_sap'], 
+                                #         st.session_state['box'], 
+                                #         st.session_state['cp'],))
 
 if st.session_state.get('conciliacion') is not None:
     with st.session_state['conc_container']:

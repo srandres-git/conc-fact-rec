@@ -74,10 +74,14 @@ def validate_non_empty_initial_reports()->bool:
             return False
     return True
 
-def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame, output_file=""):
+def conciliar(output_file=""):#fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame, output_file=""):
     """Realiza la conciliación de facturas recibidas cruzando los reportes iniciales depurados."""
     if not validate_non_empty_initial_reports():
         return
+    fact_sat = st.session_state['fact_sat']
+    fact_sap = st.session_state['fact_sap']
+    box = st.session_state['box']
+    cp = st.session_state['cp']
     # reiniciamos las variables de sesión
     st.session_state['conciliacion'] = None
     st.session_state['output_file'] = None
