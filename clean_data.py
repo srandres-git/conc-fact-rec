@@ -96,7 +96,6 @@ def depurar_cp(cp: pd.DataFrame)-> pd.DataFrame:
     return cp
 
 # file reader functionality
-@st.fragment
 def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)->pd.DataFrame:
     """Lee un archivo Excel validando que contenga las columnas esperadas y asigna a session state."""
     try:

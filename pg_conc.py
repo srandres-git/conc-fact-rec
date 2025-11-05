@@ -15,6 +15,7 @@ for var in ['fact_sat', 'fact_sap', 'box', 'cp', 'conciliacion', 'output_file', 
     if var not in st.session_state:
         st.session_state[var] = None
 
+@st.fragment
 def create_file_uploader(name: str, label:str, header:int=0):
     """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
     st.file_uploader(label, type='xlsx', accept_multiple_files=False, key=name+'_uploader')
@@ -29,13 +30,17 @@ def create_file_uploader(name: str, label:str, header:int=0):
 
 # leemos los reportes y agregamos los file uploaders
 with cols[0]:
-    create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
+    if st.session_state.get('fact_sat') is None:
+        create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
 with cols[1]:
-    create_file_uploader('fact_sap', 'Facturas SAP', header=9)
+    if st.session_state.get('fact_sap') is None:
+        create_file_uploader('fact_sap', 'Facturas SAP', header=9)
 with cols[2]:
-    create_file_uploader('box', 'Box', header=0)
+    if st.session_state.get('box') is None:
+        create_file_uploader('box', 'Box', header=0)
 with cols[3]:
-    create_file_uploader('cp', 'Complementos de pago', header=4)
+    if st.session_state.get('cp') is None:
+        create_file_uploader('cp', 'Complementos de pago', header=4)
 
 with st.session_state['conc_button']:
     conciliacion = st.button('Conciliar', on_click=conciliar,
