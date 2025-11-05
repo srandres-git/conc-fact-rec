@@ -10,17 +10,16 @@ st.title("Conciliación de facturas recibidas")
 cols = st.columns(4)
 st.session_state['conc_button'] = st.container(key='conc_button')
 st.session_state['conc_container'] = st.container(key='conc_container')
-st.session_state['fact_sat'] = None
-st.session_state['fact_sap'] = None
-st.session_state['box'] = None
-st.session_state['cp'] = None
+# si no existen las variables de sesión, las inicializamos
+for var in ['fact_sat', 'fact_sap', 'box', 'cp', 'conciliacion', 'output_file', 'dashboard_loaded']:
+    if var not in st.session_state:
+        st.session_state[var] = None
 
-@st.fragment
 def create_file_uploader(name: str, label:str, header:int=0):
     """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
     st.file_uploader(label, type='xlsx', accept_multiple_files=False, key=name+'_uploader')
     if st.session_state.get(name+'_uploader') is not None:
-        st.session_state[name] = read_excel_file(
+        read_excel_file(
             st.session_state[name+'_uploader'],
             session_name=name,
             expected_columns=EXPECTED_COLS[name],
@@ -30,21 +29,13 @@ def create_file_uploader(name: str, label:str, header:int=0):
 
 # leemos los reportes y agregamos los file uploaders
 with cols[0]:
-    if st.session_state.get('fact_sat') is None:
-        # st.session_state['fact_sat'] = create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
-        create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
+    create_file_uploader('fact_sat', 'Facturas recibidas SAT', header=4)
 with cols[1]:
-    if st.session_state.get('fact_sap') is None:
-        # st.session_state['fact_sap'] = create_file_uploader('fact_sap', 'Facturas SAP', header=9)
-        create_file_uploader('fact_sap', 'Facturas SAP', header=9)
+    create_file_uploader('fact_sap', 'Facturas SAP', header=9)
 with cols[2]:
-    if st.session_state.get('box') is None:
-        # st.session_state['box'] = create_file_uploader('box', 'Box', header=0)
-        create_file_uploader('box', 'Box', header=0)
+    create_file_uploader('box', 'Box', header=0)
 with cols[3]:
-    if st.session_state.get('cp') is None:
-        # st.session_state['cp'] = create_file_uploader('cp', 'Complementos de pago', header=4)
-        create_file_uploader('cp', 'Complementos de pago', header=4)
+    create_file_uploader('cp', 'Complementos de pago', header=4)
 
 with st.session_state['conc_button']:
     conciliacion = st.button('Conciliar', on_click=conciliar,
