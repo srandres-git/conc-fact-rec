@@ -20,7 +20,7 @@ def create_file_uploader(name: str, label:str, header:int=0):
     """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
     st.file_uploader(label, type='xlsx', accept_multiple_files=False, key=name+'_uploader')
     if st.session_state.get(name+'_uploader') is not None:
-        read_excel_file(
+        st.session_state[name] = read_excel_file(
             st.session_state[name+'_uploader'],
             session_name=name,
             expected_columns=EXPECTED_COLS[name],

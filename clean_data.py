@@ -110,7 +110,7 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
             if cleaning_function_name:
                 cleaning_function = globals()[cleaning_function_name]
                 df = cleaning_function(df)
-            st.session_state[session_name] = df
+            # st.session_state[session_name] = df
             st.success('Archivo leído correctamente.', icon="✅")
             return df
     except Exception as e:
