@@ -68,7 +68,7 @@ def sat_x_cp(fact_sat: pd.DataFrame, cp: pd.DataFrame)->pd.DataFrame:
 def validate_non_empty_initial_reports()->bool:
     """Valida que los reportes iniciales cargados no estén vacíos."""
     for report_name in ['fact_sat', 'fact_sap', 'box', 'cp']:
-        df = st.session_state.get(report_name)
+        df = st.session_state.get(report_name, None)
         if df is None or df.empty:
             st.error(f'El reporte inicial "{report_name}" no ha sido cargado o está vacío. Por favor, carga un archivo válido.', icon="❌")
             return False
