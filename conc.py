@@ -78,6 +78,8 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     """Realiza la conciliación de facturas recibidas cruzando los reportes iniciales depurados."""
     if not validate_non_empty_initial_reports():
         return
+    for report in ['fact_sat', 'fact_sap', 'box', 'cp']:
+        st.write(st.session_state[report])
     # reiniciamos las variables de sesión
     st.session_state['conciliacion'] = None
     st.session_state['output_file'] = None
