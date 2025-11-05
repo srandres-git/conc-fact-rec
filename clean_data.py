@@ -50,6 +50,11 @@ def depurar_sap(fact_sap: pd.DataFrame)-> pd.DataFrame:
     status_order = ['Pagado', 'Parcialmente pagado', 'Contabilizada', 'Cancelada']
     fact_sap = sort_df(fact_sap, 'Estado de factura', status_order, drop_dup_col='UUID Corregido')
 
+    # agregamos la columna de Mes de pago según la fecha de compensación en formato 'MMM'
+    fact_sap['Mes de pago'] = fact_sap['Fecha de compensación'].dt.strftime('%b')
+    # mapeamos los nombres de meses en español
+    fact_sap['Mes de pago'] = fact_sap['Mes de pago'].map(MONTH_MAP_ENG_ESP)
+
     return fact_sap
 
 def depurar_box(box: pd.DataFrame)-> pd.DataFrame:
