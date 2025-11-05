@@ -69,7 +69,6 @@ def validate_non_empty_initial_reports()->bool:
     """Valida que los reportes iniciales cargados no estén vacíos."""
     for report_name in ['fact_sat', 'fact_sap', 'box', 'cp']:
         df = st.session_state.get(report_name, None)
-        st.write(st.session_state[report_name])
         if df is None or df.empty:
             st.error(f'El reporte inicial "{report_name}" no ha sido cargado o está vacío. Por favor, carga un archivo válido.', icon="❌")
             return False
@@ -79,7 +78,6 @@ def conciliar(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame,
     """Realiza la conciliación de facturas recibidas cruzando los reportes iniciales depurados."""
     if not validate_non_empty_initial_reports():
         return
-    else: return
     # reiniciamos las variables de sesión
     st.session_state['conciliacion'] = None
     st.session_state['output_file'] = None
