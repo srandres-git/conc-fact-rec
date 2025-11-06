@@ -18,7 +18,7 @@ def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
                         & (fact_sat['UUID'].str.strip() != '0')]
 
     # limpiamos los tipos de datos de fact_sat
-    fact_sat = clean_dtypes(fact_sat, NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT)
+    fact_sat = clean_dtypes(fact_sat, NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, date_format='%d-%m-%Y')
 
     # tipo de cambio a 1 si la moneda es MXN
     fact_sat.loc[fact_sat['Moneda'] == 'MXN', 'Tipo Cambio'] = 1
@@ -40,7 +40,7 @@ def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
 
 def depurar_sap(fact_sap: pd.DataFrame)-> pd.DataFrame:
     # limpiamos los tipos de datos de fact_sap
-    fact_sap = clean_dtypes(fact_sap, NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP,)
+    fact_sap = clean_dtypes(fact_sap, NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, date_format='%d.%m.%Y')
 
     # ID de factura oficial y UUID corregido a mayúsculas
     fact_sap['ID de factura oficial'] = fact_sap['ID de factura oficial'].str.upper()
