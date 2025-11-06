@@ -159,7 +159,7 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
             else f":green[{x}]" if 'MXN' in x and isinstance(x, str)\
             else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
             else x.strftime('%d-%m-%y') if isinstance(x, pd.Timestamp) \
-            else x,
+            else str(x),
         # sort_args={'by': ('Moneda','Total SAT MXN'), 'ascending':False},
         total_row=True,
     )
