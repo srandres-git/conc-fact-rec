@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from analytics import dtable_estatus, dtable_no_sap_mes, dtable_no_sap_mes_box, dtable_no_sap_top
+from analytics import dtable_estatus, dtable_no_sap_mes, dtable_no_sap_mes_box, dtable_no_sap_top, dtable_pendientes_cp
 # pestaña del dashboard
 st.set_page_config(layout="wide")
 st.title("Resumen de conciliación")
@@ -19,11 +19,12 @@ if uploaded_file is not None:
 
 # Si ya tenemos una conciliación (cargada o generada)
 # Creamos tabs para mostrar las distintas tablas del dashboard
-tab_estatus, tab_no_sap_mes, tab_no_sap_mes_box, tab_no_sap_top = st.tabs([
+tab_estatus, tab_no_sap_mes, tab_no_sap_mes_box, tab_no_sap_top, tab_pendientes_cp = st.tabs([
     'Por estatus',
     'Faltantes en SAP por mes',
     'Faltantes en SAP por carpeta Box',
-    'Top proveedores faltantes en SAP'
+    'Top proveedores faltantes en SAP',
+    'Pendientes de CP'
 ])
 
 if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is not None:
@@ -39,5 +40,8 @@ if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is no
     with tab_no_sap_top:
         st.header('Top proveedores con más facturas faltantes en SAP')
         dtable_no_sap_top(st.session_state['conciliacion'])
+    with tab_pendientes_cp:
+        st.header('Facturas pendientes de Complemento de Pago')
+        dtable_pendientes_cp(st.session_state['conciliacion'])
 else:
         st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")

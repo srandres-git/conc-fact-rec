@@ -131,6 +131,37 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame, name = 'no_sap_top', top_n:int
     )
     st.table(pivot_df, border='horizontal')
 
+@st.fragment
+def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
+    """Realiza la tabla dinámica de facturas pendientes de complemento de pago."""
+    with st.expander("Filtros", icon='⚙️'):
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('ms_'+name, col)
+            )
+    filters = get_multiselect_values('ms_'+name, FILTERS[name])
+    pivot_df = pivot_table(
+        conciliacion,
+        rows= ['Emisor Nombre', 'Fecha de pago'],
+        cols= ['Moneda'],
+        values={'Pagado SAP XML':'sum', 'Total SAT MXN':'sum','UUID':'count'},
+        filters=filters,
+        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
+            else f"{x:,}" if isinstance(x, int) \
+            else f":Orange[{x}]" if 'USD' in x and isinstance(x, str) \
+            else f":green[{x}]" if 'MXN' in x and isinstance(x, str)\
+            else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
+            else x,
+        sort_args={'by': 'Total SAT MXN', 'ascending':False},
+        total_row=True,
+    )
+    st.table(pivot_df, border='horizontal')
+
 def pivot_table(
     df: pd.DataFrame,
     rows: list[str],
