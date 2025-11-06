@@ -158,13 +158,12 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
             else f":Orange[{x}]" if 'USD' in x and isinstance(x, str) \
             else f":green[{x}]" if 'MXN' in x and isinstance(x, str)\
             else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
-            else str(x),
+            else x.strftime('%d-%m-%y') if isinstance(x, pd.Timestamp) \
+            else x,
         # sort_args={'by': ('Moneda','Total SAT MXN'), 'ascending':False},
         total_row=True,
     )
-    st.write(pivot_df.index.to_list())
-    st.write(pivot_df.columns.to_list())
-    st.write(pivot_df.head())
+
     st.table(pivot_df, border='horizontal')
 
 def pivot_table(
