@@ -164,9 +164,8 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
         total_row=True,
     )
     # flatten multiindex columns
-    pivot_df.columns = [' '.join(col).strip() for col in pivot_df.columns.values]
-    # reset index to show Emisor Nombre and Fecha de pago as columns
-    pivot_df = pivot_df.reset_index()
+    if isinstance(pivot_df.columns, pd.MultiIndex):
+        pivot_df.columns = [' '.join([str(c) for c in col if c]) for col in pivot_df.columns.to_flat_index()]
     st.table(pivot_df, border='horizontal')
 
 def pivot_table(
