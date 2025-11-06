@@ -149,7 +149,7 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
         conciliacion,
         rows= ['Emisor Nombre', 'Fecha de pago'],
         cols= ['Moneda'],
-        values={'Pagado SAP XML':'sum', 'Total SAT MXN':'sum','UUID':'count'},
+        values={'Pagado SAP XML':'sum', 'UUID':'count'},
         filters=filters,
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
@@ -157,7 +157,7 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
             else f":green[{x}]" if 'MXN' in x and isinstance(x, str)\
             else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
             else x,
-        sort_args={'by': 'Total SAT MXN', 'ascending':False},
+        sort_args={'by': 'Pagado SAP XML', 'ascending':False},
         total_row=True,
     )
     st.table(pivot_df, border='horizontal')
