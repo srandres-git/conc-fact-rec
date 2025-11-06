@@ -80,6 +80,7 @@ RENAME_COLS_SAP = {
     'Estado de factura': 'Estatus SAP',
     'Referencia externa': 'Ref. externa SAP',
     'Importe de la factura': 'Total SAP XML',
+    'Importe compensado': 'Pagado SAP XML',
     'Fecha de compensación': 'Fecha de pago',
     # 'Creado por': 'Ejecutivo CxP'
 }
@@ -96,12 +97,14 @@ COLS_CONC = [
     'Ref. externa SAP', 'Tipo de servicio', # amarillo
     'Emisión', # verde
     'Mes', # azul
-    'Fecha de pago', # amarillo
-    'Mes de pago', # amarillo
     'Fecha Sustitución', 'Uso CFDI', # verde
     'ID Proveedor SAP', # amarillo
     'Emisor RFC', 'Emisor Nombre', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción', 'Conceptos Descripción', 'Conceptos ClaveProdServ SAT', # verde
-    'Conceptos ClaveProdServ SAT Descripción', 'SubTotal', 'Total SAT MXN', # verde
+    'Conceptos ClaveProdServ SAT Descripción', 
+    'Fecha de pago', # azul
+    'Mes de pago', # azul
+    'Pagado SAP XML', # amarillo
+    'SubTotal', 'Total SAT MXN', # verde
     'Total SAP MXN', 'Dif. Total MXN', # amarillo
     'Total SAT XML', # verde
     'Total SAP XML', 'Dif. Total XML', # amarillo

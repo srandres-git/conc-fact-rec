@@ -18,6 +18,8 @@ def clean_dtypes(df: pd.DataFrame, num_cols, date_cols, date_format=None):
     
     # transformamos a numérico las columnas en num_cols
     df[num_cols] = df[num_cols].apply(pd.to_numeric, errors='raise')
+    # obtenemos el valor absoluto para evitar negativos en numéricas
+    df[num_cols] = df[num_cols].abs()
     # transformamos a texto las columnas que están en other_num_cols y quitamos decimales
     df[other_num_cols] = df[other_num_cols].apply(lambda x: x.astype(str).str.split('.').str[0])
     # transformamos a fecha las columnas en date_cols
