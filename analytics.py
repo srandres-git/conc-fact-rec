@@ -163,7 +163,10 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
         # sort_args={'by': ('Moneda','Total SAT MXN'), 'ascending':False},
         total_row=True,
     )
-
+    # flatten multiindex columns
+    pivot_df.columns = [' '.join(col).strip() for col in pivot_df.columns.values]
+    # reset index to show Emisor Nombre and Fecha de pago as columns
+    pivot_df = pivot_df.reset_index()
     st.table(pivot_df, border='horizontal')
 
 def pivot_table(
