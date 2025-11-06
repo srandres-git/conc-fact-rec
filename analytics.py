@@ -153,6 +153,8 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
         filters=filters,
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
+            # si es timestamp, lo escribimos en formato dd-mm-yy
+            else f'{x:%d-%m-%y}' if isinstance(x, pd.Timestamp) \
             else f":Orange[{x}]" if 'USD' in x and isinstance(x, str) \
             else f":green[{x}]" if 'MXN' in x and isinstance(x, str)\
             else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
