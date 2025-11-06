@@ -160,8 +160,8 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
         # sort_args={'by': ('Moneda','Total SAT MXN'), 'ascending':False},
         total_row=True,
     )
-    st.write(pivot_df.index)
-    st.write(pivot_df.columns)
+    st.write(pivot_df.index.to_list())
+    st.write(pivot_df.columns.to_list())
     st.table(pivot_df, border='horizontal')
 
 def pivot_table(
