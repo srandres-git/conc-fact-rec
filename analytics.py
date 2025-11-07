@@ -153,12 +153,11 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
         filters=filters,
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
-            # # si es timestamp, lo escribimos en formato dd-mm-yy
-            # else f'{x:%d-%m-%y}' if isinstance(x, pd.Timestamp) \
             else f":Orange[{x}]" if 'USD' in x and isinstance(x, str) \
             else f":green[{x}]" if 'MXN' in x and isinstance(x, str)\
             else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
-            else x.strftime('%d-%m-%y') if isinstance(x, pd.Timestamp) \
+            # si es tupla str,timestamp formatear adecuadamente
+            else f":gray[{x[0]} | {x[1].strftime('%d-%m-%y')}]" if isinstance(x, tuple) and isinstance(x[1], pd.Timestamp)
             else str(x),
         # sort_args={'by': ('Moneda','Total SAT MXN'), 'ascending':False},
         total_row=True,
@@ -167,7 +166,7 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
     if isinstance(pivot_df.columns, pd.MultiIndex):
         pivot_df.columns = [' '.join([str(c) for c in col if c]) for col in pivot_df.columns.to_flat_index()]
     # flatten multiindex index
-    pivot_df['index'] = pivot_df['index'].apply(lambda x: x[0]+' | '+x[1].strftime('%d-%m-%y') if isinstance(x[1], pd.Timestamp) else x[0]+' | '+str(x[1]))
+    # pivot_df['index'] = pivot_df['index'].apply(lambda x: x[0]+' | '+x[1].strftime('%d-%m-%y') if isinstance(x[1], pd.Timestamp) else x[0]+' | '+str(x[1]))
     pivot_df.rename(columns={'index':'Emisor Nombre | Fecha de pago'}, inplace=True)
     st.table(pivot_df, border='horizontal')
 
