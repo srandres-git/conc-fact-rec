@@ -164,8 +164,7 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
         total_row=True,
     )
     # flatten multiindex columns
-    if isinstance(pivot_df.columns, pd.MultiIndex):
-        pivot_df.columns = [' '.join([str(c) for c in col if c]) for col in pivot_df.columns.to_flat_index()]
+    pivot_df.columns = [' '.join([str(c) for c in col if c]) for col in pivot_df.columns.to_flat_index()]
     st.table(pivot_df, border='horizontal')
 
 def pivot_table(
