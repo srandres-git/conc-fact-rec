@@ -167,8 +167,8 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
     if isinstance(pivot_df.columns, pd.MultiIndex):
         pivot_df.columns = [' '.join([str(c) for c in col if c]) for col in pivot_df.columns.to_flat_index()]
     # flatten multiindex index
-    if isinstance(pivot_df.index, pd.MultiIndex):
-        pivot_df.index = [' | '.join([str(i) for i in idx if i]) for idx in pivot_df.index.to_flat_index()]
+    pivot_df['index'] = pivot_df['index'].apply(lambda x: x[0]+' | '+x[1].strftime('%d-%m-%y') if isinstance(x[1], pd.Timestamp) else x[0]+' | '+str(x[1]))
+    pivot_df.rename(columns={'index':'Emisor Nombre | Fecha de pago'}, inplace=True)
     st.table(pivot_df, border='horizontal')
 
 def pivot_table(
