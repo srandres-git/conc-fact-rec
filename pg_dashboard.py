@@ -40,8 +40,8 @@ if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is no
     with tab_no_sap_top:
         st.header('Top proveedores con más facturas faltantes en SAP')
         dtable_no_sap_top(st.session_state['conciliacion'])
-    with tab_pendientes_cp:
-        st.header('Facturas pendientes de Complemento de Pago')
-        dtable_pendientes_cp(st.session_state['conciliacion'])
+    # with tab_pendientes_cp:
+    #     st.header('Facturas pendientes de Complemento de Pago')
+    #     dtable_pendientes_cp(st.session_state['conciliacion'])
 else:
         st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
