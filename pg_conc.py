@@ -90,4 +90,5 @@ if st.session_state['sap_authenticated']:
             st.write(st.session_state['conciliacion'])
     if st.session_state.get('output_file') is not None:
         st.session_state['output_file'].seek(0)  # move to the beginning of the BytesIO buffer
-        st.download_button('Descargar reporte de conciliación', data=st.session_state['output_file'], file_name='Conciliacion_Facturas_Recibidas.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        with st.session_state['conc_container']:
+            st.download_button('Descargar reporte de conciliación', data=st.session_state['output_file'], file_name='Conciliacion_Facturas_Recibidas.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
