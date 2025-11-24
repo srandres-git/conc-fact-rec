@@ -200,13 +200,13 @@ def authenticate_and_get_provs(rfc_list:list, bucket_size:int = 30):
         st.session_state['sap_password_input'] = ''
 
     # Render the authentication UI in a container so it can be placed anywhere by the caller
-    auth_container = st.container()
+    auth_container = st.form()
     with auth_container:
         st.write('**Autenticación SAP**')
         # inputs. Values are kept in session_state keys so other parts of the app aren't lost on rerun
         st.text_input('Usuario SAP', key='sap_username_input')
         st.text_input('Contraseña SAP', type='password', key='sap_password_input')
-        validate = st.button('Validar credenciales SAP', key='sap_auth_btn')
+        validate = st.form_submit_button('Validar credenciales SAP', key='sap_auth_btn')        
 
         # If credentials already authenticated in this session, show success and reuse them
         if st.session_state.get('sap_authenticated'):
