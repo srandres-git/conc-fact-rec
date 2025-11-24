@@ -46,7 +46,7 @@ if not st.session_state['sap_authenticated']:
                     st.session_state['sap_authenticated'] = True
                     st.session_state['sap_username_saved'] = user
                     st.session_state['sap_password_saved'] = pwd
-
+                    st.rerun() # rerun to load uploaders
         else:
             st.info('Introduce tus credenciales SAP y pulsa "Validar credenciales SAP" para continuar.')
 
@@ -63,8 +63,6 @@ def create_file_uploader(name: str, label:str, header:int=0):
         )
             
 if st.session_state['sap_authenticated']:
-    # delete SAP auth container
-    sap_auth_container.empty()
     # leemos los reportes y agregamos los file uploaders
     with cols[0]:
         if st.session_state.get('fact_sat') is None:
