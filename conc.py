@@ -4,7 +4,7 @@ import numpy as np
 import streamlit as st
 from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
 from export import export_conciliacion_facturas
-from utils import assign_service_type, find_service, get_provs
+from utils import assign_service_type, find_service, get_provs, authenticate_and_get_provs
 
 def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
     """Cruce de facturas de SAT vs SAP. Ambos reportes iniciales depurados."""
@@ -98,8 +98,12 @@ def conciliar(output_file=""):#fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, b
         st.info('Asignando ID de proveedor...', icon="ℹ️")
     rfc_list = fact_sat['Emisor RFC'].str.upper().str.strip().unique().tolist()
     with st.session_state['conc_container']: # update
-        st.info(f'Buscando datos de {len(rfc_list)} proveedores en SAP...', icon="ℹ️")
-    provs = get_provs(rfc_list, bucket_size=40)
+        st.info(f'Buscando datos de {len(rfc_list)} proveedores en SAP... (autenticación requerida)', icon="ℹ️")
+    # authenticate interactively and obtain providers without reloading uploaded reports
+    provs = authenticate_and_get_provs(rfc_list, bucket_size=40)
+    if provs is None or provs.empty:
+        st.error('No se pudieron obtener proveedores desde SAP. Verifica credenciales.', icon="❌")
+        return
     provs.replace({'Ejecutivo CPP SAP': EJECUTIVO_SAP_MAP}, inplace=True)
     fact_sat = fact_sat.merge(provs[['ID Proveedor SAP','RFC Proveedor', 'Ejecutivo CPP SAP']], left_on='Emisor RFC', right_on='RFC Proveedor', how='left', suffixes=('', '_prov'))
     fact_sat['ID Proveedor SAP'] = fact_sat['ID Proveedor SAP'].fillna('No identificado')

@@ -151,7 +151,7 @@ def request_df(base_url : str, report_name : str, parameters : dict, username : 
         print("Error Response Text:", response.text)  # safer than .json() for 401
         return None
 
-def get_provs(rfc_list:list, bucket_size: int = 30)->pd.DataFrame:
+def get_provs(rfc_list:list,username,password, bucket_size: int = 30)->pd.DataFrame:
     """Obtiene los proveedores de SAP a partir de una lista de RFCs"""
     report_name = "RPBUPSPP_Q0001"
     parameters = {
@@ -164,10 +164,13 @@ def get_provs(rfc_list:list, bucket_size: int = 30)->pd.DataFrame:
         rfc_bucket = rfc_list[i:i+bucket_size]
         filter_rfc = " or ".join([f"CTAX_ID_NR eq '{rfc}'" for rfc in rfc_bucket])
         parameters['filter'] = [filter_rfc]
-        provs_bucket = request_df(st.secrets['sap_odata_base_url'], report_name, parameters, st.secrets['sap_username'], st.secrets['sap_password'])
+        provs_bucket = request_df(st.secrets['sap_odata_base_url'], report_name, parameters, username, password)
         if provs_bucket is not None:
             print(f'[Proveedores obtenidos en este bucket: {len(provs_bucket)}]')
             provs = pd.concat([provs, provs_bucket], ignore_index=True)
+    if provs.empty:
+        print('No se obtuvieron proveedores de SAP.')
+        return None
     # depuramos la fecha de creación
     provs['CCREATION_DT'] = pd.to_datetime(provs['CCREATION_DT'].str.split(' ').str[0], errors='raise', format='%d.%m.%Y')
     # ordenamos descendentemente por ID de proveedor y fecha de creación
@@ -179,6 +182,65 @@ def get_provs(rfc_list:list, bucket_size: int = 30)->pd.DataFrame:
     provs.rename(columns={'CBP_UUID':'ID Proveedor SAP', 'CTAX_ID_NR':'RFC Proveedor', 'CCREATION_DT':'Fecha creación proveedor', 'C1QITSQE6F9TSX3J3DUJRLUJGY5':'Ejecutivo CPP SAP'}, inplace=True)
     print(f'Proveedores obtenidos: {len(provs)}')
     return provs
+
+
+def authenticate_and_get_provs(rfc_list:list, bucket_size:int = 30):
+    """Prompts the user for SAP credentials (Streamlit), validates them and returns providers.
+
+    - Shows input fields for username/password and a validation button.
+    - Attempts a small `get_provs` call to verify credentials; on success it runs the full
+      `get_provs` for the provided `rfc_list` and returns the resulting DataFrame.
+    - If validation fails, an error message is shown and the user can try again without
+      reloading the uploaded reports (control is kept in `st.session_state`).
+    """
+    # preserve inputs in session state so reruns don't lose them
+    if 'sap_username_input' not in st.session_state:
+        st.session_state['sap_username_input'] = ''
+    if 'sap_password_input' not in st.session_state:
+        st.session_state['sap_password_input'] = ''
+
+    # Render the authentication UI in a container so it can be placed anywhere by the caller
+    auth_container = st.container()
+    with auth_container:
+        st.write('**Autenticación SAP**')
+        # inputs. Values are kept in session_state keys so other parts of the app aren't lost on rerun
+        st.text_input('Usuario SAP', key='sap_username_input')
+        st.text_input('Contraseña SAP', type='password', key='sap_password_input')
+        validate = st.button('Validar credenciales SAP', key='sap_auth_btn')
+
+        # If credentials already authenticated in this session, show success and reuse them
+        if st.session_state.get('sap_authenticated'):
+            st.success('Credenciales SAP autenticadas previamente.', icon='✅')
+
+        # When user clicks validate, attempt a small provs request to confirm credentials
+        if validate:
+            st.session_state['sap_auth_error'] = None
+            with st.spinner('Validando credenciales SAP...'):
+                username = st.session_state.get('sap_username_input', '')
+                password = st.session_state.get('sap_password_input', '')
+                sample = rfc_list[:min(5, len(rfc_list))] if rfc_list else []
+                # if there are no RFCs, use a short attempt with an unlikely RFC to force a request
+                sample = sample or ['X']
+                provs_test = get_provs(sample, username=username, password=password, bucket_size=bucket_size)
+                if provs_test is None:
+                    st.session_state['sap_authenticated'] = False
+                    st.error('Credenciales inválidas o error de conexión. Intenta de nuevo.', icon='❌')
+                else:
+                    st.session_state['sap_authenticated'] = True
+                    st.session_state['sap_username_saved'] = username
+                    st.session_state['sap_password_saved'] = password
+                    st.success('Autenticación SAP exitosa.', icon='✅')
+
+    # If authenticated (either previously or just now), call full get_provs using saved creds
+    if st.session_state.get('sap_authenticated'):
+        username = st.session_state.get('sap_username_saved')
+        password = st.session_state.get('sap_password_saved')
+        # run the full providers extraction
+        provs = get_provs(rfc_list, username=username, password=password, bucket_size=bucket_size)
+        return provs
+
+    # Not authenticated yet
+    return None
 
 def excel_col_letter(col_idx):
     """Convierte índice de columna (0-based) a letra de Excel (A, B, ..., Z, AA, AB, ...)"""
