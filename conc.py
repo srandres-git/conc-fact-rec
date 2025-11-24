@@ -99,16 +99,7 @@ def conciliar(output_file=""):#fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, b
     rfc_list = fact_sat['Emisor RFC'].str.upper().str.strip().unique().tolist()
     with st.session_state['conc_container']: # update
         st.info(f'Buscando datos de {len(rfc_list)} proveedores en SAP...', icon="ℹ️")
-    # Use saved credentials from session_state (set by the authentication form)
-    if not st.session_state.get('sap_authenticated'):
-        st.error('Credenciales SAP no autenticadas. Valida credenciales antes de conciliar.', icon='❌')
-        return
-    username = st.session_state.get('sap_username_saved')
-    password = st.session_state.get('sap_password_saved')
-    provs = get_provs(rfc_list, username=username, password=password, bucket_size=40)
-    if provs is None:
-        st.error('No se pudieron obtener proveedores desde SAP con las credenciales provistas.', icon="❌")
-        return
+    provs = get_provs(rfc_list, bucket_size=40)
     provs.replace({'Ejecutivo CPP SAP': EJECUTIVO_SAP_MAP}, inplace=True)
     fact_sat = fact_sat.merge(provs[['ID Proveedor SAP','RFC Proveedor', 'Ejecutivo CPP SAP']], left_on='Emisor RFC', right_on='RFC Proveedor', how='left', suffixes=('', '_prov'))
     fact_sat['ID Proveedor SAP'] = fact_sat['ID Proveedor SAP'].fillna('No identificado')
