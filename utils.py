@@ -184,63 +184,63 @@ def get_provs(rfc_list:list,username,password, bucket_size: int = 30)->pd.DataFr
     return provs
 
 
-def authenticate_and_get_provs(rfc_list:list, bucket_size:int = 30):
-    """Prompts the user for SAP credentials (Streamlit), validates them and returns providers.
+# def authenticate_and_get_provs(rfc_list:list, bucket_size:int = 30):
+#     """Prompts the user for SAP credentials (Streamlit), validates them and returns providers.
 
-    - Shows input fields for username/password and a validation button.
-    - Attempts a small `get_provs` call to verify credentials; on success it runs the full
-      `get_provs` for the provided `rfc_list` and returns the resulting DataFrame.
-    - If validation fails, an error message is shown and the user can try again without
-      reloading the uploaded reports (control is kept in `st.session_state`).
-    """
-    # preserve inputs in session state so reruns don't lose them
-    if 'sap_username_input' not in st.session_state:
-        st.session_state['sap_username_input'] = ''
-    if 'sap_password_input' not in st.session_state:
-        st.session_state['sap_password_input'] = ''
+#     - Shows input fields for username/password and a validation button.
+#     - Attempts a small `get_provs` call to verify credentials; on success it runs the full
+#       `get_provs` for the provided `rfc_list` and returns the resulting DataFrame.
+#     - If validation fails, an error message is shown and the user can try again without
+#       reloading the uploaded reports (control is kept in `st.session_state`).
+#     """
+#     # preserve inputs in session state so reruns don't lose them
+#     if 'sap_username_input' not in st.session_state:
+#         st.session_state['sap_username_input'] = ''
+#     if 'sap_password_input' not in st.session_state:
+#         st.session_state['sap_password_input'] = ''
 
-    # Render the authentication UI in a container so it can be placed anywhere by the caller
-    auth_form = st.form(key='sap_auth_form')
-    with auth_form:
-        st.write('**Autenticación SAP**')
-        # inputs. Values are kept in session_state keys so other parts of the app aren't lost on rerun
-        st.text_input('Usuario SAP', key='sap_username_input')
-        st.text_input('Contraseña SAP', type='password', key='sap_password_input')
-        validate = st.form_submit_button('Validar credenciales SAP', key='sap_auth_btn')        
+#     # Render the authentication UI in a container so it can be placed anywhere by the caller
+#     auth_form = st.form(key='sap_auth_form')
+#     with auth_form:
+#         st.write('**Autenticación SAP**')
+#         # inputs. Values are kept in session_state keys so other parts of the app aren't lost on rerun
+#         st.text_input('Usuario SAP', key='sap_username_input')
+#         st.text_input('Contraseña SAP', type='password', key='sap_password_input')
+#         validate = st.form_submit_button('Validar credenciales SAP', key='sap_auth_btn')        
 
-        # If credentials already authenticated in this session, show success and reuse them
-        if st.session_state.get('sap_authenticated'):
-            st.success('Credenciales SAP autenticadas previamente.', icon='✅')
+#         # If credentials already authenticated in this session, show success and reuse them
+#         if st.session_state.get('sap_authenticated'):
+#             st.success('Credenciales SAP autenticadas previamente.', icon='✅')
 
-        # When user clicks validate, attempt a small provs request to confirm credentials
-        if validate:
-            st.session_state['sap_auth_error'] = None
-            with st.spinner('Validando credenciales SAP...'):
-                username = st.session_state.get('sap_username_input', '')
-                password = st.session_state.get('sap_password_input', '')
-                sample = rfc_list[:min(5, len(rfc_list))] if rfc_list else []
-                # if there are no RFCs, use a short attempt with an unlikely RFC to force a request
-                sample = sample or ['X']
-                provs_test = get_provs(sample, username=username, password=password, bucket_size=bucket_size)
-                if provs_test is None:
-                    st.session_state['sap_authenticated'] = False
-                    st.error('Credenciales inválidas o error de conexión. Intenta de nuevo.', icon='❌')
-                else:
-                    st.session_state['sap_authenticated'] = True
-                    st.session_state['sap_username_saved'] = username
-                    st.session_state['sap_password_saved'] = password
-                    st.success('Autenticación SAP exitosa.', icon='✅')
+#         # When user clicks validate, attempt a small provs request to confirm credentials
+#         if validate:
+#             st.session_state['sap_auth_error'] = None
+#             with st.spinner('Validando credenciales SAP...'):
+#                 username = st.session_state.get('sap_username_input', '')
+#                 password = st.session_state.get('sap_password_input', '')
+#                 sample = rfc_list[:min(5, len(rfc_list))] if rfc_list else []
+#                 # if there are no RFCs, use a short attempt with an unlikely RFC to force a request
+#                 sample = sample or ['X']
+#                 provs_test = get_provs(sample, username=username, password=password, bucket_size=bucket_size)
+#                 if provs_test is None:
+#                     st.session_state['sap_authenticated'] = False
+#                     st.error('Credenciales inválidas o error de conexión. Intenta de nuevo.', icon='❌')
+#                 else:
+#                     st.session_state['sap_authenticated'] = True
+#                     st.session_state['sap_username_saved'] = username
+#                     st.session_state['sap_password_saved'] = password
+#                     st.success('Autenticación SAP exitosa.', icon='✅')
 
-    # If authenticated (either previously or just now), call full get_provs using saved creds
-    if st.session_state.get('sap_authenticated'):
-        username = st.session_state.get('sap_username_saved')
-        password = st.session_state.get('sap_password_saved')
-        # run the full providers extraction
-        provs = get_provs(rfc_list, username=username, password=password, bucket_size=bucket_size)
-        return provs
+#     # If authenticated (either previously or just now), call full get_provs using saved creds
+#     if st.session_state.get('sap_authenticated'):
+#         username = st.session_state.get('sap_username_saved')
+#         password = st.session_state.get('sap_password_saved')
+#         # run the full providers extraction
+#         provs = get_provs(rfc_list, username=username, password=password, bucket_size=bucket_size)
+#         return provs
 
-    # Not authenticated yet
-    return None
+#     # Not authenticated yet
+#     return None
 
 def excel_col_letter(col_idx):
     """Convierte índice de columna (0-based) a letra de Excel (A, B, ..., Z, AA, AB, ...)"""

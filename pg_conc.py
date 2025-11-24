@@ -3,6 +3,7 @@ import pandas as pd
 from config import EXPECTED_COLS
 from conc import conciliar
 from clean_data import read_excel_file
+from utils import get_provs
 
 st.set_page_config(layout="wide")
 st.title("Conciliación de facturas recibidas")
@@ -14,6 +15,37 @@ st.session_state['conc_container'] = st.container(key='conc_container')
 for var in ['fact_sat', 'fact_sap', 'box', 'cp', 'conciliacion', ]:
     if var not in st.session_state:
         st.session_state[var] = None
+
+# SAP auth session keys
+if 'sap_authenticated' not in st.session_state:
+    st.session_state['sap_authenticated'] = False
+if 'sap_username_saved' not in st.session_state:
+    st.session_state['sap_username_saved'] = ''
+if 'sap_password_saved' not in st.session_state:
+    st.session_state['sap_password_saved'] = ''
+
+# Authentication form: validate credentials before showing uploaders and conciliation
+if not st.session_state['sap_authenticated']:
+    st.markdown('### Autenticación SAP requerida')
+    with st.form(key='sap_auth_form'):
+        user = st.text_input('Usuario SAP', key='sap_username_input')
+        pwd = st.text_input('Contraseña SAP', type='password', key='sap_password_input')
+        submit = st.form_submit_button('Validar credenciales SAP')
+    if submit:
+        with st.spinner('Validando credenciales...'):
+            # use a tiny sample to validate credentials quickly
+            test = get_provs(['X'], username=user, password=pwd, bucket_size=1)
+            if test is None:
+                st.error('Credenciales inválidas o error de conexión. Intenta de nuevo.', icon='❌')
+                st.session_state['sap_authenticated'] = False
+            else:
+                st.success('Autenticación SAP exitosa.', icon='✅')
+                st.session_state['sap_authenticated'] = True
+                st.session_state['sap_username_saved'] = user
+                st.session_state['sap_password_saved'] = pwd
+    else:
+        st.info('Introduce tus credenciales SAP y pulsa "Validar credenciales SAP" para continuar.')
+    st.stop()
 
 @st.fragment
 def create_file_uploader(name: str, label:str, header:int=0):
