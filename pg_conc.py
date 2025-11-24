@@ -34,7 +34,7 @@ if not st.session_state['sap_authenticated']:
     if submit:
         with st.spinner('Validando credenciales...'):
             # use a tiny sample to validate credentials quickly
-            test = get_provs(['X'], username=user, password=pwd, bucket_size=1)
+            test = get_provs(['XEXX010101000'], username=user, password=pwd, bucket_size=1)
             if test is None:
                 st.error('Credenciales inválidas o error de conexión. Intenta de nuevo.', icon='❌')
                 st.session_state['sap_authenticated'] = False
