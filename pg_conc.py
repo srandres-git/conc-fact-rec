@@ -46,20 +46,20 @@ if not st.session_state['sap_authenticated']:
 
     else:
         st.info('Introduce tus credenciales SAP y pulsa "Validar credenciales SAP" para continuar.')
-else:
-    @st.fragment
-    def create_file_uploader(name: str, label:str, header:int=0):
-        """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
-        st.file_uploader(label, type='xlsx', accept_multiple_files=False, key=name+'_uploader')
-        if st.session_state.get(name+'_uploader') is not None:
-            st.session_state[name] = read_excel_file(
-                st.session_state[name+'_uploader'],
-                session_name=name,
-                expected_columns=EXPECTED_COLS[name],
-                header=header
-            )
-            
 
+@st.fragment
+def create_file_uploader(name: str, label:str, header:int=0):
+    """Crea un file uploader con el nombre y etiqueta especificados. Ejecuta la función read_excel_file al cargar un archivo."""
+    st.file_uploader(label, type='xlsx', accept_multiple_files=False, key=name+'_uploader')
+    if st.session_state.get(name+'_uploader') is not None:
+        st.session_state[name] = read_excel_file(
+            st.session_state[name+'_uploader'],
+            session_name=name,
+            expected_columns=EXPECTED_COLS[name],
+            header=header
+        )
+            
+if st.session_state['sap_authenticated']:
     # leemos los reportes y agregamos los file uploaders
     with cols[0]:
         if st.session_state.get('fact_sat') is None:
