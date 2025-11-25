@@ -98,12 +98,23 @@ COLS_CONC = [
     'Emisión', # verde
     'Mes', # azul
     'Fecha Sustitución', 'Uso CFDI', # verde
+    'Uso CFDI Descripción', 'Clave Confirmación PAC Impte Alto', 'NumCtaPago (4 Digitos)', 'Condiciones de Pago Comerciales',
+    'Timbrado', 'Hora Timbrado', 'No. Certificado CSD Emisor', 'No. Certificado CSD SAT(PAC)', # verde (usualmente ocultas) 
     'ID Proveedor SAP', # amarillo
-    'Emisor RFC', 'Emisor Nombre', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción', 'Conceptos Descripción', 'Conceptos ClaveProdServ SAT', # verde
+    'Emisor RFC', 'Emisor Nombre', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción', # verde
+    'Emisor Estado SAT', 'Emisor Calle', 'Emisor Colonia', 'Emisor Localidad', 'Emisor Referencia', 'Emisor Municipio', 'Emisor Pais',
+    'Emisor CP', 'Emisor Estado', 'Receptor RFC', 'Receptor Nombre', 'Receptor Domicilio Fiscal', 'Receptor Calle', 'Receptor Colonia',
+    'Receptor Localidad', 'Receptor Referencia', 'Receptor Municipio', 'Receptor País', 'Receptor CP', 'Receptor Estado', 'Receptor Estado SAT',
+    'Receptor Residencia Fiscal(País)', 'Receptor Núm. Id. Fiscal(Extranjero)', 'Conceptos NoIdentificación', 'Conceptos Cantidad', 'Conceptos Unidad',
+    'Conceptos ClaveUnidad SAT', 'Conceptos ClaveUnidad SAT Descripción', 'Conceptos Valor Unitario','Conceptos Importe','Conceptos ClaveProdServ SAT',
+    'Conceptos Cuenta Predial', # verde (usualmente ocultas)
+    'Conceptos Descripción', 'Conceptos ClaveProdServ SAT', # verde
     'Conceptos ClaveProdServ SAT Descripción', 
     'Fecha de pago', # azul
     'Mes de pago', # azul
     'Pagado SAP XML', # amarillo
+    'Base IVA 16', 'Base IVA 8', 'Base IVA 0', 'Base IVA Exento', 'Base IEPS', 'Descuento', 'IVA', 'IEPS', 'Impto. Loc. Tras.', 'Total Trasladados',
+    'IVA Retenido', 'ISR Retenido', 'Impto. Loc. Ret.', 'Total Retenciones', # verde (usualmente ocultas)
     'SubTotal', 'Total SAT MXN', # verde
     'Total SAP MXN', 'Dif. Total MXN', # amarillo
     'Total SAT XML', # verde
