@@ -106,7 +106,7 @@ COLS_CONC = [
     'Emisor CP', 'Emisor Estado', 'Receptor RFC', 'Receptor Nombre', 'Receptor Domicilio Fiscal', 'Receptor Calle', 'Receptor Colonia',
     'Receptor Localidad', 'Receptor Referencia', 'Receptor Municipio', 'Receptor País', 'Receptor CP', 'Receptor Estado', 'Receptor Estado SAT',
     'Receptor Residencia Fiscal(País)', 'Receptor Núm. Id. Fiscal(Extranjero)', 'Conceptos NoIdentificación', 'Conceptos Cantidad', 'Conceptos Unidad',
-    'Conceptos ClaveUnidad SAT', 'Conceptos ClaveUnidad SAT Descripción', 'Conceptos Valor Unitario','Conceptos Importe','Conceptos ClaveProdServ SAT',
+    'Conceptos ClaveUnidad SAT', 'Conceptos ClaveUnidad SAT Descripción', 'Conceptos Valor Unitario','Conceptos Importe',
     'Conceptos Cuenta Predial', # verde (usualmente ocultas)
     'Conceptos Descripción', 'Conceptos ClaveProdServ SAT', # verde
     'Conceptos ClaveProdServ SAT Descripción', 
