@@ -157,6 +157,7 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
             else x,
         total_row=True,
     )
+    st.write(pivot_df)
     st.table(pivot_df, border='horizontal')
 
 @st.fragment
