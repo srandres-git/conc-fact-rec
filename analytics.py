@@ -170,7 +170,7 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
                     (agg_df['Estatus Box']==estatus) &
                     (agg_df['Mes']==mes)
                 ]['Total SAT MXN'].sum()
-                with st.expander(f'Mes: {mes}' + f' - Subtotal Total SAT MXN: {subtotal:,.2f}', expanded=False):
+                with st.expander(f'Mes: {mes}' + f' - Total SAT MXN: {subtotal:,.2f}', expanded=False):
                     detalle_df = filtered_df[
                         (filtered_df['Ejecutivo CxP']==ejecutivo) &
                         (filtered_df['Estatus Box']==estatus) &
@@ -180,7 +180,7 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
                     detalle_df.index += 1
                     detalle_df['Total SAT MXN'] = detalle_df['Total SAT MXN'].map(lambda x: f"{x:,.2f}")
                     detalle_df['Total SAT XML'] = detalle_df['Total SAT XML'].map(lambda x: f"{x:,.2f}")
-                    st.write(detalle_df, border='horizontal')
+                    st.write(detalle_df,)
 
 @st.fragment
 def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
