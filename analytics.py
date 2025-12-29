@@ -132,6 +132,34 @@ def dtable_no_sap_top(conciliacion: pd.DataFrame, name = 'no_sap_top', top_n:int
     st.table(pivot_df, border='horizontal')
 
 @st.fragment
+def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecutivo'):
+    """tabla dinámica de facturas pendientes de registrar en SAP por ejecutivo."""
+    with st.expander("Filtros", icon='⚙️'):
+        for col, preselected in FILTERS[name].items():
+            options = st.session_state['conciliacion'][col].dropna().unique().tolist()
+            default = [val for val in preselected if val in options] if preselected else None
+            st.multiselect(
+                f'{col}',
+                options=options,
+                default=default,
+                key=multiselect_key('ms_'+name, col)
+            )
+    filters = get_multiselect_values('ms_'+name, FILTERS[name])
+    pivot_df = pivot_table(
+        conciliacion,
+        rows= ['Ejecutivo', 'Estatus Box', 'Mes'],
+        cols= [],
+        values={'Total SAT MXN':'sum',},
+        filters=filters,
+        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)
+            else f"{x:,}" if isinstance(x, int) \
+            else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
+            else x,
+        total_row=True,
+    )
+    st.table(pivot_df, border='horizontal')
+
+@st.fragment
 def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
     """Realiza la tabla dinámica de facturas pendientes de complemento de pago."""
     with st.expander("Filtros", icon='⚙️'):

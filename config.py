@@ -131,7 +131,7 @@ EXPECTED_COLS = {
         'UUID Corregido', 'Estado de factura', 'Referencia externa','Creado por'
     ],
     'box': [
-        'UUID', 'Estatus', 'Ruta_Archivo', 'Fecha_Modificacion'
+        'UUID', 'Estatus', 'Ruta_Archivo', 'Fecha_Modificacion', 'Emisor_RFC'
     ],
     'cp': NUM_COLS_CP+DATE_COLS_CP+[
         'UUIDRel', 'Estatus',
@@ -228,7 +228,8 @@ FILTERS = {
     'no_sap_mes': {'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Estatus Box':None, 'Ejecutivo CxP':None,},
     'no_sap_mes_box': {'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Ejecutivo CxP':None,},
     'no_sap_top':{'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,},
-    'pendientes_cp':{'Comentario':['Revisar // Vigente SAT - Sin CP', 'Revisar // Vigente SAT - Tiene CP cancelado'],'Mes de pago':None,'Tipo de servicio':None, 'Estatus Box':None, 'Ejecutivo CxP':None,}
+    'pendientes_cp':{'Comentario':['Revisar // Vigente SAT - Sin CP', 'Revisar // Vigente SAT - Tiene CP cancelado'],'Mes de pago':None,'Tipo de servicio':None, 'Estatus Box':None, 'Ejecutivo CxP':None,},
+    'no_sap_x_ejecutivo':{'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Estatus Box':['OK', 'RAÍZ'], 'Ejecutivo CxP':['CARMEN MORENO', 'MANUEL QUIROZ'],}
 }
 MONTH_ORDER = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 

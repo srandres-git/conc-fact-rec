@@ -125,6 +125,8 @@ def conciliar(output_file=""):#fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, b
     # los que queden vacíos, con el valor de la columna 'ejecutivo_cxp' (proveniente de los datos históricos)
     # los que queden vacíos, con la columna 'Ejecutivo CPP SAP' (proveniente de la base de proveedores prov)
     # los que queden vacíos, son asignados 'No identificado'
+    # TODO: lo que no está en sap, asignar dependiendo del RFC y moneda de lo que sí está en sap
+    # TODO: manual de usuario y documentación
     fact_sat['Ejecutivo CxP'] = fact_sat['Creado por'] \
         .fillna(fact_sat['ejecutivo_cxp']) \
         .fillna(fact_sat['Ejecutivo CPP SAP']) \

@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from analytics import dtable_estatus, dtable_no_sap_mes, dtable_no_sap_mes_box, dtable_no_sap_top, dtable_pendientes_cp
+from analytics import dtable_estatus, dtable_no_sap_mes, dtable_no_sap_mes_box, dtable_no_sap_top, dtable_no_sap_x_ejecutivo, dtable_pendientes_cp
 # pestaña del dashboard
 st.set_page_config(layout="wide")
 st.title("Resumen de conciliación")
@@ -19,11 +19,12 @@ if uploaded_file is not None:
 
 # Si ya tenemos una conciliación (cargada o generada)
 # Creamos tabs para mostrar las distintas tablas del dashboard
-tab_estatus, tab_no_sap_mes, tab_no_sap_mes_box, tab_no_sap_top, tab_pendientes_cp = st.tabs([
+tab_estatus, tab_no_sap_mes, tab_no_sap_mes_box, tab_no_sap_top, tab_x_ejecutivo, tab_pendientes_cp = st.tabs([
     'Por estatus',
     'Faltantes en SAP por mes',
     'Faltantes en SAP por carpeta Box',
     'Top proveedores faltantes en SAP',
+    'Por registrar por ejecutivo',
     'Pendientes de CP'
 ])
 
@@ -40,6 +41,11 @@ if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is no
     with tab_no_sap_top:
         st.header('Top proveedores con más facturas faltantes en SAP')
         dtable_no_sap_top(st.session_state['conciliacion'])
+    with tab_x_ejecutivo:
+        st.header('Facturas pendientes de registrar por Ejecutivo')
+        dtable_no_sap_x_ejecutivo(st.session_state['conciliacion'])
+        # # aviso de que esta sección está en desarrollo
+        # st.info('Esta sección está en desarrollo y se actualizará pronto.', icon="ℹ️")
     with tab_pendientes_cp:
         st.header('Facturas pendientes de Complemento de Pago')
         # dtable_pendientes_cp(st.session_state['conciliacion'])
