@@ -230,7 +230,11 @@ def pivot_table(
         total_col: Whether to add a total column
     """
     # --- Filtering ---
-    filtered_df = df[cols+rows+list(values.keys())+list(filters.keys())].copy()
+    # columns to filter
+    filter_cols = cols+rows+list(values.keys())+list(filters.keys())
+    # delete duplicates
+    filter_cols = list(set(filter_cols))
+    filtered_df = df[filter_cols].copy()
     for col, selected_vals in filters.items():
         unique_vals = filtered_df[col].dropna().unique().tolist()
         if selected_vals:
