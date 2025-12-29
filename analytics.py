@@ -147,7 +147,7 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
     pivot_df = pivot_table(
         conciliacion,
-        rows= ['Ejecutivo', 'Estatus Box', 'Mes'],
+        rows= ['Ejecutivo CxP', 'Estatus Box', 'Mes'],
         cols= [],
         values={'Total SAT MXN':'sum',},
         filters=filters,
