@@ -229,7 +229,7 @@ FILTERS = {
     'no_sap_mes_box': {'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Ejecutivo CxP':None,},
     'no_sap_top':{'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Mes':None, 'Estatus Box':None, 'Ejecutivo CxP':None,},
     'pendientes_cp':{'Comentario':['Revisar // Vigente SAT - Sin CP', 'Revisar // Vigente SAT - Tiene CP cancelado'],'Mes de pago':None,'Tipo de servicio':None, 'Estatus Box':None, 'Ejecutivo CxP':None,},
-    'no_sap_x_ejecutivo':{'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Estatus Box':['OK', 'RAÍZ'], 'Ejecutivo CxP':['CARMEN MORENO', 'MANUEL QUIROZ'],}
+    'no_sap_x_ejecutivo':{'Comentario':['Revisar // Vigente SAT - No está en SAP'],'Tipo de servicio':SERVS_TRANSPORTE, 'Estatus Box':['OK', 'RAIZ'], 'Ejecutivo CxP':['CARMEN MORENO', 'MANUEL QUIROZ'],}
 }
 MONTH_ORDER = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
