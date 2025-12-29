@@ -234,8 +234,10 @@ def pivot_table(
     filter_cols = cols+rows+list(values.keys())+list(filters.keys())
     # delete duplicates
     filter_cols = list(set(filter_cols))
+    st.write(filter_cols)
     filtered_df = df[filter_cols].copy()
     for col, selected_vals in filters.items():
+        st.write(f"Filtering {col} with {selected_vals}")
         unique_vals = filtered_df[col].dropna().unique().tolist()
         if selected_vals:
             selected_vals = [val for val in selected_vals if val in unique_vals]# correct preselected to make sure the value exists
