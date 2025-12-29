@@ -175,7 +175,7 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
                         (filtered_df['Ejecutivo CxP']==ejecutivo) &
                         (filtered_df['Estatus Box']==estatus) &
                         (filtered_df['Mes']==mes)
-                    ][['Emisor Nombre','UUID','Folio','Emisión', 'Servicio','ID Proveedor SAP', 'Emisor Nombre','Total SAT MXN','Total SAT XML']]
+                    ][['UUID','Folio','Emisión', 'Servicio','ID Proveedor SAP', 'Emisor Nombre','Total SAT MXN','Total SAT XML']]
                     detalle_df = detalle_df.reset_index(drop=True)
                     detalle_df.index += 1
                     detalle_df['Total SAT MXN'] = detalle_df['Total SAT MXN'].map(lambda x: f"{x:,.2f}")
