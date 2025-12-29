@@ -145,20 +145,34 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
                 key=multiselect_key('ms_'+name, col)
             )
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
-    pivot_df = pivot_table(
-        conciliacion,
-        rows= ['Ejecutivo CxP', 'Estatus Box', 'Mes'],
-        cols= [],
-        values={'Total SAT MXN':'sum',},
-        filters=filters,
-        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)
-            else f"{x:,}" if isinstance(x, int) \
-            else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
-            else x,
-        total_row=True,
+    # filtramos la conciliación según los filtros seleccionados
+    filtered_df = conciliacion.copy()
+    for col, selected_vals in filters.items():
+        unique_vals = filtered_df[col].dropna().unique().tolist()
+        if selected_vals:
+            selected_vals = [val for val in selected_vals if val in unique_vals]# correct preselected to make sure the value exists
+            filtered_df = filtered_df[filtered_df[col].isin(selected_vals)]
+    st.write(
+        filtered_df.groupby(['Ejecutivo CxP','Estatus Box','Mes']).aggregate({'Total SAT MXN':'sum'}).reset_index()
     )
-    st.write(pivot_df)
-    st.table(pivot_df, border='horizontal')
+    
+    # cremos una fila en un expander por cada valor único en 'Ejecutivo CxP', 'Estatus Box', 'Mes' aplicando los filtros seleccionados
+    # dentro del expander mostramos una tabla con los detalles de las facturas pendientes de registrar en SAP para ese ejecutivo, estatus y mes
+
+    # pivot_df = pivot_table(
+    #     conciliacion,
+    #     rows= ['Ejecutivo CxP', 'Estatus Box', 'Mes'],
+    #     cols= [],
+    #     values={'Total SAT MXN':'sum',},
+    #     filters=filters,
+    #     format_func= lambda x: f"{x:,.2f}" if isinstance(x, float)
+    #         else f"{x:,}" if isinstance(x, int) \
+    #         else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
+    #         else x,
+    #     total_row=True,
+    # )
+    # st.write(pivot_df)
+    # st.table(pivot_df, border='horizontal')
 
 @st.fragment
 def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
@@ -235,10 +249,8 @@ def pivot_table(
     filter_cols = cols+rows+list(values.keys())+list(filters.keys())
     # delete duplicates
     filter_cols = list(set(filter_cols))
-    st.write(filter_cols)
     filtered_df = df[filter_cols].copy()
     for col, selected_vals in filters.items():
-        st.write(f"Filtering {col} with {selected_vals}")
         unique_vals = filtered_df[col].dropna().unique().tolist()
         if selected_vals:
             selected_vals = [val for val in selected_vals if val in unique_vals]# correct preselected to make sure the value exists
