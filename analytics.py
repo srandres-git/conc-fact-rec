@@ -162,7 +162,8 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
         st.subheader(f'Ejecutivo: {ejecutivo}')
         estatuses = agg_df[agg_df['Ejecutivo CxP']==ejecutivo]['Estatus Box'].unique().tolist()
         for estatus in estatuses:
-            st.markdown(f'**Estatus Box: {estatus}**')
+            color = 'blue' if 'RAIZ' in estatus else 'green' if 'OK' in estatus else 'red' if 'Revisar' in estatus else 'black'
+            st.markdown(f'**📁 :{color}-background[{estatus}]**')
             meses = agg_df[(agg_df['Ejecutivo CxP']==ejecutivo) & (agg_df['Estatus Box']==estatus)]['Mes'].unique().tolist()
             for mes in meses:
                 subtotal = agg_df[
@@ -170,7 +171,7 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
                     (agg_df['Estatus Box']==estatus) &
                     (agg_df['Mes']==mes)
                 ]['Total SAT MXN'].sum()
-                with st.expander(f'Mes: {mes}' + f' - Total SAT MXN: {subtotal:,.2f}', expanded=False):
+                with st.expander(f':blue[{mes}]' + f' - MXN: {subtotal:,.2f}', expanded=False):
                     detalle_df = filtered_df[
                         (filtered_df['Ejecutivo CxP']==ejecutivo) &
                         (filtered_df['Estatus Box']==estatus) &
