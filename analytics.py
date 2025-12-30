@@ -95,7 +95,7 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
             else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
-            else f'📁 {STATUS_BOX_FORMAT[x]}' if x in STATUS_BOX_FORMAT\
+            else STATUS_BOX_FORMAT[x] if x in STATUS_BOX_FORMAT\
             else x,
     ).sort_index(axis=1, level=1, key=lambda x: pd.Categorical(x, categories=['']+MONTH_ORDER, ordered=True))
     st.table(pivot_df, border='horizontal')
@@ -160,29 +160,31 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
     # mostramos los datos agrupados por ejecutivo, estatus y mes
     ejecutivos = agg_df['Ejecutivo CxP'].unique().tolist()
     for ejecutivo in ejecutivos:
-        st.subheader(f'Ejecutivo: {ejecutivo}')
-        estatuses = agg_df[agg_df['Ejecutivo CxP']==ejecutivo]['Estatus Box'].unique().tolist()
-        for estatus in estatuses:
-            text = STATUS_BOX_FORMAT.get(estatus, estatus)
-            st.markdown(f'**{text}**')
-            meses = agg_df[(agg_df['Ejecutivo CxP']==ejecutivo) & (agg_df['Estatus Box']==estatus)]['Mes'].unique().tolist()
-            for mes in meses:
-                subtotal = agg_df[
-                    (agg_df['Ejecutivo CxP']==ejecutivo) &
-                    (agg_df['Estatus Box']==estatus) &
-                    (agg_df['Mes']==mes)
-                ]['Total SAT MXN'].sum()
-                with st.expander(f':blue[{mes}]' + f' - MXN: {subtotal:,.2f}', expanded=False):
-                    detalle_df = filtered_df[
-                        (filtered_df['Ejecutivo CxP']==ejecutivo) &
-                        (filtered_df['Estatus Box']==estatus) &
-                        (filtered_df['Mes']==mes)
-                    ][['UUID','Folio','Emisión', 'Servicio','ID Proveedor SAP', 'Emisor Nombre','Total SAT MXN','Total SAT XML']]
-                    detalle_df = detalle_df.reset_index(drop=True)
-                    detalle_df.index += 1
-                    detalle_df['Total SAT MXN'] = detalle_df['Total SAT MXN'].map(lambda x: f"{x:,.2f}")
-                    detalle_df['Total SAT XML'] = detalle_df['Total SAT XML'].map(lambda x: f"{x:,.2f}")
-                    st.write(detalle_df,)
+        total_ejecutivo = agg_df[agg_df['Ejecutivo CxP']==ejecutivo]['Total SAT MXN'].sum()
+        total_ejecutivo = f"{total_ejecutivo:,.2f}"
+        with st.expander(f'👤 :green[{ejecutivo}] - MXN: {total_ejecutivo}', expanded=False):
+            estatuses = agg_df[agg_df['Ejecutivo CxP']==ejecutivo]['Estatus Box'].unique().tolist()
+            for estatus in estatuses:
+                text = STATUS_BOX_FORMAT.get(estatus, estatus)
+                st.markdown(f'**{text}**')
+                meses = agg_df[(agg_df['Ejecutivo CxP']==ejecutivo) & (agg_df['Estatus Box']==estatus)]['Mes'].unique().tolist()
+                for mes in meses:
+                    subtotal = agg_df[
+                        (agg_df['Ejecutivo CxP']==ejecutivo) &
+                        (agg_df['Estatus Box']==estatus) &
+                        (agg_df['Mes']==mes)
+                    ]['Total SAT MXN'].sum()
+                    with st.expander(f':blue[{mes}]' + f' - MXN: {subtotal:,.2f}', expanded=False):
+                        detalle_df = filtered_df[
+                            (filtered_df['Ejecutivo CxP']==ejecutivo) &
+                            (filtered_df['Estatus Box']==estatus) &
+                            (filtered_df['Mes']==mes)
+                        ][['UUID','Folio','Emisión', 'Servicio','ID Proveedor SAP', 'Emisor Nombre','Total SAT MXN','Total SAT XML']]
+                        detalle_df = detalle_df.reset_index(drop=True)
+                        detalle_df.index += 1
+                        detalle_df['Total SAT MXN'] = detalle_df['Total SAT MXN'].map(lambda x: f"{x:,.2f}")
+                        detalle_df['Total SAT XML'] = detalle_df['Total SAT XML'].map(lambda x: f"{x:,.2f}")
+                        st.write(detalle_df,)
 
 @st.fragment
 def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):

@@ -42,7 +42,7 @@ if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is no
         st.header('Top proveedores con más facturas faltantes en SAP')
         dtable_no_sap_top(st.session_state['conciliacion'])
     with tab_x_ejecutivo:
-        st.header('Facturas pendientes de registrar por Ejecutivo')
+        st.header('Facturas pendientes de registrar por ejecutivo')
         dtable_no_sap_x_ejecutivo(st.session_state['conciliacion'])
         # # aviso de que esta sección está en desarrollo
         # st.info('Esta sección está en desarrollo y se actualizará pronto.', icon="ℹ️")
