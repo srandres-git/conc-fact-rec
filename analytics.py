@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from config import FILTERS, MONTH_ORDER
+from config import FILTERS, MONTH_ORDER, STATUS_BOX_FORMAT
 from utils import multiselect_key, get_multiselect_values
 
 @st.fragment
@@ -95,7 +95,8 @@ def dtable_no_sap_mes_box(conciliacion: pd.DataFrame, name = 'no_sap_mes_box'):
         format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
             else f"{x:,}" if isinstance(x, int) \
             else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
-            else x
+            else f'📁 {STATUS_BOX_FORMAT[x]}' if x in STATUS_BOX_FORMAT\
+            else x,
     ).sort_index(axis=1, level=1, key=lambda x: pd.Categorical(x, categories=['']+MONTH_ORDER, ordered=True))
     st.table(pivot_df, border='horizontal')
 
@@ -162,8 +163,8 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
         st.subheader(f'Ejecutivo: {ejecutivo}')
         estatuses = agg_df[agg_df['Ejecutivo CxP']==ejecutivo]['Estatus Box'].unique().tolist()
         for estatus in estatuses:
-            color = 'blue' if 'RAIZ' in estatus else 'green' if 'OK' in estatus else 'red' if 'Revisar' in estatus else 'black'
-            st.markdown(f'**📁 :{color}-background[{estatus}]**')
+            text = STATUS_BOX_FORMAT.get(estatus, estatus)
+            st.markdown(f'**{text}**')
             meses = agg_df[(agg_df['Ejecutivo CxP']==ejecutivo) & (agg_df['Estatus Box']==estatus)]['Mes'].unique().tolist()
             for mes in meses:
                 subtotal = agg_df[

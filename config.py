@@ -233,6 +233,15 @@ FILTERS = {
 }
 MONTH_ORDER = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
+# Formato de los estatus Box en el dashboard
+STATUS_BOX_FORMAT ={
+    'OK': '📁 :green-background[OK]',
+    'RAIZ': '📁 :blue-background[RAIZ]',
+    'PENDIENTES': '📁 :orange-background[REVISAR]',
+    'CANCELADAS': '📁 :red-background[REVISAR]',
+    'PAGADAS': '📁 :yellow-background[PAGADAS]'
+}
+
 # mapeo de funciones de depuración para cada reporte
 CLEANING_FUNCTIONS = {
     'fact_sat': 'depurar_sat',
