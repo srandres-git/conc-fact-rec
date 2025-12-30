@@ -237,8 +237,8 @@ MONTH_ORDER = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', '
 STATUS_BOX_FORMAT ={
     'OK': '📁 :green-background[OK]',
     'RAIZ': '📁 :blue-background[RAIZ]',
-    'PENDIENTES': '📁 :orange-background[REVISAR]',
-    'CANCELADAS': '📁 :red-background[REVISAR]',
+    'PENDIENTES': '📁 :orange-background[PENDIENTES]',
+    'CANCELADAS': '📁 :red-background[CANCELADAS]',
     'PAGADAS': '📁 :yellow-background[PAGADAS]'
 }
 
