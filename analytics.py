@@ -254,7 +254,7 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp', top
                                 (filtered_df['Emisor Nombre']==emisor) &
                                 (filtered_df['Mes de pago']==mes) &
                                 (filtered_df['Fecha de pago']==fecha)
-                            ][['ID Proveedor SAP', 'Emisor Nombre','UUID','Folio','Emisión','Fecha de pago', 'Servicio','Total SAT MXN','Total SAT XML', 'Total SAP XML', 'Pagado SAP XML', 'Moneda', 'Tipo Cambio']]
+                            ][['ID Proveedor SAP', 'Emisor Nombre','UUID','Folio','Comentario', 'Emisión','Fecha de pago', 'Servicio','Total SAT MXN','Total SAT XML', 'Total SAP XML', 'Pagado SAP XML', 'Moneda', 'Tipo Cambio']]
                             detalle_df = detalle_df.reset_index(drop=True)
                             detalle_df.index += 1
                             detalle_df['Total SAT MXN'] = detalle_df['Total SAT MXN'].map(lambda x: f"{x:,.2f}")
