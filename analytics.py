@@ -209,6 +209,7 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp', top
         if selected_vals:
             selected_vals = [val for val in selected_vals if val in unique_vals]# correct preselected to make sure the value exists
             filtered_df = filtered_df[filtered_df[col].isin(selected_vals)]
+    total_pendientes = filtered_df['Total SAT MXN'].sum()
     # dejamos únicamente el top N de emisores con más monto total (Total SAT MXN)
     top_emitentes = (
         filtered_df.groupby('Emisor Nombre')
@@ -219,6 +220,9 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp', top
         .tolist()
     )
     filtered_df = filtered_df[filtered_df['Emisor Nombre'].isin(top_emitentes)]
+    subtotal_pendientes = filtered_df['Total SAT MXN'].sum()
+    st.markdown(f'### Total de facturas pendientes de Complemento de Pago: :red[MXN {total_pendientes:,.2f}]')
+    st.markdown(f'### Total mostrado en el detalle (top {top_n} emisores): :red[MXN {subtotal_pendientes:,.2f}]')
     agg_df = filtered_df.groupby(['Emisor Nombre','Mes de pago','Fecha de pago']).aggregate({'Total SAT MXN':'sum'}).reset_index()
     # ordenamos los meses según MONTH_ORDER
     agg_df['Mes de pago'] = pd.Categorical(agg_df['Mes de pago'], categories=MONTH_ORDER, ordered=True)

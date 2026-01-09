@@ -50,6 +50,6 @@ if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is no
         st.header('Facturas pendientes de Complemento de Pago')
         dtable_pendientes_cp(st.session_state['conciliacion'])
         # aviso de que esta sección está en desarrollo
-        st.info('Esta sección está en desarrollo y se actualizará pronto.', icon="ℹ️")
+        # st.info('Esta sección está en desarrollo y se actualizará pronto.', icon="ℹ️")
 else:
         st.info('Por favor, genere o cargue una conciliación para ver el dashboard.', icon="ℹ️")
