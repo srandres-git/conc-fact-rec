@@ -187,7 +187,7 @@ def dtable_no_sap_x_ejecutivo(conciliacion: pd.DataFrame, name = 'no_sap_x_ejecu
                         st.write(detalle_df,)
 
 @st.fragment
-def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
+def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp', top_n:int=20):
     """Realiza la tabla dinámica de facturas pendientes de complemento de pago."""
     with st.expander("Filtros", icon='⚙️'):
         for col, preselected in FILTERS[name].items():
@@ -200,7 +200,7 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
                 key=multiselect_key('ms_'+name, col)
             )
         # agregamos widget para seleccionar top N
-        top_n = st.number_input('Mostrar los principales:', min_value=1, max_value=100, value=top_n, step=1, key='top_n_'+name)
+        top_n = st.number_input('Mostrar los principales:', min_value=1, max_value=500, value=top_n, step=1, key='top_n_'+name)
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
     # filtramos la conciliación según los filtros seleccionados
     filtered_df = conciliacion.copy()
