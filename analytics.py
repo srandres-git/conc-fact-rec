@@ -191,6 +191,8 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp', top
     """Realiza la tabla dinámica de facturas pendientes de complemento de pago."""
     with st.expander("Filtros", icon='⚙️'):
         for col, preselected in FILTERS[name].items():
+            st.write(col)
+            st.write(preselected)
             options = st.session_state['conciliacion'][col].dropna().unique().tolist()
             default = [val for val in preselected if val in options] if preselected else None
             st.multiselect(
