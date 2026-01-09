@@ -48,7 +48,7 @@ if 'conciliacion' in st.session_state and st.session_state['conciliacion'] is no
         # st.info('Esta sección está en desarrollo y se actualizará pronto.', icon="ℹ️")
     with tab_pendientes_cp:
         st.header('Facturas pendientes de Complemento de Pago')
-        # dtable_pendientes_cp(st.session_state['conciliacion'])
+        dtable_pendientes_cp(st.session_state['conciliacion'])
         # aviso de que esta sección está en desarrollo
         st.info('Esta sección está en desarrollo y se actualizará pronto.', icon="ℹ️")
 else:

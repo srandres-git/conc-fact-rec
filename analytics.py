@@ -199,31 +199,63 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp'):
                 default=default,
                 key=multiselect_key('ms_'+name, col)
             )
+        # agregamos widget para seleccionar top N
+        top_n = st.number_input('Mostrar los principales:', min_value=1, max_value=100, value=top_n, step=1, key='top_n_'+name)
     filters = get_multiselect_values('ms_'+name, FILTERS[name])
-    pivot_df = pivot_table(
-        conciliacion,
-        rows= ['Emisor Nombre', 'Fecha de pago'],
-        cols= ['Moneda'],
-        values={'Pagado SAP XML':'sum', 'Total SAT MXN':'sum','UUID':'count'},
-        filters=filters,
-        format_func= lambda x: f"{x:,.2f}" if isinstance(x, float) \
-            else f"{x:,}" if isinstance(x, int) \
-            else f":Orange[{x}]" if 'USD' in x and isinstance(x, str) \
-            else f":green[{x}]" if 'MXN' in x and isinstance(x, str)\
-            else f":blue[{x}]" if 'Total' in x and isinstance(x, str)\
-            # si es tupla str,timestamp formatear adecuadamente
-            else f":gray[{x[0]} | {x[1].strftime('%d-%m-%y')}]" if isinstance(x, tuple) and isinstance(x[1], pd.Timestamp)
-            else str(x),
-        # sort_args={'by': ('Moneda','Total SAT MXN'), 'ascending':False},
-        total_row=True,
+    # filtramos la conciliación según los filtros seleccionados
+    filtered_df = conciliacion.copy()
+    for col, selected_vals in filters.items():
+        unique_vals = filtered_df[col].dropna().unique().tolist()
+        if selected_vals:
+            selected_vals = [val for val in selected_vals if val in unique_vals]# correct preselected to make sure the value exists
+            filtered_df = filtered_df[filtered_df[col].isin(selected_vals)]
+    # dejamos únicamente el top N de emisores con más monto total (Total SAT MXN)
+    top_emitentes = (
+        filtered_df.groupby('Emisor Nombre')
+        .aggregate({'Total SAT MXN':'sum'})
+        .sort_values('Total SAT MXN', ascending=False)
+        .head(top_n)
+        .index
+        .tolist()
     )
-    # flatten multiindex columns
-    if isinstance(pivot_df.columns, pd.MultiIndex):
-        pivot_df.columns = [' '.join([str(c) for c in col if c]) for col in pivot_df.columns.to_flat_index()]
-    # flatten multiindex index
-    # pivot_df['index'] = pivot_df['index'].apply(lambda x: x[0]+' | '+x[1].strftime('%d-%m-%y') if isinstance(x[1], pd.Timestamp) else x[0]+' | '+str(x[1]))
-    pivot_df.rename(columns={'index':'Emisor Nombre | Fecha de pago'}, inplace=True)
-    st.table(pivot_df, border='horizontal')
+    filtered_df = filtered_df[filtered_df['Emisor Nombre'].isin(top_emitentes)]
+    agg_df = filtered_df.groupby(['Emisor Nombre','Mes de pago','Fecha de pago']).aggregate({'Total SAT MXN':'sum'}).reset_index()
+    # ordenamos los meses según MONTH_ORDER
+    agg_df['Mes de pago'] = pd.Categorical(agg_df['Mes de pago'], categories=MONTH_ORDER, ordered=True)
+    agg_df = agg_df.sort_values(['Emisor Nombre','Mes de pago','Fecha de pago'])
+    # mostramos los datos agrupados por ejecutivo, estatus y mes
+    for emisor in top_emitentes:
+        total_emisor = agg_df[agg_df['Emisor Nombre']==emisor]['Total SAT MXN'].sum()
+        total_emisor = f"{total_emisor:,.2f}"
+        with st.expander(f'🏢 :green[{emisor}] - MXN: {total_emisor}', expanded=False):
+            meses = agg_df[agg_df['Emisor Nombre']==emisor]['Mes de pago'].unique().tolist()
+            for mes in meses:
+                subtotal = agg_df[
+                    (agg_df['Emisor Nombre']==emisor) &
+                    (agg_df['Mes de pago']==mes)
+                ]['Total SAT MXN'].sum()
+                with st.expander(f':blue[{mes}]' + f' - MXN: {subtotal:,.2f}', expanded=False):
+                    fechas = agg_df[
+                        (agg_df['Emisor Nombre']==emisor) &
+                        (agg_df['Mes de pago']==mes)
+                    ]['Fecha de pago'].unique().tolist()
+                    for fecha in fechas:
+                        subsubtotal = agg_df[
+                            (agg_df['Emisor Nombre']==emisor) &
+                            (agg_df['Mes de pago']==mes) &
+                            (agg_df['Fecha de pago']==fecha)
+                        ]['Total SAT MXN'].sum()
+                        with st.expander(f':orange[{fecha.strftime("%Y-%m-%d")}]' + f' - MXN: {subsubtotal:,.2f}', expanded=False):
+                            detalle_df = filtered_df[
+                                (filtered_df['Emisor Nombre']==emisor) &
+                                (filtered_df['Mes de pago']==mes) &
+                                (filtered_df['Fecha de pago']==fecha)
+                            ][['ID Proveedor SAP', 'Emisor Nombre','UUID','Folio','Emisión','Fecha de pago', 'Servicio','Total SAT MXN','Total SAT XML', 'Total SAP XML', 'Pagado SAP XML', 'Moneda', 'Tipo Cambio']]
+                            detalle_df = detalle_df.reset_index(drop=True)
+                            detalle_df.index += 1
+                            detalle_df['Total SAT MXN'] = detalle_df['Total SAT MXN'].map(lambda x: f"{x:,.2f}")
+                            detalle_df['Total SAT XML'] = detalle_df['Total SAT XML'].map(lambda x: f"{x:,.2f}")
+                            st.write(detalle_df,)
 
 def pivot_table(
     df: pd.DataFrame,
