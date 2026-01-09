@@ -259,6 +259,8 @@ def dtable_pendientes_cp(conciliacion: pd.DataFrame, name = 'pendientes_cp', top
                             detalle_df.index += 1
                             detalle_df['Total SAT MXN'] = detalle_df['Total SAT MXN'].map(lambda x: f"{x:,.2f}")
                             detalle_df['Total SAT XML'] = detalle_df['Total SAT XML'].map(lambda x: f"{x:,.2f}")
+                            detalle_df['Total SAP XML'] = detalle_df['Total SAP XML'].map(lambda x: f"{x:,.2f}")
+                            detalle_df['Pagado SAP XML'] = detalle_df['Pagado SAP XML'].map(lambda x: f"{x:,.2f}")
                             st.write(detalle_df,)
 
 def pivot_table(
