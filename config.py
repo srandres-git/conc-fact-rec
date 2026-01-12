@@ -127,7 +127,7 @@ EXPECTED_COLS = {
     'fact_sat': NUM_COLS_FACT_SAT+DATE_COLS_FACT_SAT+[
         'UUID','Moneda','CFDI Relacionado', 'UUID Sustitución', 'Estatus','Emisor RFC', 'Emisor Nombre', 'Folio', 'Serie',
         'Estatus Sustitución', 'Estatus para Cancelación', 'Estatus Cancelación','Ver.','Tipo Relación CFDI',
-        'Tipo Relación CFDI Descripción', 'Tipo','Uso CFDI Descripción', 'Clave Confirmación PAC Impte Alto', 'NumCtaPago (4 Digitos)', 'Condiciones de Pago Comerciales',
+        'Tipo Relación CFDI Descripción', 'Tipo', 'Uso CFDI','Uso CFDI Descripción', 'Clave Confirmación PAC Impte Alto', 'NumCtaPago (4 Digitos)', 'Condiciones de Pago Comerciales',
         'Timbrado', 'Hora Timbrado', 'No. Certificado CSD Emisor', 'No. Certificado CSD SAT(PAC)', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción',
         'Emisor Estado SAT', 'Emisor Calle', 'Emisor Colonia', 'Emisor Localidad', 'Emisor Referencia', 'Emisor Municipio', 'Emisor Pais',
         'Emisor CP', 'Emisor Estado', 'Receptor RFC', 'Receptor Nombre', 'Receptor Domicilio Fiscal', 'Receptor Calle', 'Receptor Colonia',
