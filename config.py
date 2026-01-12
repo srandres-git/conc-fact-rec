@@ -138,13 +138,13 @@ EXPECTED_COLS = {
         'Tipo Cambio', 'Forma Pago', 'Método Pago',
     ],
     'fact_sap': NUM_COLS_FACT_SAP+DATE_COLS_FACT_SAP+[
-        'UUID Corregido', 'Estado de factura', 'Referencia externa','Creado por'
+        'UUID Corregido', 'ID de factura oficial', 'Estado de factura', 'Referencia externa','Creado por'
     ],
     'box': [
         'UUID', 'Estatus', 'Ruta_Archivo', 'Fecha_Modificacion', 'Emisor_RFC'
     ],
     'cp': NUM_COLS_CP+DATE_COLS_CP+[
-        'UUIDRel', 'Estatus',
+        'UUIDRel', 'UUID', 'Estatus',
     ],
 }
 
