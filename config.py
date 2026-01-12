@@ -85,7 +85,7 @@ RENAME_COLS_SAP = {
     # 'Creado por': 'Ejecutivo CxP'
 }
 
-# Conlumnas donde se busca el número de servicio
+# Columnas donde se busca el número de servicio
 COLS_SERVICE = ['Ref. externa SAP','Ruta Box', 'Conceptos Descripción']
 
 # columnas en el orden final de la conciliación
@@ -125,7 +125,17 @@ COLS_CONC = [
 # columnas esperadas en cada reporte inicial
 EXPECTED_COLS = {
     'fact_sat': NUM_COLS_FACT_SAT+DATE_COLS_FACT_SAT+[
-        'UUID','Moneda','CFDI Relacionado', 'UUID Sustitución', 'Estatus'
+        'UUID','Moneda','CFDI Relacionado', 'UUID Sustitución', 'Estatus','Emisor RFC', 'Emisor Nombre', 'Folio', 'Serie',
+        'Estatus Sustitución', 'Estatus para Cancelación', 'Estatus Cancelación','Ver.','Tipo Relación CFDI',
+        'Tipo Relación CFDI Descripción', 'Tipo','Uso CFDI Descripción', 'Clave Confirmación PAC Impte Alto', 'NumCtaPago (4 Digitos)', 'Condiciones de Pago Comerciales',
+        'Timbrado', 'Hora Timbrado', 'No. Certificado CSD Emisor', 'No. Certificado CSD SAT(PAC)', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción',
+        'Emisor Estado SAT', 'Emisor Calle', 'Emisor Colonia', 'Emisor Localidad', 'Emisor Referencia', 'Emisor Municipio', 'Emisor Pais',
+        'Emisor CP', 'Emisor Estado', 'Receptor RFC', 'Receptor Nombre', 'Receptor Domicilio Fiscal', 'Receptor Calle', 'Receptor Colonia',
+        'Receptor Localidad', 'Receptor Referencia', 'Receptor Municipio', 'Receptor País', 'Receptor CP', 'Receptor Estado', 'Receptor Estado SAT',
+        'Receptor Residencia Fiscal(País)', 'Receptor Núm. Id. Fiscal(Extranjero)', 'Conceptos NoIdentificación', 'Conceptos Cantidad', 'Conceptos Unidad',
+        'Conceptos ClaveUnidad SAT', 'Conceptos ClaveUnidad SAT Descripción', 'Conceptos Valor Unitario','Conceptos Importe',
+        'Conceptos Cuenta Predial','Conceptos Descripción', 'Conceptos ClaveProdServ SAT','Conceptos ClaveProdServ SAT Descripción', 
+        'Tipo Cambio', 'Forma Pago', 'Método Pago',
     ],
     'fact_sap': NUM_COLS_FACT_SAP+DATE_COLS_FACT_SAP+[
         'UUID Corregido', 'Estado de factura', 'Referencia externa','Creado por'
