@@ -2,6 +2,8 @@ numpy
 openpyxl
 pandas
 python-dateutil
-streamlit
+streamlit==1.52.0
 datetime
 xlsxwriter
+altair<5
+standard-imghdr

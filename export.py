@@ -42,9 +42,13 @@ def export_conciliacion_facturas(fact_sat: pd.DataFrame, output_file: str, cols_
         comma_format = workbook.add_format({'num_format': '#,##0.00'})
         # Escribe encabezado con formato de color
         for col_num, col_name in enumerate(cols_conc):
+            col_name = str(col_name)
             worksheet.write(1, col_num, col_name, get_header_format(col_name, workbook))
             # Ajusta ancho de columna
-            max_len = max(fact_sat[col_name].astype(str).map(len).max() if col_name in fact_sat.columns else 0, len(col_name))
+            try:
+                max_len = max(fact_sat[col_name].astype(str).map(len).max() if col_name in fact_sat.columns else 0, len(col_name))
+            except Exception:
+                max_len = 30 # Valor por defecto si hay error
             col_len = max_len + 2 if max_len < 30 else 30
             # Aplica formato numérico si corresponde
             if is_numeric(fact_sat,col_name):
