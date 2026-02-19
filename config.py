@@ -62,7 +62,7 @@ NUM_COLS_CP = [
        'ImpPagado', 'ImpSaldoInsoluto', 'Base IVA Exento Traslado',
        'IVA Exento Traslado', 'Base IVA 8% Traslado', 'IVA 8% Traslado',
        'Base IVA 4% Retención', 'IVA 4% Retención', 'Base IVA 16% Traslado',
-       'IVA 16% Traslado', 'Base IVA 16% Retención', 'IVA 16% Retención',
+       'IVA 16% Traslado', 
        'Base IVA 10.67% Retención', 'IVA 10.67% Retención',
        'Base IVA 0% Traslado', 'IVA 0% Traslado', 'Base IVA 0% Retención',
        'IVA 0% Retención', 'Base ISR 10% Retención', 'ISR 10% Retención',
