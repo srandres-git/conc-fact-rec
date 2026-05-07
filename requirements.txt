@@ -7,3 +7,5 @@ datetime
 xlsxwriter
 altair<5
 standard-imghdr
+sqlalchemy
+tomli

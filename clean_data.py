@@ -108,6 +108,7 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
         missing_cols = [col for col in expected_columns if col not in df.columns]
         if len(missing_cols) > 0:
             st.error(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
+            print(f'❌ El archivo cargado no contiene las columnas esperadas: {missing_cols}')
             return None
         else:
             # depuramos el DataFrame según la función correspondiente (si existe)
@@ -117,7 +118,9 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
                 df = cleaning_function(df)
             # st.session_state[session_name] = df
             st.success('Archivo leído correctamente.', icon="✅")
+            print('✅ Archivo leído correctamente.')
             return df
     except Exception as e:
         st.error(f'Error al leer el archivo: {e}', icon="❌")
+        print(f'❌ Error al leer el archivo: {e}')
         return None

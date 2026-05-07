@@ -226,6 +226,10 @@ MONTH_MAP_ENG_ESP = {
     'Dec': 'Diciembre',
 }
 
+"""LOCAL"""
+# variables de entorno para acceso a la base de datos y rutas
+ENV_FILE_PATH = r""
+
 """GUI"""
 
 # tabs en las que se divide la app

@@ -4,7 +4,7 @@ import numpy as np
 import streamlit as st
 from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
 from export import export_conciliacion_facturas
-from utils import assign_service_type, find_service, get_provs
+from utils import assign_service_type, find_service, get_provs, get_provs_from_dwh, assign_ejecutivo_cxp
 
 def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
     """Cruce de facturas de SAT vs SAP. Ambos reportes iniciales depurados."""
@@ -151,3 +151,66 @@ def conciliar(output_file=""):#fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, b
         st.info('Generando reporte de conciliación...', icon="ℹ️")
     export_conciliacion_facturas(st.session_state['conciliacion'], output_file, COLS_CONC)
     st.session_state['output_file'] = output_file
+
+def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame, output_file: str)->pd.DataFrame:
+    """Función para realizar la conciliación en un entorno local.
+    La lógica de los cruces se mantiene exactamente igual y los mensajes se muestran en consola."""
+    print('Iniciando conciliación local...')
+
+    fact_sat = sat_x_sap(fact_sat, fact_sap)
+    print('✅ Cruce SAT vs SAP completado.')
+
+    fact_sat = sat_x_box(fact_sat, box)
+    print('✅ Cruce SAT vs Box completado.')
+
+    fact_sat = sat_x_cp(fact_sat, cp)
+    print('✅ Cruce SAT vs CP completado.')
+
+    rfc_list = fact_sat['Emisor RFC'].astype(str).str.upper().str.strip().replace({'nan': ''}).unique().tolist()
+    rfc_list = [rfc for rfc in rfc_list if rfc]
+    print(f'Buscando datos de {len(rfc_list)} proveedores en SAP DWH...')
+    provs = get_provs_from_dwh(rfc_list)
+    if provs is None:
+        raise RuntimeError('❌ No se obtuvieron proveedores desde SAP DWH. Verifica la conexión y credenciales.')
+    provs.replace({'Ejecutivo CPP SAP': EJECUTIVO_SAP_MAP}, inplace=True)
+    fact_sat = fact_sat.merge(
+        provs[['ID Proveedor SAP', 'RFC Proveedor', 'Ejecutivo CPP SAP']],
+        left_on='Emisor RFC',
+        right_on='RFC Proveedor',
+        how='left',
+        suffixes=('', '_prov')
+    )
+    fact_sat['ID Proveedor SAP'] = fact_sat['ID Proveedor SAP'].fillna('No identificado')
+    print('✅ Asignación de ID de proveedor completada.')
+
+    fact_sat['Comentario'] = fact_sat.apply(
+        lambda row: COMENTARIOS.get((row['Estatus'], row['Estatus SAP'], row['Estatus CP']), 'Revisar // Caso no contemplado'),
+        axis=1
+    )
+    fact_sat['Comentario'].where(
+        (fact_sat['Método Pago'] == 'PPD') | ~(fact_sat['Comentario'].isin(ESTATUS_NA_PUE)),
+        fact_sat['Comentario'].str.replace('Revisar', 'OK') + ' (PUE)',
+        inplace=True
+    )
+    print('✅ Asignación de comentarios completada.')
+
+    print('Asignando ejecutivo de CxP...')
+    fact_sat = assign_ejecutivo_cxp(fact_sat)
+    print('✅ Asignación de ejecutivo de CxP completada.')
+
+    fact_sat['Servicio'] = fact_sat.apply(find_service, axis=1)
+    print('✅ Número de servicio asignado.')
+
+    fact_sat['Tipo de servicio'] = fact_sat.apply(assign_service_type, axis=1)
+    print('✅ Tipo de servicio asignado.')
+
+    conciliacion = fact_sat[COLS_CONC]
+    if output_file == '':
+        output_file_obj = io.BytesIO()
+        export_conciliacion_facturas(conciliacion, output_file_obj, COLS_CONC)
+        print('Reporte de conciliación generado en memoria.')
+    else:
+        export_conciliacion_facturas(conciliacion, output_file, COLS_CONC)
+        print(f'✅ Reporte de conciliación exportado a: {output_file}')
+
+    return conciliacion

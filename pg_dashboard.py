@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from analytics import dtable_estatus, dtable_no_sap_mes, dtable_no_sap_mes_box, dtable_no_sap_top, dtable_no_sap_x_ejecutivo, dtable_pendientes_cp
+from config import COLS_CONC
 # pestaña del dashboard
 st.set_page_config(layout="wide")
 st.title("Resumen de conciliación")
@@ -14,7 +15,11 @@ uploaded_file = st.file_uploader(
 
 # Si se sube un archivo nuevo, actualizamos el DataFrame en session_state
 if uploaded_file is not None:
-    st.session_state['conciliacion'] = pd.read_excel(uploaded_file, header=1)
+    st.session_state['conciliacion'] = pd.read_excel(uploaded_file, sheet_name='Conciliación', header=1)
+    # validamos que el archivo tenga las columnas necesarias
+    if not all(col in st.session_state['conciliacion'].columns for col in COLS_CONC):
+        st.error('El archivo cargado no tiene las columnas necesarias para la conciliación. Por favor, verifica el formato del archivo.')
+        st.session_state['conciliacion'] = None
     st.session_state['dashboard_loaded'] = False
 
 # Si ya tenemos una conciliación (cargada o generada)

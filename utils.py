@@ -3,8 +3,13 @@ import numpy as np
 import pandas as pd
 import requests
 import streamlit as st
+import urllib.parse
+import os
+import tomli
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 
-from config import COLS_SERVICE
+from config import COLS_SERVICE, ENV_FILE_PATH
 
 def clean_dtypes(df: pd.DataFrame, num_cols, date_cols, date_format=None):
     """Corrección de los tipos de datos, según la lista de columnas numéricas o de fecha."""
@@ -129,11 +134,8 @@ def request_df(base_url : str, report_name : str, parameters : dict, username : 
     headers = {"Accept": "application/json"}  # ensure JSON is returned
     # Make the request
     url = format_request_url(base_url, report_name, parameters)
-    # print(f"Requesting URL: {url}")
     response = requests.get(url, auth=(username, password), headers=headers)
     print(f"Response: {response}")
-    # print("DETAILS: "
-    #       f"URL: {response.url}, Status Code: {response.status_code}, Reason: {response.reason}")
     if response.status_code == 200:
     # Generate Dataframe
         try:
@@ -175,72 +177,61 @@ def get_provs(rfc_list:list,username,password, bucket_size: int = 30)->pd.DataFr
     provs['CCREATION_DT'] = pd.to_datetime(provs['CCREATION_DT'].str.split(' ').str[0], errors='raise', format='%d.%m.%Y')
     # ordenamos descendentemente por ID de proveedor y fecha de creación
     provs = provs.sort_values(['CBP_UUID','CCREATION_DT'], ascending=[False, False])
-    # # ordenamos descendentemente por fecha de creación
-    # provs = provs.sort_values('CCREATION_DT', ascending=False)
     # quitamos duplicados por RFC, dejando la primera (la de fecha más reciente)
     provs = provs.drop_duplicates(subset=['CTAX_ID_NR'], keep='first').reset_index(drop=True)
     provs.rename(columns={'CBP_UUID':'ID Proveedor SAP', 'CTAX_ID_NR':'RFC Proveedor', 'CCREATION_DT':'Fecha creación proveedor', 'C1QITSQE6F9TSX3J3DUJRLUJGY5':'Ejecutivo CPP SAP'}, inplace=True)
     print(f'Proveedores obtenidos: {len(provs)}')
     return provs
 
+# Funciones para acceso a base de datos SQL Server
+def load_env_vars(file_path: str)->dict:
+    """Loads enviroment variables from a .env file"""
+    with open(file_path, "r", encoding='utf-8') as env_file:
+        env_vars = {}
+        for line in env_file:
+            key, value = line.strip().split("=", 1)
+            env_vars[key.strip()] = value.strip()
+    if not all(k in env_vars for k in ['server', 'user', 'password', 'table']):
+        raise ValueError("Missing required environment variables in the .env file.")
+    print(env_vars)
+    return env_vars
 
-# def authenticate_and_get_provs(rfc_list:list, bucket_size:int = 30):
-#     """Prompts the user for SAP credentials (Streamlit), validates them and returns providers.
+def execute_query(engine: Engine, query: str)->pd.DataFrame:
+    """Executes a SQL query and returns the result as a DataFrame"""
+    return pd.read_sql(query, engine)
 
-#     - Shows input fields for username/password and a validation button.
-#     - Attempts a small `get_provs` call to verify credentials; on success it runs the full
-#       `get_provs` for the provided `rfc_list` and returns the resulting DataFrame.
-#     - If validation fails, an error message is shown and the user can try again without
-#       reloading the uploaded reports (control is kept in `st.session_state`).
-#     """
-#     # preserve inputs in session state so reruns don't lose them
-#     if 'sap_username_input' not in st.session_state:
-#         st.session_state['sap_username_input'] = ''
-#     if 'sap_password_input' not in st.session_state:
-#         st.session_state['sap_password_input'] = ''
+def connect_to_db(env_vars:dict)->Engine:
+    """Creates a SQLAlchemy engine using the provided environment variables"""
+    odbc_str = (
+        "DRIVER={SQL Server};"
+        f"SERVER={env_vars['server']};"
+        f"UID={env_vars['user']};"
+        f"PWD={env_vars['password']};"
+    )
+    connection_string = "mssql+pyodbc:///?odbc_connect=" + urllib.parse.quote_plus(odbc_str)
+    return create_engine(connection_string)
 
-#     # Render the authentication UI in a container so it can be placed anywhere by the caller
-#     auth_form = st.form(key='sap_auth_form')
-#     with auth_form:
-#         st.write('**Autenticación SAP**')
-#         # inputs. Values are kept in session_state keys so other parts of the app aren't lost on rerun
-#         st.text_input('Usuario SAP', key='sap_username_input')
-#         st.text_input('Contraseña SAP', type='password', key='sap_password_input')
-#         validate = st.form_submit_button('Validar credenciales SAP', key='sap_auth_btn')        
-
-#         # If credentials already authenticated in this session, show success and reuse them
-#         if st.session_state.get('sap_authenticated'):
-#             st.success('Credenciales SAP autenticadas previamente.', icon='✅')
-
-#         # When user clicks validate, attempt a small provs request to confirm credentials
-#         if validate:
-#             st.session_state['sap_auth_error'] = None
-#             with st.spinner('Validando credenciales SAP...'):
-#                 username = st.session_state.get('sap_username_input', '')
-#                 password = st.session_state.get('sap_password_input', '')
-#                 sample = rfc_list[:min(5, len(rfc_list))] if rfc_list else []
-#                 # if there are no RFCs, use a short attempt with an unlikely RFC to force a request
-#                 sample = sample or ['X']
-#                 provs_test = get_provs(sample, username=username, password=password, bucket_size=bucket_size)
-#                 if provs_test is None:
-#                     st.session_state['sap_authenticated'] = False
-#                     st.error('Credenciales inválidas o error de conexión. Intenta de nuevo.', icon='❌')
-#                 else:
-#                     st.session_state['sap_authenticated'] = True
-#                     st.session_state['sap_username_saved'] = username
-#                     st.session_state['sap_password_saved'] = password
-#                     st.success('Autenticación SAP exitosa.', icon='✅')
-
-#     # If authenticated (either previously or just now), call full get_provs using saved creds
-#     if st.session_state.get('sap_authenticated'):
-#         username = st.session_state.get('sap_username_saved')
-#         password = st.session_state.get('sap_password_saved')
-#         # run the full providers extraction
-#         provs = get_provs(rfc_list, username=username, password=password, bucket_size=bucket_size)
-#         return provs
-
-#     # Not authenticated yet
-#     return None
+def get_provs_from_dwh(rfc_list:list)->pd.DataFrame:
+    """Main function to get providers from the DWH based on a list of RFCs"""
+    env_vars = load_env_vars(ENV_FILE_PATH)
+    engine = connect_to_db(env_vars)
+    table = env_vars['table']
+    rfc_tuple = tuple(rfc_list)
+    query = f"""SELECT Proveedor, [Número de identificación fiscal], [Ejecutivo de Cuentas por Pagar] FROM {table} WHERE [Número de identificación fiscal] IN {rfc_tuple} ORDER BY Proveedor DESC;"""
+    provs = execute_query(engine, query)
+    if provs.empty:
+        print('No se obtuvieron proveedores de SAP.')
+        return None
+    provs.rename(columns={
+        'Número de identificación fiscal': 'RFC Proveedor',
+        'Proveedor': 'ID Proveedor SAP',
+        'Ejecutivo de Cuentas por Pagar': 'Ejecutivo CPP SAP'
+    }, inplace=True)
+    # ordenamos descendentemente por ID de proveedor
+    provs = provs.sort_values(by='ID Proveedor SAP', ascending=False)
+    # quitamos duplicados por RFC, dejando la primera ocurrencia
+    provs = provs.drop_duplicates(subset='RFC Proveedor', keep='first')
+    return provs
 
 def excel_col_letter(col_idx):
     """Convierte índice de columna (0-based) a letra de Excel (A, B, ..., Z, AA, AB, ...)"""
@@ -287,3 +278,65 @@ def get_multiselect_values(name:str, default_filters:dict):
         else:
             selected_values[col] = default_filters[col]
     return selected_values
+
+def assign_ejecutivo_cxp(fact_sat: pd.DataFrame) -> pd.DataFrame:
+    """Asigna el ejecutivo de CxP a las facturas basándose en datos históricos y SAP.
+    
+    Args:
+        fact_sat (pd.DataFrame): DataFrame con las facturas, debe contener 'Emisor RFC', 'Moneda', 'Creado por', 'Ejecutivo CPP SAP'.
+    
+    Returns:
+        pd.DataFrame: DataFrame con la columna 'Ejecutivo CxP' asignada.
+    """
+    try:
+        env_vars = load_env_vars(ENV_FILE_PATH)
+        ejecutivos_file = env_vars['ejecutivos_file']
+        with open(ejecutivos_file, 'rb') as f:
+            data = tomli.load(f)
+        # Asumir que el archivo .toml tiene una sección 'ejecutivos' con una lista de entradas
+        ejecutivos_cxp = pd.DataFrame(data.get('ejecutivos_cxp', []))
+        print(ejecutivos_cxp.head())
+    except Exception as e:
+        print(f'Advertencia: no se pudo cargar el archivo de ejecutivos {env_vars.get("ejecutivos_file", "desconocido")}: {e}. Se usará solo información disponible.')
+        ejecutivos_cxp = pd.DataFrame(columns=['rfc', 'moneda', 'ejecutivo_cxp'])
+
+    fact_sat = fact_sat.merge(
+        ejecutivos_cxp,
+        left_on=['Emisor RFC', 'Moneda'],
+        right_on=['rfc', 'moneda'],
+        how='left'
+    )
+    if 'ejecutivo_cxp' in fact_sat.columns:
+        fact_sat['Ejecutivo CxP'] = fact_sat['Creado por'] \
+            .fillna(fact_sat['ejecutivo_cxp']) \
+            .fillna(fact_sat['Ejecutivo CPP SAP']) \
+            .fillna('No identificado')
+    else:
+        fact_sat['Ejecutivo CxP'] = fact_sat['Creado por'] \
+            .fillna(fact_sat['Ejecutivo CPP SAP']) \
+            .fillna('No identificado')
+    
+    return fact_sat
+
+def get_most_recent_file(folder_path: str, extension: str) -> str:
+    """Obtiene la ruta del archivo más reciente en la carpeta con la extensión dada.
+    
+    Args:
+        folder_path (str): Ruta de la carpeta a buscar.
+        extension (str): Extensión del archivo (ej. '.txt', 'txt').
+    
+    Returns:
+        str or None: Ruta completa del archivo más reciente, o None si no se encuentra.
+    """
+    if not os.path.exists(folder_path):
+        print(f"❌ La carpeta {folder_path} no existe.")
+        return None
+    
+    files = [f for f in os.listdir(folder_path) if f.endswith(extension)]
+    if not files:
+        print(f"❌ No se encontraron archivos con extensión '{extension}' en {folder_path}.")
+        return None
+    
+    # Obtener el archivo con la fecha de modificación más reciente
+    most_recent = max(files, key=lambda f: os.path.getmtime(os.path.join(folder_path, f)))
+    return os.path.join(folder_path, most_recent)
