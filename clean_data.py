@@ -42,13 +42,12 @@ def depurar_sap(fact_sap: pd.DataFrame)-> pd.DataFrame:
     # limpiamos los tipos de datos de fact_sap
     fact_sap = clean_dtypes(fact_sap, NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, date_format='%d.%m.%Y')
 
-    # ID de factura oficial y UUID corregido a mayúsculas
+    # ID de factura oficial a mayúsculas
     fact_sap['ID de factura oficial'] = fact_sap['ID de factura oficial'].str.upper()
-    fact_sap['UUID Corregido'] = fact_sap['UUID Corregido'].str.upper()
 
     # Ordenamos por estado de factura: 'Pagado', 'Parcialmente pagado','Contabilizada','Cancelada' 
     status_order = ['Pagado', 'Parcialmente pagado', 'Contabilizada', 'Cancelada']
-    fact_sap = sort_df(fact_sap, 'Estado de factura', status_order, drop_dup_col='UUID Corregido')
+    fact_sap = sort_df(fact_sap, 'Estado de factura', status_order, drop_dup_col='ID de factura oficial')
 
     # agregamos la columna de Mes de pago según la fecha de compensación en formato 'MMM'
     fact_sap['Mes de pago'] = fact_sap['Fecha de compensación'].dt.strftime('%b')
@@ -124,3 +123,26 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
         st.error(f'Error al leer el archivo: {e}', icon="❌")
         print(f'❌ Error al leer el archivo: {e}')
         return None
+
+def process_dataframe(df: pd.DataFrame, session_name: str, expected_columns: list) -> pd.DataFrame:
+    """Valida columnas esperadas y depura el DataFrame según el reporte."""
+    if df is None:
+        st.error('No se recibió ningún DataFrame para procesar.', icon="❌")
+        print('❌ No se recibió ningún DataFrame para procesar.')
+        return None
+
+    missing_cols = [col for col in expected_columns if col not in df.columns]
+    if missing_cols:
+        st.error(f'El DataFrame no contiene las columnas esperadas: {missing_cols}', icon="❌")
+        print(f'❌ El DataFrame no contiene las columnas esperadas: {missing_cols}')
+        return None
+
+    cleaning_function_name = CLEANING_FUNCTIONS.get(session_name, None)
+    if cleaning_function_name:
+        cleaning_function = globals().get(cleaning_function_name)
+        if cleaning_function:
+            df = cleaning_function(df)
+
+    st.success('DataFrame procesado correctamente.', icon="✅")
+    print('✅ DataFrame procesado correctamente.')
+    return df

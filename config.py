@@ -1,6 +1,12 @@
 import numpy as np
 
 """CONCILIACIÓN"""
+
+# periodo de la concilación
+# por ahora solo se usará para la consulta del reporte de saldos
+# eventualmente debe usarse para filtrar el resto de reportes
+PERIOD = ('01-01-2026','31-12-2026')
+
 # columnas numéricas de fact_sat
 NUM_COLS_FACT_SAT = [
     "SubTotal",
@@ -76,7 +82,7 @@ DATE_COLS_CP = [
 
 # Renombramiento de columnas de los reportes base
 RENAME_COLS_SAP = {
-    'UUID Corregido': 'UUID SAP',
+    'ID de factura oficial': 'UUID SAP',
     'Estado de factura': 'Estatus SAP',
     'Referencia externa': 'Ref. externa SAP',
     'Importe de la factura': 'Total SAP XML',
@@ -138,7 +144,7 @@ EXPECTED_COLS = {
         'Tipo Cambio', 'Forma Pago', 'Método Pago',
     ],
     'fact_sap': NUM_COLS_FACT_SAP+DATE_COLS_FACT_SAP+[
-        'UUID Corregido', 'ID de factura oficial', 'Estado de factura', 'Referencia externa','Creado por'
+        'ID de factura oficial', 'Estado de factura', 'Referencia externa','Creado por'
     ],
     'box': [
         'UUID', 'Estatus', 'Ruta_Archivo', 'Fecha_Modificacion', 'Emisor_RFC'

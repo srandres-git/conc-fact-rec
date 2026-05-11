@@ -11,18 +11,19 @@ from sqlalchemy.engine import Engine
 
 from config import COLS_SERVICE, ENV_FILE_PATH
 
-def clean_dtypes(df: pd.DataFrame, num_cols, date_cols, date_format=None):
+def clean_dtypes(df: pd.DataFrame, num_cols: list[str], date_cols: list[str], date_format=None):
     """Corrección de los tipos de datos, según la lista de columnas numéricas o de fecha."""
     # obtenemos las columnas que tienen tipo numérico pero no están en num_cols
     other_num_cols = [col for col in df.select_dtypes(include=['number']).columns if col not in num_cols + date_cols]
     
-    # en num_cols, reemplazamos NaN por 0
-    df[num_cols] = df[num_cols].fillna(0)
+    # en num_cols, extraemos los caracteres que corresponden a números y reemplazamos NaN por 0
+    for col in num_cols:
+        df[col] = df[col].astype(str).fillna('0').str.extract(r'([\d,\.]+)')[0].str.replace(',', '').astype(float)
     # las que no son num_cols ni date_cols, reemplazamos NaN por cadena vacía
     df = df.fillna({col: '' for col in df.columns if col not in num_cols + date_cols})
     
     # transformamos a numérico las columnas en num_cols
-    df[num_cols] = df[num_cols].apply(pd.to_numeric, errors='raise')
+    # df[num_cols] = df[num_cols].apply(pd.to_numeric, errors='raise')
     # obtenemos el valor absoluto para evitar negativos en numéricas
     df[num_cols] = df[num_cols].abs()
     # transformamos a texto las columnas que están en other_num_cols y quitamos decimales
@@ -191,7 +192,7 @@ def load_env_vars(file_path: str)->dict:
         for line in env_file:
             key, value = line.strip().split("=", 1)
             env_vars[key.strip()] = value.strip()
-    if not all(k in env_vars for k in ['server', 'user', 'password', 'table']):
+    if not all(k in env_vars for k in ['server', 'user', 'password', 'table_provs']):
         raise ValueError("Missing required environment variables in the .env file.")
     print(env_vars)
     return env_vars
@@ -215,7 +216,7 @@ def get_provs_from_dwh(rfc_list:list)->pd.DataFrame:
     """Main function to get providers from the DWH based on a list of RFCs"""
     env_vars = load_env_vars(ENV_FILE_PATH)
     engine = connect_to_db(env_vars)
-    table = env_vars['table']
+    table = env_vars['table_provs']
     rfc_tuple = tuple(rfc_list)
     query = f"""SELECT Proveedor, [Número de identificación fiscal], [Ejecutivo de Cuentas por Pagar] FROM {table} WHERE [Número de identificación fiscal] IN {rfc_tuple} ORDER BY Proveedor DESC;"""
     provs = execute_query(engine, query)
@@ -232,6 +233,13 @@ def get_provs_from_dwh(rfc_list:list)->pd.DataFrame:
     # quitamos duplicados por RFC, dejando la primera ocurrencia
     provs = provs.drop_duplicates(subset='RFC Proveedor', keep='first')
     return provs
+
+def get_fact_sap_from_dwh(period:tuple[str])->pd.DataFrame:
+    env_vars = load_env_vars(ENV_FILE_PATH)
+    engine = connect_to_db(env_vars)
+    table = env_vars['table_saldos']
+    query = f"SELECT * FROM {table} WHERE [Fecha de factura] LIKE'{date_range_to_regex(period)}'"
+    return execute_query(engine, query)
 
 def excel_col_letter(col_idx):
     """Convierte índice de columna (0-based) a letra de Excel (A, B, ..., Z, AA, AB, ...)"""
@@ -340,3 +348,8 @@ def get_most_recent_file(folder_path: str, extension: str) -> str:
     # Obtener el archivo con la fecha de modificación más reciente
     most_recent = max(files, key=lambda f: os.path.getmtime(os.path.join(folder_path, f)))
     return os.path.join(folder_path, most_recent)
+
+def date_range_to_regex(period:tuple[str], separator = '.')->str:
+    """Transforms a date range ('dd-mm-yyyy','dd-mm-yyyy') into a regular expression that matches
+    string dates of the form 'dd[]mm[]yyyy' within the range, where [] stands for the separator"""
+    return "%.2026"
