@@ -17,7 +17,7 @@ def export_conciliacion_facturas(fact_sat: pd.DataFrame, output_file: str, cols_
     ]
     amarillo_cols = [
         'Estatus SAP', 'Estatus CP', 'Comentario', 'Servicio', 'Estatus Box', 'Ejecutivo CxP', 'Ref. externa SAP',
-        'Tipo de servicio', 'ID Proveedor SAP', 'Total SAP MXN', 'Dif. Total MXN', 'Total SAP XML', 'Dif. Total XML',
+        'Tipo de servicio', 'Tipo de documento', 'ID Proveedor SAP', 'Total SAP MXN', 'Dif. Total MXN', 'Total SAP XML', 'Dif. Total XML',
         'Pagado SAP XML'
     ]
     azul_cols = ['Mes','Fecha de pago', 'Mes de pago']

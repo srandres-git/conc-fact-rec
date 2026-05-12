@@ -20,6 +20,10 @@ def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
     # limpiamos los tipos de datos de fact_sat
     fact_sat = clean_dtypes(fact_sat, NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, date_format='%d-%m-%Y')
 
+    # multiplicar importes por -1 para notas de crédito (Egreso)
+    import_cols_sat = [col for col in NUM_COLS_FACT_SAT if col not in ['Tipo Cambio', 'Tipo Cambio Usuario']]
+    fact_sat.loc[fact_sat['Tipo'] == 'Egreso', import_cols_sat] *= -1
+
     # tipo de cambio a 1 si la moneda es MXN
     fact_sat.loc[fact_sat['Moneda'] == 'MXN', 'Tipo Cambio'] = 1
     # si el tipo de cambio es 0 o NaN, lo ponemos a 1
@@ -41,6 +45,10 @@ def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
 def depurar_sap(fact_sap: pd.DataFrame)-> pd.DataFrame:
     # limpiamos los tipos de datos de fact_sap
     fact_sap = clean_dtypes(fact_sap, NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, date_format='%d.%m.%Y')
+
+    # multiplicar importes por -1 para notas de crédito
+    import_cols_sap = [col for col in NUM_COLS_FACT_SAP if col != 'Días de vencimiento']
+    fact_sap.loc[fact_sap['Tipo de documento'] == 'Nota de crédito', import_cols_sap] *= -1
 
     # ID de factura oficial a mayúsculas
     fact_sap['ID de factura oficial'] = fact_sap['ID de factura oficial'].str.upper()

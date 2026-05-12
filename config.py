@@ -100,7 +100,7 @@ COLS_CONC = [
     'Estatus SAP', 'Estatus CP', 'Comentario', 'Servicio', 'Estatus Box', 'Ejecutivo CxP', # amarillo
     'Estatus Sustitución', 'Estatus para Cancelación', 'Estatus Cancelación', 'Fecha Cancelación', 'Ver.', 'CFDI Relacionado', 'Tipo Relación CFDI', # verde
     'Tipo Relación CFDI Descripción', 'Tipo', 'UUID', 'UUID Sustitución', 'Serie', 'Folio', # verde
-    'Ref. externa SAP', 'Tipo de servicio', # amarillo
+    'Ref. externa SAP', 'Tipo de servicio', 'Tipo de documento', # amarillo
     'Emisión', # verde
     'Mes', # azul
     'Fecha Sustitución', 'Uso CFDI', # verde
@@ -144,7 +144,7 @@ EXPECTED_COLS = {
         'Tipo Cambio', 'Forma Pago', 'Método Pago',
     ],
     'fact_sap': NUM_COLS_FACT_SAP+DATE_COLS_FACT_SAP+[
-        'ID de factura oficial', 'Estado de factura', 'Referencia externa','Creado por'
+        'ID de factura oficial', 'Estado de factura', 'Tipo de documento','Referencia externa','Creado por'
     ],
     'box': [
         'UUID', 'Estatus', 'Ruta_Archivo', 'Fecha_Modificacion', 'Emisor_RFC'
@@ -213,6 +213,8 @@ COMENTARIOS = {
 # los siguientes estatus no aplican para PUE:
 ESTATUS_NA_PUE = ['Revisar // Vigente SAT - Pagado SAP - Tiene CP cancelado', 'Revisar // Vigente SAT - Parcialmente pagado SAP - Tiene CP cancelado', \
           'Revisar // Vigente SAT - Pagado SAP - Sin CP', 'Revisar // Vigente SAT - Parcialmente pagado SAP - Sin CP']
+# los siguientes estatus no aplican para notas de crédito compensadas sin CP:
+ESTATUS_NA_NC = ['Revisar // Vigente SAT - Pagado SAP - Sin CP', 'Revisar // Vigente SAT - Parcialmente pagado SAP - Sin CP']
 # los tipos de servicio que corresponden a servicio de transporte
 SERVS_TRANSPORTE = ['Terrestre', 'AE', 'AI', 'ME', 'MI']
 

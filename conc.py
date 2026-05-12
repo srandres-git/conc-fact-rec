@@ -2,14 +2,14 @@ import io
 import pandas as pd
 import numpy as np
 import streamlit as st
-from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
+from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, ESTATUS_NA_NC, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
 from export import export_conciliacion_facturas
 from utils import assign_service_type, find_service, get_provs, get_provs_from_dwh, assign_ejecutivo_cxp
 
 def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
     """Cruce de facturas de SAT vs SAP. Ambos reportes iniciales depurados."""
 
-    fact_sat = fact_sat.merge(fact_sap[['ID de factura oficial','Estado de factura','Referencia externa','Creado por','Importe de la factura', 'Fecha de compensación', 'Mes de pago', 'Importe compensado']], left_on='UUID', right_on='ID de factura oficial', how='left', suffixes=('', '_sap'))
+    fact_sat = fact_sat.merge(fact_sap[['ID de factura oficial','Estado de factura','Referencia externa','Creado por','Importe de la factura', 'Fecha de compensación', 'Mes de pago', 'Importe compensado', 'Tipo de documento']], left_on='UUID', right_on='ID de factura oficial', how='left', suffixes=('', '_sap'))
     fact_sat.rename(columns=RENAME_COLS_SAP, inplace=True)
     fact_sat.replace({'Creado por': EJECUTIVO_SAP_MAP}, inplace=True)
 
@@ -113,6 +113,11 @@ def conciliar(output_file=""):#fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, b
                                 |~(fact_sat['Comentario'].isin(ESTATUS_NA_PUE)),\
                                 fact_sat['Comentario'].str.replace('Revisar', 'OK')+' (PUE)',
                                 inplace=True)
+    # las NC compensadas sin CP no deben quedarse en revisar
+    fact_sat['Comentario'].where((fact_sat['Tipo'] != 'Egreso')\
+                                |~(fact_sat['Comentario'].isin(ESTATUS_NA_NC)),\
+                                fact_sat['Comentario'].str.replace('Revisar', 'OK')+' (NC)',
+                                inplace=True)
     
     # asignamos el ejecutivo de CxP
     with st.session_state['conc_container']: # update
@@ -192,6 +197,10 @@ def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.Data
         fact_sat['Comentario'].str.replace('Revisar', 'OK') + ' (PUE)',
         inplace=True
     )
+    fact_sat['Comentario'].where((fact_sat['Tipo'] != 'Egreso')
+                                |~(fact_sat['Comentario'].isin(ESTATUS_NA_NC)),
+                                fact_sat['Comentario'].str.replace('Revisar', 'OK')+' (NC)',
+                                inplace=True)
     print('✅ Asignación de comentarios completada.')
 
     print('Asignando ejecutivo de CxP...')
