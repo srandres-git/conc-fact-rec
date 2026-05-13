@@ -88,6 +88,8 @@ def assign_service_type(row:pd.Series):
         return 'Seguros y fianzas'
     elif rfc_emisor=='IMS421231I45':
         return 'IMSS'
+    elif rfc_emisor=='INF7205011ZA':
+        return 'Infonavit'
     elif rfc_emisor=='PUN9810229R0':
         return 'SI VALE'
     elif 'Transporte de pasajeros aérea' in producto \
@@ -107,6 +109,10 @@ def assign_service_type(row:pd.Series):
         return 'Gasto'
     if regimen=='Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas' and 'Alquiler de vehículos' in producto:
         return 'Gasto'
+    if 'Servicio de parqueadero de vehículos' in producto and ('PENSION' in descripcion or 'CAJONES' in descripcion or 'ESTACIONAMIENTO' in descripcion):
+        return 'Gasto'
+    if 'Carga y descarga de mercancías' in producto and 'TARIMAS' in descripcion:
+        return 'Terrestre'
     # si no se ha identificado, se usa el catálogo de productos
     for serv,prods in CATALOGO_SERV_PROD.items():
         for prod in prods:

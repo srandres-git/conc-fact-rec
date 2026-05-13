@@ -224,9 +224,12 @@ CATALOGO_SERV_PROD = {
                  'Transporte de carga por carretera',
                  'Servicios transporte de carga por carretera (en camión) a nivel regional y nacional',
                  'Servicios de expedidores de fletes'],
-    'Aéreo': ['Transporte internacional aéreo de carga'],
+    'Aéreo': ['Transporte internacional aéreo de carga','Transporte de carga aérea'],
     'Gasto': ['Servicios de taxi','Restaurantes','Establecimientos para comer y beber','Gasolina premium mayor o igual a 91 octanos',
-              'Hoteles',]
+              'Hoteles','Ponqués pasteles o biscochos frescos','Bebida de café','Emparedados frescos', 'Servicios de alquiler o arrendamiento de licencias de software de computador',
+              'Servicios de soporte técnico o de mesa de ayuda', 'Perfiles de plástico', 'Vidrio templado', 
+              'Iluminación de interiores y artefactos', 'Otros adhesivos y selladores', 'Policarbonato pc','Gas licuado de petróleo','Lámparas y bombillas',
+              'Gestión de eventos', 'Agentes de impermeabilización','Brochas','Almohadillas de discos de freno','Reparación y mantenimiento automotor y de camiones ligeros'], 
 }
 
 # Mapeo de meses inglés a español
