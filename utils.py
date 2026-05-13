@@ -9,7 +9,7 @@ import tomli
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 
-from config import COLS_SERVICE, ENV_FILE_PATH
+from config import COLS_SERVICE, ENV_FILE_PATH, CATALOGO_SERV_PROD
 
 def clean_dtypes(df: pd.DataFrame, num_cols: list[str], date_cols: list[str], date_format=None):
     """Corrección de los tipos de datos, según la lista de columnas numéricas o de fecha."""
@@ -55,7 +55,7 @@ def find_service(row):
     formato AA-XXXXXX
     """    
     # Expresión regular para el patrón AA-XXXXXX
-    pattern = rf'(2[12345]+)[ ]?[- _‐]+[ ]?(\d{{4,6}})'
+    pattern = rf'(2[123456]+)[ ]?[- _‐]+[ ]?(\d{{4,6}})'
     # Buscar el patrón en el texto de cada columna de la lista cols_service
     for col in COLS_SERVICE:
         matches = re.findall(pattern, row[col])
@@ -106,7 +106,12 @@ def assign_service_type(row:pd.Series):
         return 'Gasto'
     elif proveedor!='No identificado':
         return 'Acreedores'
-    else: return 'No identificado'
+    # si no se ha identificado, se usa el catálogo de productos
+    for serv,prods in CATALOGO_SERV_PROD.items():
+        for prod in prods:
+            if prod in producto: return serv
+    # si no está en el catálogo, se pone como 'No identificado'
+    return 'No identificado'
 
 def format_request_url(base_url : str, report_name : str, parameters: dict):
     """Devuelve URL de consulta OData con el formato correcto"""
