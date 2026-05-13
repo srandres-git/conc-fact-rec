@@ -224,7 +224,9 @@ CATALOGO_SERV_PROD = {
                  'Transporte de carga por carretera',
                  'Servicios transporte de carga por carretera (en camión) a nivel regional y nacional',
                  'Servicios de expedidores de fletes'],
-    'Aéreo': ['Transporte internacional aéreo de carga']
+    'Aéreo': ['Transporte internacional aéreo de carga'],
+    'Gasto': ['Servicios de taxi','Restaurantes','Establecimientos para comer y beber','Gasolina premium mayor o igual a 91 octanos',
+              'Hoteles',]
 }
 
 # Mapeo de meses inglés a español

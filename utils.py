@@ -71,6 +71,7 @@ def assign_service_type(row:pd.Series):
     ref_ext_sap = str(row['Ref. externa SAP']).upper()
     proveedor = str(row['ID Proveedor SAP'])
     serv = row['Servicio']
+    regimen = str(row['Emisor Régimen Fiscal Descripción'])
 
     if 'Instituciones bancarias' in producto:
         # si el concepto es instituciones bancarias, se cataloga como comisiones o intereses bancarios,
@@ -104,8 +105,8 @@ def assign_service_type(row:pd.Series):
         return 'Terrestre'
     elif re.match(r'G[\d]{4,5}', proveedor):
         return 'Gasto'
-    elif proveedor!='No identificado':
-        return 'Acreedores'
+    if regimen=='Régimen de las Actividades Empresariales con ingresos a través de Plataformas Tecnológicas' and 'Alquiler de vehículos' in producto:
+        return 'Gasto'
     # si no se ha identificado, se usa el catálogo de productos
     for serv,prods in CATALOGO_SERV_PROD.items():
         for prod in prods:
