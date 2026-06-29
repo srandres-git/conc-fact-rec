@@ -136,7 +136,15 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
                 st.error(f'El archivo no existe: {p}', icon="❌")
                 print(f'El archivo no existe: {p}')
                 return None
-            df = pd.read_excel(p, header=header)
+            try:
+                df = pd.read_excel(p, header=header)
+            except OSError as err:
+                if getattr(err, 'errno', None) == 22:
+                    print(f'pd.read_excel falló con Errno 22 para {p}; reintentando con open(..., "rb")')
+                    with open(p, 'rb') as fh:
+                        df = pd.read_excel(fh, header=header)
+                else:
+                    print(f'Error al leer el archivo {p}: {err}')
         missing_cols = [col for col in expected_columns if col not in df.columns]
         if len(missing_cols) > 0:
             st.error(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
