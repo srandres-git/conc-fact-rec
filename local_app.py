@@ -11,15 +11,15 @@ from datetime import datetime
 env_vars = load_env_vars(ENV_FILE_PATH)
 test_provs = get_provs_from_dwh(['XAXX010101000','XEXX010101000'])
 if test_provs is None:
-    print('❌ Error al obtener datos de proveedores desde SAP. Verifica tus credenciales y conexión a la base de datos.')
+    print('Error al obtener datos de proveedores desde SAP. Verifica tus credenciales y conexión a la base de datos.')
 else:
-    print('✅ Conexión a SAP exitosa.')
+    print('Conexión a SAP exitosa.')
     # validamos que env_vars contenga los paths a los archivos de facturas SAT, SAP, Box y complementos de pago, así como output_path para guardar resultados
     missing_paths = [key for key in ['fact_sat_path', 'box_path', 'cp_path', 'output_path', 'table_provs', 'table_saldos'] if key not in env_vars]
     if len(missing_paths) > 0:
-        print(f'❌Faltan las siguientes rutas de archivos en el archivo .env: {missing_paths}')
+        print(f'Faltan las siguientes rutas de archivos en el archivo .env: {missing_paths}')
     else:
-        print('✅ Rutas de archivos cargadas desde .env correctamente. Procediendo a leer los archivos...')
+        print('Rutas de archivos cargadas desde .env correctamente. Procediendo a leer los archivos...')
         # leemos los archivos de facturas SAT, SAP, Box y complementos de pago usando la función read_excel_file
         # se toma el archivo más reciente dentro de la carpeta correspondiente
         print('... Leyendo reporte de facturas SAT')
@@ -32,12 +32,12 @@ else:
         print('... Consultando reporte de Saldos de Proveedor')
         fact_sap = get_fact_sap_from_dwh(PERIOD).rename(columns={'Creado por2':'Creado por'})
         fact_sap = process_dataframe(fact_sap, session_name='fact_sap', expected_columns=EXPECTED_COLS['fact_sap'])
-        print('✅ Reporte de saldos procesado.')
+        print('Reporte de saldos procesado.')
         if any(df is None for df in [fact_sat,fact_sap,box,cp]):
-            print('❌ Error al leer uno o más archivos. Verifica que los archivos existan y tengan las columnas esperadas.')
+            print('Error al leer uno o más archivos. Verifica que los archivos existan y tengan las columnas esperadas.')
         else:
-            print('✅ Archivos leídos correctamente. Procediendo a conciliación...')
+            print('Archivos leídos correctamente. Procediendo a conciliación...')
             timestamp = datetime.now().strftime('%y-%m-%d %H %M')
             conciliacion = conciliar_local(fact_sat, fact_sap, box, cp, env_vars['output_path']+rf"\conc_fact_rec {timestamp}.xlsx")
-            print('✅ Conciliación completada. Resultados:')
+            print('Conciliación completada. Resultados:')
             print(conciliacion.head())

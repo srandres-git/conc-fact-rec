@@ -163,20 +163,20 @@ def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.Data
     print('Iniciando conciliación local...')
 
     fact_sat = sat_x_sap(fact_sat, fact_sap)
-    print('✅ Cruce SAT vs SAP completado.')
+    print('Cruce SAT vs SAP completado.')
 
     fact_sat = sat_x_box(fact_sat, box)
-    print('✅ Cruce SAT vs Box completado.')
+    print('Cruce SAT vs Box completado.')
 
     fact_sat = sat_x_cp(fact_sat, cp)
-    print('✅ Cruce SAT vs CP completado.')
+    print('Cruce SAT vs CP completado.')
 
     rfc_list = fact_sat['Emisor RFC'].astype(str).str.upper().str.strip().replace({'nan': ''}).unique().tolist()
     rfc_list = [rfc for rfc in rfc_list if rfc]
     print(f'Buscando datos de {len(rfc_list)} proveedores en SAP DWH...')
     provs = get_provs_from_dwh(rfc_list)
     if provs is None:
-        raise RuntimeError('❌ No se obtuvieron proveedores desde SAP DWH. Verifica la conexión y credenciales.')
+        raise RuntimeError('No se obtuvieron proveedores desde SAP DWH. Verifica la conexión y credenciales.')
     provs.replace({'Ejecutivo CPP SAP': EJECUTIVO_SAP_MAP}, inplace=True)
     fact_sat = fact_sat.merge(
         provs[['ID Proveedor SAP', 'RFC Proveedor', 'Ejecutivo CPP SAP']],
@@ -186,7 +186,7 @@ def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.Data
         suffixes=('', '_prov')
     )
     fact_sat['ID Proveedor SAP'] = fact_sat['ID Proveedor SAP'].fillna('No identificado')
-    print('✅ Asignación de ID de proveedor completada.')
+    print('Asignación de ID de proveedor completada.')
 
     fact_sat['Comentario'] = fact_sat.apply(
         lambda row: COMENTARIOS.get((row['Estatus'], row['Estatus SAP'], row['Estatus CP']), 'Revisar // Caso no contemplado'),
@@ -201,17 +201,17 @@ def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.Data
                                 |~(fact_sat['Comentario'].isin(ESTATUS_NA_NC)),
                                 fact_sat['Comentario'].str.replace('Revisar', 'OK')+' (NC)',
                                 inplace=True)
-    print('✅ Asignación de comentarios completada.')
+    print('Asignación de comentarios completada.')
 
     print('Asignando ejecutivo de CxP...')
     fact_sat = assign_ejecutivo_cxp(fact_sat)
-    print('✅ Asignación de ejecutivo de CxP completada.')
+    print('Asignación de ejecutivo de CxP completada.')
 
     fact_sat['Servicio'] = fact_sat.apply(find_service, axis=1)
-    print('✅ Número de servicio asignado.')
+    print('Número de servicio asignado.')
 
     fact_sat['Tipo de servicio'] = fact_sat.apply(assign_service_type, axis=1)
-    print('✅ Tipo de servicio asignado.')
+    print('Tipo de servicio asignado.')
 
     conciliacion = fact_sat[COLS_CONC]
     if output_file == '':
@@ -220,6 +220,6 @@ def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.Data
         print('Reporte de conciliación generado en memoria.')
     else:
         export_conciliacion_facturas(conciliacion, output_file, COLS_CONC)
-        print(f'✅ Reporte de conciliación exportado a: {output_file}')
+        print(f'Reporte de conciliación exportado a: {output_file}')
 
     return conciliacion

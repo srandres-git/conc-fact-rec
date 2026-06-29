@@ -250,7 +250,7 @@ MONTH_MAP_ENG_ESP = {
 
 """LOCAL"""
 # variables de entorno para acceso a la base de datos y rutas
-ENV_FILE_PATH = r""
+ENV_FILE_PATH = ""
 
 """GUI"""
 

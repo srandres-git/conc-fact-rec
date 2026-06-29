@@ -6,6 +6,7 @@ import streamlit as st
 import urllib.parse
 import os
 import tomli
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 
@@ -199,11 +200,37 @@ def get_provs(rfc_list:list,username,password, bucket_size: int = 30)->pd.DataFr
 # Funciones para acceso a base de datos SQL Server
 def load_env_vars(file_path: str)->dict:
     """Loads enviroment variables from a .env file"""
-    with open(file_path, "r", encoding='utf-8') as env_file:
-        env_vars = {}
-        for line in env_file:
-            key, value = line.strip().split("=", 1)
-            env_vars[key.strip()] = value.strip()
+    def _normalize_path(p: str) -> str:
+        if p is None:
+            return p
+        p = p.strip().strip('"').strip("'")
+        p = os.path.expanduser(p)
+        p = os.path.normpath(p)
+        # On Windows, add long-path prefix if needed
+        if os.name == 'nt' and len(p) > 260 and not p.startswith('\\\\?\\'):
+            p = '\\\\?\\' + p
+        return p
+
+    # Try utf-8 first, fall back to latin-1
+    try:
+        with open(file_path, "r", encoding='utf-8') as env_file:
+            lines = env_file.readlines()
+    except UnicodeDecodeError:
+        with open(file_path, "r", encoding='latin-1') as env_file:
+            lines = env_file.readlines()
+
+    env_vars = {}
+    for raw in lines:
+        line = raw.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        # Normalize likely path values
+        if any(k in key.lower() for k in ['path', 'file', 'folder']) or ('\\' in value or '/' in value):
+            value = _normalize_path(value)
+        env_vars[key] = value
     if not all(k in env_vars for k in ['server', 'user', 'password', 'table_provs']):
         raise ValueError("Missing required environment variables in the .env file.")
     print(env_vars)
@@ -348,13 +375,18 @@ def get_most_recent_file(folder_path: str, extension: str) -> str:
     Returns:
         str or None: Ruta completa del archivo más reciente, o None si no se encuentra.
     """
+    folder_path = os.path.normpath(folder_path)
+    # ensure extension starts with a dot and compare case-insensitive
+    if not extension.startswith('.'):
+        extension = '.' + extension
+
     if not os.path.exists(folder_path):
-        print(f"❌ La carpeta {folder_path} no existe.")
+        print(f"La carpeta {folder_path} no existe.")
         return None
-    
-    files = [f for f in os.listdir(folder_path) if f.endswith(extension)]
+
+    files = [f for f in os.listdir(folder_path) if f.lower().endswith(extension.lower())]
     if not files:
-        print(f"❌ No se encontraron archivos con extensión '{extension}' en {folder_path}.")
+        print(f"No se encontraron archivos con extensión '{extension}' en {folder_path}.")
         return None
     
     # Obtener el archivo con la fecha de modificación más reciente

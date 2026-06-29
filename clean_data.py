@@ -111,11 +111,23 @@ def depurar_cp(cp: pd.DataFrame)-> pd.DataFrame:
 def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)->pd.DataFrame:
     """Lee un archivo Excel validando que contenga las columnas esperadas y asigna a session state."""
     try:
-        df = pd.read_excel(file, header=header)
+        from pathlib import Path
+        if file is None:
+            st.error('No se especificó ningún archivo para leer.', icon="❌")
+            print('No se especificó ningún archivo para leer.')
+            return None
+        print(f'Intentando leer archivo: {repr(file)}')
+        p = Path(file)
+        # si el path no existe, informar y evitar pasar argumento inválido a pandas
+        if not p.exists():
+            st.error(f'El archivo no existe: {p}', icon="❌")
+            print(f'El archivo no existe: {p}')
+            return None
+        df = pd.read_excel(p, header=header)
         missing_cols = [col for col in expected_columns if col not in df.columns]
         if len(missing_cols) > 0:
             st.error(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
-            print(f'❌ El archivo cargado no contiene las columnas esperadas: {missing_cols}')
+            print(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}')
             return None
         else:
             # depuramos el DataFrame según la función correspondiente (si existe)
@@ -125,24 +137,24 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
                 df = cleaning_function(df)
             # st.session_state[session_name] = df
             st.success('Archivo leído correctamente.', icon="✅")
-            print('✅ Archivo leído correctamente.')
+            print('Archivo leído correctamente.')
             return df
     except Exception as e:
         st.error(f'Error al leer el archivo: {e}', icon="❌")
-        print(f'❌ Error al leer el archivo: {e}')
+        print(f'Error al leer el archivo: {e}')
         return None
 
 def process_dataframe(df: pd.DataFrame, session_name: str, expected_columns: list) -> pd.DataFrame:
     """Valida columnas esperadas y depura el DataFrame según el reporte."""
     if df is None:
         st.error('No se recibió ningún DataFrame para procesar.', icon="❌")
-        print('❌ No se recibió ningún DataFrame para procesar.')
+        print('No se recibió ningún DataFrame para procesar.')
         return None
 
     missing_cols = [col for col in expected_columns if col not in df.columns]
     if missing_cols:
         st.error(f'El DataFrame no contiene las columnas esperadas: {missing_cols}', icon="❌")
-        print(f'❌ El DataFrame no contiene las columnas esperadas: {missing_cols}')
+        print(f'El DataFrame no contiene las columnas esperadas: {missing_cols}')
         return None
 
     cleaning_function_name = CLEANING_FUNCTIONS.get(session_name, None)
@@ -152,5 +164,5 @@ def process_dataframe(df: pd.DataFrame, session_name: str, expected_columns: lis
             df = cleaning_function(df)
 
     st.success('DataFrame procesado correctamente.', icon="✅")
-    print('✅ DataFrame procesado correctamente.')
+    print('DataFrame procesado correctamente.')
     return df
