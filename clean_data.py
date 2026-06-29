@@ -112,18 +112,31 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
     """Lee un archivo Excel validando que contenga las columnas esperadas y asigna a session state."""
     try:
         from pathlib import Path
+        from io import BytesIO
         if file is None:
             st.error('No se especificó ningún archivo para leer.', icon="❌")
             print('No se especificó ningún archivo para leer.')
             return None
-        print(f'Intentando leer archivo: {repr(file)}')
-        p = Path(file)
-        # si el path no existe, informar y evitar pasar argumento inválido a pandas
-        if not p.exists():
-            st.error(f'El archivo no existe: {p}', icon="❌")
-            print(f'El archivo no existe: {p}')
-            return None
-        df = pd.read_excel(p, header=header)
+        # determine display name for logs
+        display_name = getattr(file, 'name', None) or str(file)
+        print(f'Intentando leer archivo: {display_name}')
+
+        # If file is a file-like object (e.g., Streamlit UploadedFile), let pandas read from it directly
+        if hasattr(file, 'read'):
+            try:
+                # ensure stream is at start
+                file.seek(0)
+            except Exception:
+                pass
+            df = pd.read_excel(file, header=header)
+        else:
+            p = Path(file)
+            # si el path no existe, informar y evitar pasar argumento inválido a pandas
+            if not p.exists():
+                st.error(f'El archivo no existe: {p}', icon="❌")
+                print(f'El archivo no existe: {p}')
+                return None
+            df = pd.read_excel(p, header=header)
         missing_cols = [col for col in expected_columns if col not in df.columns]
         if len(missing_cols) > 0:
             st.error(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
