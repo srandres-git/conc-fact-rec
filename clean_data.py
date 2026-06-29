@@ -137,14 +137,24 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
                 print(f'El archivo no existe: {p}')
                 return None
             try:
-                df = pd.read_excel(p, header=header)
-            except OSError as err:
-                if getattr(err, 'errno', None) == 22:
-                    print(f'pd.read_excel falló con Errno 22 para {p}; reintentando con open(..., "rb")')
-                    with open(p, 'rb') as fh:
-                        df = pd.read_excel(fh, header=header)
+                if p.suffix.lower() in ['.xlsx', '.xlsm', '.xltx', '.xltm']:
+                    df = pd.read_excel(p, header=header, engine='openpyxl')
+                elif p.suffix.lower() == '.xls':
+                    df = pd.read_excel(p, header=header, engine='xlrd')
                 else:
-                    print(f'Error al leer el archivo {p}: {err}')
+                    df = pd.read_excel(p, header=header)
+            except Exception as err:
+                print(f'pd.read_excel inicial falló para {p}: {type(err).__name__}: {err}')
+                try:
+                    with open(p, 'rb') as fh:
+                        content = fh.read()
+                    df = pd.read_excel(BytesIO(content), header=header, engine='openpyxl')
+                except Exception as err2:
+                    print(f'fallback BytesIO/openpyxl falló para {p}: {type(err2).__name__}: {err2}')
+                    if p.suffix.lower() == '.xls':
+                        df = pd.read_excel(BytesIO(content), header=header, engine='xlrd')
+                    else:
+                        raise
         missing_cols = [col for col in expected_columns if col not in df.columns]
         if len(missing_cols) > 0:
             st.error(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
