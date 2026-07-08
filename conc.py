@@ -2,7 +2,7 @@ import io
 import pandas as pd
 import numpy as np
 import streamlit as st
-from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, ESTATUS_NA_NC, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
+from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, ESTATUS_NA_NC, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP, PRIORITY_BOX_STATUS
 from export import export_conciliacion_facturas
 from utils import assign_service_type, find_service, get_provs, get_provs_from_dwh, assign_ejecutivo_cxp
 
@@ -31,26 +31,18 @@ def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
 
 def sat_x_box(fact_sat: pd.DataFrame, box: pd.DataFrame)->pd.DataFrame:
     """Cruce de facturas de SAT vs Box. Ambos reportes iniciales previamente depurados."""
-    # extraemos los RFC de las facturas de Box
-    rfcs_box = box['Emisor_RFC'].str.upper().str.strip().unique()
+
+    # emiliminamos duplicados en box, priorizando los estatus según PRIORITY_BOX_STATUS
+    box['sorting_key'] = box['Estatus'].apply(lambda x: PRIORITY_BOX_STATUS.index(x) if x in PRIORITY_BOX_STATUS else len(PRIORITY_BOX_STATUS))
+    box = box.sort_values('sorting_key').drop_duplicates(subset='UUID', keep='first').drop(columns='sorting_key')
 
     # cruzamos Box con fact_sat
     fact_sat = fact_sat.merge(box[['UUID','Estatus','Ruta_Archivo']], left_on='UUID', right_on='UUID', how='left', suffixes=('', ' Box'))
-    fact_sat.rename(columns={'Ruta_Archivo': 'Ruta Box'}, inplace=True)
+    fact_sat.rename(columns={'Ruta_Archivo': 'Ruta Box',}, inplace=True)
 
-    # separamos los que están en Box y los que no
-    fact_sat_in_box = fact_sat[fact_sat['Estatus Box'].notna()].copy()
-    fact_sat_not_in_box = fact_sat[fact_sat['Estatus Box'].isna()].copy()
+    # rellenamos los NaN en 'Estatus Box' con 'No está Box'
+    fact_sat['Estatus Box'] = fact_sat['Estatus Box'].fillna('No está Box')
 
-    # de los que no están en Box, verificamos si el RFC del emisor está en los RFCS de Box
-    # si es así, se les pone 'No está Box'; si no, se les pone 'No buscado en Box'
-    fact_sat_not_in_box['Estatus Box'] = np.where(
-        fact_sat_not_in_box['Emisor RFC'].str.upper().str.strip().isin(rfcs_box),
-        'No está Box',
-        'No buscado en Box'
-    )
-    # unimos los dos dataframes
-    fact_sat = pd.concat([fact_sat_in_box, fact_sat_not_in_box], ignore_index=True)
     # Aignamos los mismos valores en 'Ruta Box' para los documentos no encontrados en Box
     fact_sat['Ruta Box'] = fact_sat['Ruta Box'].fillna(fact_sat['Estatus Box'])
 
