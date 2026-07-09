@@ -111,19 +111,7 @@ def depurar_cp(cp: pd.DataFrame)-> pd.DataFrame:
 def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)->pd.DataFrame:
     """Lee un archivo Excel validando que contenga las columnas esperadas y asigna a session state."""
     try:
-        from pathlib import Path
-        if file is None:
-            st.error('No se especificó ningún archivo para leer.', icon="❌")
-            print('No se especificó ningún archivo para leer.')
-            return None
-        print(f'Intentando leer archivo: {repr(file)}')
-        p = Path(file)
-        # si el path no existe, informar y evitar pasar argumento inválido a pandas
-        if not p.exists():
-            st.error(f'El archivo no existe: {p}', icon="❌")
-            print(f'El archivo no existe: {p}')
-            return None
-        df = pd.read_excel(p, header=header)
+        df = pd.read_excel(file, header=header)
         missing_cols = [col for col in expected_columns if col not in df.columns]
         if len(missing_cols) > 0:
             st.error(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
