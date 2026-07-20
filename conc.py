@@ -4,7 +4,7 @@ import numpy as np
 import streamlit as st
 from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, ESTATUS_NA_NC, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP, PRIORITY_BOX_STATUS
 from export import export_conciliacion_facturas
-from utils import assign_service_type, find_service, get_provs, get_provs_from_dwh, assign_ejecutivo_cxp
+from utils import assign_service_type, find_service, get_provs_from_sap, get_provs_from_dwh, assign_ejecutivo_cxp
 
 def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
     """Cruce de facturas de SAT vs SAP. Ambos reportes iniciales depurados."""
@@ -91,7 +91,7 @@ def conciliar(output_file=""):#fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, b
     rfc_list = fact_sat['Emisor RFC'].str.upper().str.strip().unique().tolist()
     with st.session_state['conc_container']: # update
         st.info(f'Buscando datos de {len(rfc_list)} proveedores en SAP...', icon="ℹ️")
-    provs = get_provs(rfc_list, username=st.session_state['sap_username_saved'], password=st.session_state['sap_password_saved'], bucket_size=40)
+    provs = get_provs_from_sap(rfc_list, username=st.session_state['sap_username_saved'], password=st.session_state['sap_password_saved'], bucket_size=40)
     provs.replace({'Ejecutivo CPP SAP': EJECUTIVO_SAP_MAP}, inplace=True)
     fact_sat = fact_sat.merge(provs[['ID Proveedor SAP','RFC Proveedor', 'Ejecutivo CPP SAP']], left_on='Emisor RFC', right_on='RFC Proveedor', how='left', suffixes=('', '_prov'))
     fact_sat['ID Proveedor SAP'] = fact_sat['ID Proveedor SAP'].fillna('No identificado')

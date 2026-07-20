@@ -5,7 +5,7 @@ import numpy as np
 # periodo de la concilación
 # por ahora solo se usará para la consulta del reporte de saldos
 # eventualmente debe usarse para filtrar el resto de reportes
-PERIOD = ('01-01-2026','31-12-2026')
+PERIOD = 2026#('01-01-2026','31-12-2026')
 
 # columnas numéricas de fact_sat
 NUM_COLS_FACT_SAT = [
@@ -43,20 +43,13 @@ NUM_COLS_FACT_SAP = [
     'Retención de ISR',
     'Importe de la factura',
     'Importe compensado',
-    'Saldo',
-    'Días de vencimiento',
-    'No vencido',
-    '1-30 días',
-    '31-60 días',
-    '61-90 días',
-    'Más de 90 días',
 ]
 
 DATE_COLS_FACT_SAP = [
     'Fecha de factura',
     'Fecha de compensación',
-    'Fecha de recibo',
-    'Fecha de vencimiento',
+    # 'Fecha de recibo',
+    # 'Fecha de vencimiento',
 ]
 # Columnas de fecha de Box
 DATE_COLS_BOX = [
@@ -254,7 +247,7 @@ MONTH_MAP_ENG_ESP = {
 
 """LOCAL"""
 # variables de entorno para acceso a la base de datos y rutas
-ENV_FILE_PATH = ""
+ENV_FILE_PATH = r"C:\Users\Andres Sanchez\OneDrive - Multilog Internacional S.A de C.V\Documents\db_access.env"
 
 """GUI"""
 

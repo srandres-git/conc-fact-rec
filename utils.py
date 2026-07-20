@@ -3,12 +3,9 @@ import numpy as np
 import pandas as pd
 import requests
 import streamlit as st
-import urllib.parse
 import os
 import tomli
-from pathlib import Path
-from sqlalchemy import create_engine
-from sqlalchemy.engine import Engine
+from dwh_connection import execute_query_from_path, load_env_vars
 
 from config import COLS_SERVICE, ENV_FILE_PATH, CATALOGO_SERV_PROD
 
@@ -167,8 +164,8 @@ def request_df(base_url : str, report_name : str, parameters : dict, username : 
         print("Error Response Text:", response.text)  # safer than .json() for 401
         return None
 
-def get_provs(rfc_list:list,username,password, bucket_size: int = 30)->pd.DataFrame:
-    """Obtiene los proveedores de SAP a partir de una lista de RFCs"""
+def get_provs_from_sap(rfc_list:list,username,password, bucket_size: int = 30)->pd.DataFrame:
+    """Obtiene los proveedores de SAP a partir de una lista de RFCs mediante una consulta OData."""
     report_name = "RPBUPSPP_Q0001"
     parameters = {
         'select': ['CBP_UUID', 'CTAX_ID_NR','CCREATION_DT','C1QITSQE6F9TSX3J3DUJRLUJGY5'],
@@ -197,88 +194,24 @@ def get_provs(rfc_list:list,username,password, bucket_size: int = 30)->pd.DataFr
     print(f'Proveedores obtenidos: {len(provs)}')
     return provs
 
-# Funciones para acceso a base de datos SQL Server
-def load_env_vars(file_path: str)->dict:
-    """Loads enviroment variables from a .env file"""
-    def _normalize_path(p: str) -> str:
-        if p is None:
-            return p
-        p = p.strip().strip('"').strip("'")
-        p = os.path.expanduser(p)
-        p = os.path.normpath(p)
-        # On Windows, add long-path prefix if needed
-        if os.name == 'nt' and len(p) > 260 and not p.startswith('\\\\?\\'):
-            p = '\\\\?\\' + p
-        return p
-
-    # Try utf-8 first, fall back to latin-1
-    try:
-        with open(file_path, "r", encoding='utf-8') as env_file:
-            lines = env_file.readlines()
-    except UnicodeDecodeError:
-        with open(file_path, "r", encoding='latin-1') as env_file:
-            lines = env_file.readlines()
-
-    env_vars = {}
-    for raw in lines:
-        line = raw.strip()
-        if not line or line.startswith('#') or '=' not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        value = value.strip()
-        # Normalize likely path values
-        if any(k in key.lower() for k in ['path', 'file', 'folder']) or ('\\' in value or '/' in value):
-            value = _normalize_path(value)
-        env_vars[key] = value
-    if not all(k in env_vars for k in ['server', 'user', 'password', 'table_provs']):
-        raise ValueError("Missing required environment variables in the .env file.")
-    print(env_vars)
-    return env_vars
-
-def execute_query(engine: Engine, query: str)->pd.DataFrame:
-    """Executes a SQL query and returns the result as a DataFrame"""
-    return pd.read_sql(query, engine)
-
-def connect_to_db(env_vars:dict)->Engine:
-    """Creates a SQLAlchemy engine using the provided environment variables"""
-    odbc_str = (
-        "DRIVER={SQL Server};"
-        f"SERVER={env_vars['server']};"
-        f"UID={env_vars['user']};"
-        f"PWD={env_vars['password']};"
-    )
-    connection_string = "mssql+pyodbc:///?odbc_connect=" + urllib.parse.quote_plus(odbc_str)
-    return create_engine(connection_string)
-
 def get_provs_from_dwh(rfc_list:list)->pd.DataFrame:
     """Main function to get providers from the DWH based on a list of RFCs"""
-    env_vars = load_env_vars(ENV_FILE_PATH)
-    engine = connect_to_db(env_vars)
-    table = env_vars['table_provs']
-    rfc_tuple = tuple(rfc_list)
-    query = f"""SELECT Proveedor, [Número de identificación fiscal], [Ejecutivo de Cuentas por Pagar] FROM {table} WHERE [Número de identificación fiscal] IN {rfc_tuple} ORDER BY Proveedor DESC;"""
-    provs = execute_query(engine, query)
+    provs = execute_query_from_path("dwh_queries/get_provs.sql",
+            {'rfc_list':','.join(rfc_list)}) # rfc_list is declared in SQL as a CHARVAR and then casted to a list
     if provs.empty:
         print('No se obtuvieron proveedores de SAP.')
         return None
-    provs.rename(columns={
-        'Número de identificación fiscal': 'RFC Proveedor',
-        'Proveedor': 'ID Proveedor SAP',
-        'Ejecutivo de Cuentas por Pagar': 'Ejecutivo CPP SAP'
-    }, inplace=True)
     # ordenamos descendentemente por ID de proveedor
     provs = provs.sort_values(by='ID Proveedor SAP', ascending=False)
     # quitamos duplicados por RFC, dejando la primera ocurrencia
     provs = provs.drop_duplicates(subset='RFC Proveedor', keep='first')
     return provs
 
-def get_fact_sap_from_dwh(period:tuple[str])->pd.DataFrame:
-    env_vars = load_env_vars(ENV_FILE_PATH)
-    engine = connect_to_db(env_vars)
-    table = env_vars['table_saldos']
-    query = f"SELECT * FROM {table} WHERE [Fecha de factura] LIKE'{date_range_to_regex(period)}'"
-    return execute_query(engine, query)
+def get_fact_sap_from_dwh(year:int)->pd.DataFrame:    
+    return execute_query_from_path(
+        'dwh_queries/get_fact_sap.sql',
+        {'year':year}
+    )
 
 def excel_col_letter(col_idx):
     """Convierte índice de columna (0-based) a letra de Excel (A, B, ..., Z, AA, AB, ...)"""
