@@ -4,10 +4,11 @@ from utils import clean_dtypes, sort_df
 from config import NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, \
     NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, DATE_COLS_BOX, \
     NUM_COLS_CP, DATE_COLS_CP, \
-    MONTH_MAP_ENG_ESP, CLEANING_FUNCTIONS
+    MONTH_MAP_ENG_ESP, CLEANING_FUNCTIONS, PRIORITY_BOX_STATUS,\
+    DEFAULT_DATE_FORMAT, DATE_FORMATS_BY_REPORT
 
 
-def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
+def depurar_sat(fact_sat: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT)->pd.DataFrame:
     # la coulmna de 'UUID' a mayúsculas
     fact_sat['UUID'] = fact_sat['UUID'].str.upper()
     fact_sat['CFDI Relacionado'] = fact_sat['CFDI Relacionado'].str.upper()
@@ -18,7 +19,7 @@ def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
                         & (fact_sat['UUID'].str.strip() != '0')]
 
     # limpiamos los tipos de datos de fact_sat
-    fact_sat = clean_dtypes(fact_sat, NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, date_format='%d-%m-%Y')
+    fact_sat = clean_dtypes(fact_sat, NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, date_format=date_format)
 
     # multiplicar importes por -1 para notas de crédito (Egreso)
     import_cols_sat = [col for col in NUM_COLS_FACT_SAT if col not in ['Tipo Cambio', 'Tipo Cambio Usuario']]
@@ -42,9 +43,9 @@ def depurar_sat(fact_sat: pd.DataFrame)->pd.DataFrame:
     
     return fact_sat
 
-def depurar_sap(fact_sap: pd.DataFrame)-> pd.DataFrame:
+def depurar_sap(fact_sap: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT )-> pd.DataFrame:
     # limpiamos los tipos de datos de fact_sap
-    fact_sap = clean_dtypes(fact_sap, NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, date_format='%d.%m.%Y')
+    fact_sap = clean_dtypes(fact_sap, NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, date_format=date_format)
 
     # multiplicar importes por -1 para notas de crédito
     import_cols_sap = [col for col in NUM_COLS_FACT_SAP if col != 'Días de vencimiento']
@@ -64,7 +65,7 @@ def depurar_sap(fact_sap: pd.DataFrame)-> pd.DataFrame:
 
     return fact_sap
 
-def depurar_box(box: pd.DataFrame)-> pd.DataFrame:
+def depurar_box(box: pd.DataFrame, date_format: str= DEFAULT_DATE_FORMAT)-> pd.DataFrame:
     # limpiamos los tipos de datos de box
     box = clean_dtypes(box, num_cols=[], date_cols=DATE_COLS_BOX)
     # UUID a mayúsculas
@@ -79,12 +80,11 @@ def depurar_box(box: pd.DataFrame)-> pd.DataFrame:
     box.loc[box['Estatus'].str.strip() == '', 'Estatus'] = 'SIN ESTATUS'
 
     # Ordenamos por estatus
-    status_order_box = ['OK','PAGADAS', 'PENDIENTES','RAIZ', 'CANCELADAS', 'CARTA PORTE', 'COMPLEMENTOS DE PAGO', 'NOTAS DE CRÉDITO', 'COMPLEMENTARIAS','SIN ESTATUS']
-    box = sort_df(box, 'Estatus', status_order_box, drop_dup_col='UUID')
+    box = sort_df(box, 'Estatus', PRIORITY_BOX_STATUS, drop_dup_col='UUID')
 
     return box
 
-def depurar_cp(cp: pd.DataFrame)-> pd.DataFrame:
+def depurar_cp(cp: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT)-> pd.DataFrame:
     # UUID  y UUIDRel a mayúsculas
     cp['UUID'] = cp['UUID'].str.upper()
     cp['UUIDRel'] = cp['UUIDRel'].str.upper()
@@ -95,7 +95,7 @@ def depurar_cp(cp: pd.DataFrame)-> pd.DataFrame:
         ].reset_index(drop=True)
 
     # limpiamos los tipos de datos de cp
-    cp = clean_dtypes(cp, NUM_COLS_CP, DATE_COLS_CP, date_format = '%d/%m/%Y')
+    cp = clean_dtypes(cp, NUM_COLS_CP, DATE_COLS_CP, date_format =date_format)
 
     # tipos de cambio a 1 si es cero o NaN
     cp.loc[cp['TipoCambioDR'].isna() | (cp['TipoCambioDR'] == 0), 'TipoCambioDR'] = 1
@@ -132,7 +132,10 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
         print(f'Error al leer el archivo: {e}')
         return None
 
-def process_dataframe(df: pd.DataFrame, session_name: str, expected_columns: list) -> pd.DataFrame:
+def process_dataframe(df: pd.DataFrame,
+                      session_name: str,
+                      expected_columns: list,
+                      date_formats: dict = DATE_FORMATS_BY_REPORT) -> pd.DataFrame:
     """Valida columnas esperadas y depura el DataFrame según el reporte."""
     if df is None:
         st.error('No se recibió ningún DataFrame para procesar.', icon="❌")
@@ -149,7 +152,7 @@ def process_dataframe(df: pd.DataFrame, session_name: str, expected_columns: lis
     if cleaning_function_name:
         cleaning_function = globals().get(cleaning_function_name)
         if cleaning_function:
-            df = cleaning_function(df)
+            df = cleaning_function(df, date_formats.get(session_name,DEFAULT_DATE_FORMAT))
 
     st.success('DataFrame procesado correctamente.', icon="✅")
     print('DataFrame procesado correctamente.')

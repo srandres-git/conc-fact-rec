@@ -55,6 +55,20 @@ DATE_COLS_FACT_SAP = [
 DATE_COLS_BOX = [
     'Fecha_Modificacion',
 ]
+
+# el formato de fecha de cada reporte base, se debe especificar para poder parsear correctamente 
+DATE_FORMATS_BY_REPORT= {
+    'fact_sat': '%d-%m-%Y',
+    'fact_sap': '%d.%m.%Y', # este es el formato con el que se exporta de SAP,
+    # cuando se consulta del DWH se importa con con el formato '%Y-%m%d',
+    # por lo que en local_app se debe especificar este formato al momento de limpiar el DF
+    'box': '%d-%m-%Y',
+    'cp':  '%d/%m/%Y',
+}
+# Si no se especificara en DATE_FORMATS_BY_REPORT,
+# se asume que el reporte importado tiene el siguiente formato de fechas
+DEFAULT_DATE_FORMAT = '%d-%m-%Y'
+
 # columnas numéricas CP
 NUM_COLS_CP = [
         'ImpSaldoAnt',
@@ -205,7 +219,7 @@ COMENTARIOS = {
 
 # prioridad de los estatus en Box para eliminar duplicados en el cruce SAT vs Box 
 # (el orden de la lista indica la prioridad, de mayor a menor)
-PRIORITY_BOX_STATUS = ['PAGADAS','OK','RAIZ','PENDIENTES','CANCELADAS']
+PRIORITY_BOX_STATUS =['OK','PAGADAS', 'PENDIENTES','RAIZ', 'CANCELADAS', 'CARTA PORTE', 'COMPLEMENTOS DE PAGO', 'NOTAS DE CRÉDITO', 'COMPLEMENTARIAS','SIN ESTATUS']
 
 # los siguientes estatus no aplican para PUE:
 ESTATUS_NA_PUE = ['Revisar // Vigente SAT - Pagado SAP - Tiene CP cancelado', 'Revisar // Vigente SAT - Parcialmente pagado SAP - Tiene CP cancelado', \

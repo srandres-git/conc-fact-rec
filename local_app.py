@@ -31,7 +31,9 @@ else:
         # para las facturas de SAP, se consulta la DB directamente
         print('... Consultando reporte de Saldos de Proveedor')
         fact_sap = get_fact_sap_from_dwh(PERIOD).rename(columns={'Creado por2':'Creado por'})
-        fact_sap = process_dataframe(fact_sap, session_name='fact_sap', expected_columns=EXPECTED_COLS['fact_sap'])
+        fact_sap = process_dataframe(fact_sap, session_name='fact_sap',
+                                     expected_columns=EXPECTED_COLS['fact_sap'],
+                                     date_formats={'fact_sap':'%Y-%m-%d'})
         print('Reporte de saldos procesado.')
         if any(df is None for df in [fact_sat,fact_sap,box,cp]):
             print('Error al leer uno o más archivos. Verifica que los archivos existan y tengan las columnas esperadas.')

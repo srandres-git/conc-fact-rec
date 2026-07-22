@@ -31,11 +31,7 @@ def sat_x_sap(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame)->pd.DataFrame:
 
 def sat_x_box(fact_sat: pd.DataFrame, box: pd.DataFrame)->pd.DataFrame:
     """Cruce de facturas de SAT vs Box. Ambos reportes iniciales previamente depurados."""
-
-    # emiliminamos duplicados en box, priorizando los estatus según PRIORITY_BOX_STATUS
-    box['sorting_key'] = box['Estatus'].apply(lambda x: PRIORITY_BOX_STATUS.index(x) if x in PRIORITY_BOX_STATUS else len(PRIORITY_BOX_STATUS))
-    box = box.sort_values('sorting_key').drop_duplicates(subset='UUID', keep='first').drop(columns='sorting_key')
-
+    
     # cruzamos Box con fact_sat
     fact_sat = fact_sat.merge(box[['UUID','Estatus','Ruta_Archivo']], left_on='UUID', right_on='UUID', how='left', suffixes=('', ' Box'))
     fact_sat.rename(columns={'Ruta_Archivo': 'Ruta Box',}, inplace=True)
