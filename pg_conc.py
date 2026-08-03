@@ -3,7 +3,7 @@ import pandas as pd
 from config import EXPECTED_COLS
 from conc import conciliar
 from clean_data import read_excel_file
-from utils import get_provs
+from utils import get_provs_from_sap
 
 st.set_page_config(layout="wide")
 st.title("Conciliación de facturas recibidas")
@@ -37,7 +37,7 @@ if not st.session_state['sap_authenticated']:
         if submit:
             with st.spinner('Validando credenciales...'):
                 # use a tiny sample to validate credentials quickly
-                test = get_provs(['XEXX010101000'], username=user, password=pwd, bucket_size=1)
+                test = get_provs_from_sap(['XEXX010101000'], username=user, password=pwd, bucket_size=1)
                 if test is None:
                     st.error('Credenciales inválidas o error de conexión. Intenta de nuevo.', icon='❌')
                     st.session_state['sap_authenticated'] = False
