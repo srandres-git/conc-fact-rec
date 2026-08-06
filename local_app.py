@@ -1,7 +1,7 @@
 # se ejecuta este script para realizar la conciliación en un entorno local en lugar de streamlit cloud
 # todos los parámetros necesarios están en el archivo .env, la ruta debe especificarse en config.py
 
-from config import EXPECTED_COLS, ENV_FILE_PATH, PERIOD
+from config import EXPECTED_COLS, DATE_FORMATS_BY_REPORT, DEFAULT_DATE_FORMAT, ENV_FILE_PATH, PERIOD
 from conc import conciliar_local
 from clean_data import read_excel_file, process_dataframe
 from utils import get_provs_from_dwh, load_env_vars, get_most_recent_file, get_fact_sap_from_dwh
@@ -23,11 +23,28 @@ else:
         # leemos los archivos de facturas SAT, SAP, Box y complementos de pago usando la función read_excel_file
         # se toma el archivo más reciente dentro de la carpeta correspondiente
         print('... Leyendo reporte de facturas SAT')
-        fact_sat = read_excel_file(get_most_recent_file(env_vars['fact_sat_path'],'.xlsx'), session_name='fact_sat', expected_columns=EXPECTED_COLS['fact_sat'], header=4)        
+        fact_sat = read_excel_file(
+            get_most_recent_file(env_vars['fact_sat_path'],'.xlsx'),
+            session_name='fact_sat',
+            expected_columns=EXPECTED_COLS['fact_sat'],
+            header=4,
+            date_format=DATE_FORMATS_BY_REPORT.get('fact_sat', DEFAULT_DATE_FORMAT)
+        )
         print('... Leyendo reporte de Box')
-        box = read_excel_file(get_most_recent_file(env_vars['box_path'],'.xlsx'), session_name='box', expected_columns=EXPECTED_COLS['box'])
+        box = read_excel_file(
+            get_most_recent_file(env_vars['box_path'],'.xlsx'),
+            session_name='box',
+            expected_columns=EXPECTED_COLS['box'],
+            date_format=DATE_FORMATS_BY_REPORT.get('box', DEFAULT_DATE_FORMAT)
+        )
         print('... Leyendo reporte de CP SAT')
-        cp = read_excel_file(get_most_recent_file(env_vars['cp_path'],'.xlsx'), session_name='cp', expected_columns=EXPECTED_COLS['cp'], header=4)
+        cp = read_excel_file(
+            get_most_recent_file(env_vars['cp_path'],'.xlsx'),
+            session_name='cp',
+            expected_columns=EXPECTED_COLS['cp'],
+            header=4,
+            date_format=DATE_FORMATS_BY_REPORT.get('cp', DEFAULT_DATE_FORMAT)
+        )
         # para las facturas de SAP, se consulta la DB directamente
         print('... Consultando reporte de Saldos de Proveedor')
         fact_sap = get_fact_sap_from_dwh(PERIOD).rename(columns={'Creado por2':'Creado por'})

@@ -67,7 +67,7 @@ def depurar_sap(fact_sap: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT )
 
 def depurar_box(box: pd.DataFrame, date_format: str= DEFAULT_DATE_FORMAT)-> pd.DataFrame:
     # limpiamos los tipos de datos de box
-    box = clean_dtypes(box, num_cols=[], date_cols=DATE_COLS_BOX)
+    box = clean_dtypes(box, num_cols=[], date_cols=DATE_COLS_BOX, date_format=date_format)
     # UUID a mayúsculas
     box['UUID'] = box['UUID'].str.upper()
 
@@ -108,7 +108,7 @@ def depurar_cp(cp: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT)-> pd.Da
     return cp
 
 # file reader functionality
-def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)->pd.DataFrame:
+def read_excel_file(file, session_name:str, expected_columns:list, header:int=0, date_format = DEFAULT_DATE_FORMAT)->pd.DataFrame:
     """Lee un archivo Excel validando que contenga las columnas esperadas y asigna a session state."""
     try:
         df = pd.read_excel(file, header=header)
@@ -122,7 +122,7 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0)
             cleaning_function_name = CLEANING_FUNCTIONS.get(session_name, None)
             if cleaning_function_name:
                 cleaning_function = globals()[cleaning_function_name]
-                df = cleaning_function(df)
+                df = cleaning_function(df, date_format=date_format)
             # st.session_state[session_name] = df
             st.success('Archivo leído correctamente.', icon="✅")
             print('Archivo leído correctamente.')

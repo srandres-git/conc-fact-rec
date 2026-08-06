@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from config import EXPECTED_COLS
+from config import EXPECTED_COLS, DATE_FORMATS_BY_REPORT, DEFAULT_DATE_FORMAT
 from conc import conciliar
 from clean_data import read_excel_file
 from utils import get_provs_from_sap
@@ -59,7 +59,8 @@ def create_file_uploader(name: str, label:str, header:int=0):
             st.session_state[name+'_uploader'],
             session_name=name,
             expected_columns=EXPECTED_COLS[name],
-            header=header
+            header=header,
+            date_format=DATE_FORMATS_BY_REPORT.get(name, DEFAULT_DATE_FORMAT)
         )
             
 if st.session_state['sap_authenticated']:
@@ -78,12 +79,7 @@ if st.session_state['sap_authenticated']:
             create_file_uploader('cp', 'Complementos de pago', header=4)
 
     with st.session_state['conc_button']:
-        # if st.session_state.get('conciliacion') is None:
-            conciliacion = st.button('Conciliar', on_click=conciliar,)
-                                    # args=(st.session_state['fact_sat'], 
-                                    #         st.session_state['fact_sap'], 
-                                    #         st.session_state['box'], 
-                                    #         st.session_state['cp'],))
+        conciliacion = st.button('Conciliar', on_click=conciliar,)
 
     if st.session_state.get('conciliacion') is not None:
         with st.session_state['conc_container']:
