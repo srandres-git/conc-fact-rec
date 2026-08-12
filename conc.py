@@ -2,7 +2,7 @@ import io
 import pandas as pd
 import numpy as np
 import streamlit as st
-from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, ESTATUS_NA_NC, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP, PRIORITY_BOX_STATUS
+from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, ESTATUS_NA_NC, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
 from export import export_conciliacion_facturas
 from utils import assign_service_type, find_service, get_provs_from_sap, get_provs_from_dwh, assign_ejecutivo_cxp
 

@@ -219,7 +219,7 @@ COMENTARIOS = {
 
 # prioridad de los estatus en Box para eliminar duplicados en el cruce SAT vs Box 
 # (el orden de la lista indica la prioridad, de mayor a menor)
-PRIORITY_BOX_STATUS =['OK','PAGADAS', 'PENDIENTES','RAIZ', 'CANCELADAS', 'CARTA PORTE', 'COMPLEMENTOS DE PAGO', 'NOTAS DE CRÉDITO', 'COMPLEMENTARIAS','SIN ESTATUS']
+PRIORITY_BOX_STATUS =['OK','PAGADA', 'PENDIENTE','RAIZ', 'CANCELADA', 'CARTA PORTE', 'COMPLEMENTO DE PAGO', 'NOTAS DE CRÉDITO', 'COMPLEMENTARIAS','SIN ESTATUS']
 
 # los siguientes estatus no aplican para PUE:
 ESTATUS_NA_PUE = ['Revisar // Vigente SAT - Pagado SAP - Tiene CP cancelado', 'Revisar // Vigente SAT - Parcialmente pagado SAP - Tiene CP cancelado', \
