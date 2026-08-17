@@ -219,7 +219,7 @@ COMENTARIOS = {
 
 # prioridad de los estatus en Box para eliminar duplicados en el cruce SAT vs Box 
 # (el orden de la lista indica la prioridad, de mayor a menor)
-PRIORITY_BOX_STATUS =['OK','PAGADA', 'PENDIENTE','RAIZ', 'CANCELADA', 'CARTA PORTE', 'COMPLEMENTO DE PAGO', 'NOTAS DE CRÉDITO', 'COMPLEMENTARIAS','SIN ESTATUS']
+PRIORITY_BOX_STATUS =['OK','PAGADA', 'PENDIENTE','RAIZ', 'CANCELADA', ]
 
 # los siguientes estatus no aplican para PUE:
 ESTATUS_NA_PUE = ['Revisar // Vigente SAT - Pagado SAP - Tiene CP cancelado', 'Revisar // Vigente SAT - Parcialmente pagado SAP - Tiene CP cancelado', \
@@ -284,9 +284,9 @@ MONTH_ORDER = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', '
 STATUS_BOX_FORMAT ={
     'OK': '📁 :green-background[OK]',
     'RAIZ': '📁 :blue-background[RAIZ]',
-    'PENDIENTES': '📁 :orange-background[PENDIENTES]',
-    'CANCELADAS': '📁 :red-background[CANCELADAS]',
-    'PAGADAS': '📁 :yellow-background[PAGADAS]'
+    'PENDIENTE': '📁 :orange-background[PENDIENTE]',
+    'CANCELADA': '📁 :red-background[CANCELADA]',
+    'PAGADA': '📁 :yellow-background[PAGADA]'
 }
 
 # mapeo de funciones de depuración para cada reporte
