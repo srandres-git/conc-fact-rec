@@ -1,4 +1,15 @@
 .streamlit/secrets.toml
+secrets.toml
+*.env
+.env.*
+
+# Sensitive data / spreadsheet exports
+*.csv
+*.xlsx
+*.xls
+*.xlsm
+*.db
+*.sqlite
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

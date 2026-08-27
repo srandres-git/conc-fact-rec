@@ -1,6 +1,9 @@
+import logging
 import pandas as pd
 
 from utils import excel_col_letter, is_numeric
+
+logger = logging.getLogger(__name__)
 
 
 def export_conciliacion_facturas(fact_sat: pd.DataFrame, output_file: str, cols_conc: list[str]):
@@ -11,8 +14,13 @@ def export_conciliacion_facturas(fact_sat: pd.DataFrame, output_file: str, cols_
     verde_cols = [
         'Estatus', 'Estatus Sustitución', 'Estatus para Cancelación', 'Estatus Cancelación', 'Fecha Cancelación', 'Ver.',
         'CFDI Relacionado', 'Tipo Relación CFDI', 'Tipo Relación CFDI Descripción', 'Tipo', 'UUID', 'UUID Sustitución',
-        'Serie', 'Folio', 'Emisión', 'Fecha Sustitución', 'Uso CFDI', 'Emisor RFC', 'Emisor Nombre', 'Emisor Régimen Fiscal',
-        'Emisor Régimen Fiscal Descripción', 'Conceptos Descripción', 'Conceptos ClaveProdServ SAT', 'Conceptos ClaveProdServ SAT Descripción',
+        'Serie', 'Folio', 'Emisión', 'Fecha Sustitución', 'Uso CFDI', 'Uso CFDI Descripción', 'Emisor RFC', 'Emisor Nombre', 'Emisor Régimen Fiscal',
+        'Emisor Régimen Fiscal Descripción', 'Receptor RFC', 'Receptor Nombre', 'Receptor Regimen Fiscal', 'Receptor Regimen Fiscal Descripción',
+        'Conceptos NoIdentificación', 'Conceptos Cantidad', 'Conceptos Unidad', 'Conceptos ClaveUnidad SAT', 'Conceptos ClaveUnidad SAT Descripción',
+        'Conceptos Valor Unitario', 'Conceptos Importe', 'Conceptos Cuenta Predial',
+        'Conceptos Descripción', 'Conceptos ClaveProdServ SAT', 'Conceptos ClaveProdServ SAT Descripción',
+        'Base IVA 16', 'Base IVA 8', 'Base IVA 0', 'Base IVA Exento', 'Base IEPS', 'Descuento', 'IVA', 'IEPS', 'Impto. Loc. Tras.', 'Total Trasladados',
+        'IVA Retenido', 'ISR Retenido', 'Impto. Loc. Ret.', 'Total Retenciones',
         'SubTotal', 'Total SAT MXN', 'Total SAT XML', 'Tipo Cambio', 'Moneda', 'Forma Pago', 'Método Pago'
     ]
     amarillo_cols = [
@@ -63,4 +71,4 @@ def export_conciliacion_facturas(fact_sat: pd.DataFrame, output_file: str, cols_
             else:
                 worksheet.set_column(col_num, col_num, col_len)
 
-    print(f'Archivo exportado: {output_file}')
+    logger.info(f'Archivo exportado: {output_file}')

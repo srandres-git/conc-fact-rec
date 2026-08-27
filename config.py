@@ -33,8 +33,6 @@ DATE_COLS_FACT_SAT = [
     "Fecha Cancelación",
     "Emisión",
     "Fecha Sustitución",
-    "Timbrado",
-    "Hora Timbrado",
 ]
 # columnas numéricas de fact_sap
 NUM_COLS_FACT_SAP = [
@@ -111,14 +109,11 @@ COLS_CONC = [
     'Emisión', # verde
     'Mes', # azul
     'Fecha Sustitución', 'Uso CFDI', # verde
-    'Uso CFDI Descripción', 'Clave Confirmación PAC Impte Alto', 'NumCtaPago (4 Digitos)', 'Condiciones de Pago Comerciales',
-    'Timbrado', 'Hora Timbrado', 'No. Certificado CSD Emisor', 'No. Certificado CSD SAT(PAC)', # verde (usualmente ocultas) 
+    'Uso CFDI Descripción', # verde
     'ID Proveedor SAP', # amarillo
     'Emisor RFC', 'Emisor Nombre', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción', # verde
-    'Emisor Estado SAT', 'Emisor Calle', 'Emisor Colonia', 'Emisor Localidad', 'Emisor Referencia', 'Emisor Municipio', 'Emisor Pais',
-    'Emisor CP', 'Emisor Estado', 'Receptor RFC', 'Receptor Nombre', 'Receptor Domicilio Fiscal', 'Receptor Calle', 'Receptor Colonia',
-    'Receptor Localidad', 'Receptor Referencia', 'Receptor Municipio', 'Receptor País', 'Receptor CP', 'Receptor Estado', 'Receptor Estado SAT',
-    'Receptor Residencia Fiscal(País)', 'Receptor Núm. Id. Fiscal(Extranjero)', 'Conceptos NoIdentificación', 'Conceptos Cantidad', 'Conceptos Unidad',
+    'Receptor RFC', 'Receptor Nombre', 'Receptor Regimen Fiscal', 'Receptor Regimen Fiscal Descripción', # verde
+    'Conceptos NoIdentificación', 'Conceptos Cantidad', 'Conceptos Unidad',
     'Conceptos ClaveUnidad SAT', 'Conceptos ClaveUnidad SAT Descripción', 'Conceptos Valor Unitario','Conceptos Importe',
     'Conceptos Cuenta Predial', # verde (usualmente ocultas)
     'Conceptos Descripción', 'Conceptos ClaveProdServ SAT', # verde
@@ -140,12 +135,8 @@ EXPECTED_COLS = {
     'fact_sat': NUM_COLS_FACT_SAT+DATE_COLS_FACT_SAT+[
         'UUID','Moneda','CFDI Relacionado', 'UUID Sustitución', 'Estatus','Emisor RFC', 'Emisor Nombre', 'Folio', 'Serie',
         'Estatus Sustitución', 'Estatus para Cancelación', 'Estatus Cancelación','Ver.','Tipo Relación CFDI',
-        'Tipo Relación CFDI Descripción', 'Tipo', 'Uso CFDI','Uso CFDI Descripción', 'Clave Confirmación PAC Impte Alto', 'NumCtaPago (4 Digitos)', 'Condiciones de Pago Comerciales',
-        'Timbrado', 'Hora Timbrado', 'No. Certificado CSD Emisor', 'No. Certificado CSD SAT(PAC)', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción',
-        'Emisor Estado SAT', 'Emisor Calle', 'Emisor Colonia', 'Emisor Localidad', 'Emisor Referencia', 'Emisor Municipio', 'Emisor Pais',
-        'Emisor CP', 'Emisor Estado', 'Receptor RFC', 'Receptor Nombre', 'Receptor Domicilio Fiscal', 'Receptor Calle', 'Receptor Colonia',
-        'Receptor Localidad', 'Receptor Referencia', 'Receptor Municipio', 'Receptor País', 'Receptor CP', 'Receptor Estado', 'Receptor Estado SAT',
-        'Receptor Residencia Fiscal(País)', 'Receptor Núm. Id. Fiscal(Extranjero)', 'Conceptos NoIdentificación', 'Conceptos Cantidad', 'Conceptos Unidad',
+        'Tipo Relación CFDI Descripción', 'Tipo', 'Uso CFDI','Uso CFDI Descripción', 'Emisor Régimen Fiscal', 'Emisor Régimen Fiscal Descripción',
+        'Receptor RFC', 'Receptor Nombre', 'Receptor Regimen Fiscal', 'Receptor Regimen Fiscal Descripción', 'Conceptos NoIdentificación', 'Conceptos Cantidad', 'Conceptos Unidad',
         'Conceptos ClaveUnidad SAT', 'Conceptos ClaveUnidad SAT Descripción', 'Conceptos Valor Unitario','Conceptos Importe',
         'Conceptos Cuenta Predial','Conceptos Descripción', 'Conceptos ClaveProdServ SAT','Conceptos ClaveProdServ SAT Descripción', 
         'Tipo Cambio', 'Forma Pago', 'Método Pago',
@@ -261,7 +252,7 @@ MONTH_MAP_ENG_ESP = {
 
 """LOCAL"""
 # variables de entorno para acceso a la base de datos y rutas
-ENV_FILE_PATH = r"C:\Users\Andres Sanchez\OneDrive - Multilog Internacional S.A de C.V\Documents\db_access.env"
+ENV_FILE_PATH = ""
 
 """GUI"""
 

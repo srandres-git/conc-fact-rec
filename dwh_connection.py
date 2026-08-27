@@ -1,8 +1,11 @@
+import logging
 import pandas as pd
 import re
 from sqlalchemy import create_engine, Engine
 from urllib.parse import quote_plus
 from config import ENV_FILE_PATH
+
+logger = logging.getLogger(__name__)
 
 def load_env_vars(file_path: str)->dict:
     """Loads environment variables from a .env file using UTF-8 encoding."""
@@ -16,7 +19,8 @@ def load_env_vars(file_path: str)->dict:
             env_vars[key.strip()] = value.strip()
     if not all(k in env_vars for k in ['server', 'user', 'password',]):
         raise ValueError("Missing required environment variables in the .env file.")
-    print(env_vars)
+    # No se registran los valores: incluyen credenciales sensibles (usuario, password, etc.)
+    logger.debug(f'Variables de entorno cargadas desde "{file_path}": {list(env_vars.keys())}')
     return env_vars
 
 
@@ -80,20 +84,20 @@ def repl_vars(query: str, vars: dict[str, str] = None)->str:
                 count=1,
             )
         else:
-            print(f'Variable {key} not found in query "{query[:50]}..."; ignored.')
+            logger.warning(f'Variable {key} no encontrada en la consulta; se omite.')
 
     return updated_query
 
 
 
-def execute_query(query: str,  vars: dict[str, str] = None)->pd.DataFrame:
+def execute_query(query: str, vars: dict[str, str] = None, label: str = None)->pd.DataFrame:
     """Connects to the database and executes a SQL query, returning the result as a DataFrame
     If the vars dictionary is not None, it assigns the corresponding values to their variables
     (when already declared within the query)."""
     env_vars = load_env_vars(ENV_FILE_PATH)
     engine = connect_to_db(env_vars)
     query = repl_vars(query, vars)
-    print(f'Ejecutando: {query}')
+    logger.info(f'Ejecutando consulta{f": {label}" if label else ""}')
     return pd.read_sql(query, engine)
 
 
@@ -101,8 +105,12 @@ def execute_query_from_path(path: str, vars: dict[str, str] = None)->pd.DataFram
     """Connects to the database and executes the query contained in a .sql file.
     If the vars dictionary is not None, it assigns the corresponding values to their variables
     (when already declared within the query).
-    Returns the result as a DataFrame."""  
+    Returns the result as a DataFrame."""
     # read file
-    with open(path, "r", encoding="utf-8") as sql_file:
-        query = sql_file.read()
-    return execute_query(query, vars)
+    try:
+        with open(path, "r", encoding="utf-8") as sql_file:
+            query = sql_file.read()
+    except OSError as e:
+        logger.error(f'No se pudo leer el archivo de consulta "{path}": {e}')
+        raise
+    return execute_query(query, vars, label=path)

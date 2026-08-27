@@ -1,11 +1,22 @@
+import logging
 import pandas as pd
 import streamlit as st
+import streamlit.runtime as st_runtime
 from utils import clean_dtypes, sort_df
 from config import NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, \
     NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, DATE_COLS_BOX, \
     NUM_COLS_CP, DATE_COLS_CP, \
     MONTH_MAP_ENG_ESP, CLEANING_FUNCTIONS, PRIORITY_BOX_STATUS,\
     DEFAULT_DATE_FORMAT, DATE_FORMATS_BY_REPORT
+
+logger = logging.getLogger(__name__)
+
+
+def _st_feedback(kind: str, message: str, icon: str = None):
+    """Muestra retroalimentación en la UI de Streamlit sólo si hay una sesión activa.
+    Evita las advertencias 'missing ScriptRunContext' al correr como script plano (local_app.py)."""
+    if st_runtime.exists():
+        getattr(st, kind)(message, icon=icon)
 
 
 def depurar_sat(fact_sat: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT)->pd.DataFrame:
@@ -110,12 +121,18 @@ def depurar_cp(cp: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT)-> pd.Da
 # file reader functionality
 def read_excel_file(file, session_name:str, expected_columns:list, header:int=0, date_format = DEFAULT_DATE_FORMAT)->pd.DataFrame:
     """Lee un archivo Excel validando que contenga las columnas esperadas y asigna a session state."""
+    if file is None:
+        _st_feedback('error', f'No se encontró un archivo para el reporte "{session_name}".', icon="❌")
+        logger.error(f'No se encontró un archivo para el reporte "{session_name}".')
+        return None
+
+    logger.info(f'Leyendo archivo ({session_name}): "{file}"')
     try:
         df = pd.read_excel(file, header=header)
         missing_cols = [col for col in expected_columns if col not in df.columns]
         if len(missing_cols) > 0:
-            st.error(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
-            print(f'El archivo cargado no contiene las columnas esperadas: {missing_cols}')
+            _st_feedback('error', f'El archivo cargado no contiene las columnas esperadas: {missing_cols}', icon="❌")
+            logger.error(f'El archivo "{file}" ({session_name}) no contiene las columnas esperadas: {missing_cols}')
             return None
         else:
             # depuramos el DataFrame según la función correspondiente (si existe)
@@ -124,12 +141,12 @@ def read_excel_file(file, session_name:str, expected_columns:list, header:int=0,
                 cleaning_function = globals()[cleaning_function_name]
                 df = cleaning_function(df, date_format=date_format)
             # st.session_state[session_name] = df
-            st.success('Archivo leído correctamente.', icon="✅")
-            print('Archivo leído correctamente.')
+            _st_feedback('success', 'Archivo leído correctamente.', icon="✅")
+            logger.info(f'Archivo leído correctamente ({session_name}): "{file}"')
             return df
     except Exception as e:
-        st.error(f'Error al leer el archivo: {e}', icon="❌")
-        print(f'Error al leer el archivo: {e}')
+        _st_feedback('error', f'Error al leer el archivo: {e}', icon="❌")
+        logger.exception(f'Error al leer el archivo "{file}" ({session_name}): {e}')
         return None
 
 def process_dataframe(df: pd.DataFrame,
@@ -138,14 +155,14 @@ def process_dataframe(df: pd.DataFrame,
                       date_formats: dict = DATE_FORMATS_BY_REPORT) -> pd.DataFrame:
     """Valida columnas esperadas y depura el DataFrame según el reporte."""
     if df is None:
-        st.error('No se recibió ningún DataFrame para procesar.', icon="❌")
-        print('No se recibió ningún DataFrame para procesar.')
+        _st_feedback('error', 'No se recibió ningún DataFrame para procesar.', icon="❌")
+        logger.error(f'No se recibió ningún DataFrame para procesar ({session_name}).')
         return None
 
     missing_cols = [col for col in expected_columns if col not in df.columns]
     if missing_cols:
-        st.error(f'El DataFrame no contiene las columnas esperadas: {missing_cols}', icon="❌")
-        print(f'El DataFrame no contiene las columnas esperadas: {missing_cols}')
+        _st_feedback('error', f'El DataFrame no contiene las columnas esperadas: {missing_cols}', icon="❌")
+        logger.error(f'El DataFrame ({session_name}) no contiene las columnas esperadas: {missing_cols}')
         return None
 
     cleaning_function_name = CLEANING_FUNCTIONS.get(session_name, None)
@@ -154,6 +171,6 @@ def process_dataframe(df: pd.DataFrame,
         if cleaning_function:
             df = cleaning_function(df, date_formats.get(session_name,DEFAULT_DATE_FORMAT))
 
-    st.success('DataFrame procesado correctamente.', icon="✅")
-    print('DataFrame procesado correctamente.')
+    _st_feedback('success', 'DataFrame procesado correctamente.', icon="✅")
+    logger.info(f'DataFrame procesado correctamente ({session_name}).')
     return df

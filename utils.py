@@ -1,3 +1,4 @@
+import logging
 import re
 import numpy as np
 import pandas as pd
@@ -8,6 +9,8 @@ import tomli
 from dwh_connection import execute_query_from_path, load_env_vars
 
 from config import COLS_SERVICE, ENV_FILE_PATH, CATALOGO_SERV_PROD
+
+logger = logging.getLogger(__name__)
 
 def clean_dtypes(df: pd.DataFrame, num_cols: list[str], date_cols: list[str], date_format=None):
     """Corrección de los tipos de datos, según la lista de columnas numéricas o de fecha."""
@@ -146,7 +149,7 @@ def request_df(base_url : str, report_name : str, parameters : dict, username : 
     # Make the request
     url = format_request_url(base_url, report_name, parameters)
     response = requests.get(url, auth=(username, password), headers=headers)
-    print(f"Response: {response}")
+    logger.debug(f'Respuesta SAP OData ({report_name}): {response.status_code}')
     if response.status_code == 200:
     # Generate Dataframe
         try:
@@ -158,10 +161,11 @@ def request_df(base_url : str, report_name : str, parameters : dict, username : 
                 df['CTRANSDAT'] = pd.to_datetime(df['CTRANSDAT'].str.extract(r'/Date\((\d+)\)/')[0].astype(int), unit='ms')
             return df
         except Exception as error:
-            print(error)
+            logger.error(f'Error al procesar la respuesta de SAP OData ({report_name}): {error}')
             return None
     else:
-        print("Error Response Text:", response.text)  # safer than .json() for 401
+        # response.text puede incluir detalle del error; se trunca para no saturar el log
+        logger.error(f'Error en la respuesta de SAP OData ({report_name}), status {response.status_code}: {response.text[:300]}')
         return None
 
 def get_provs_from_sap(rfc_list:list,username,password, bucket_size: int = 30)->pd.DataFrame:
@@ -173,16 +177,16 @@ def get_provs_from_sap(rfc_list:list,username,password, bucket_size: int = 30)->
     # realizamos la petición en buckets de 30 RFCs
     provs = pd.DataFrame()
     for i in range(0, len(rfc_list), bucket_size):
-        print(f'[Procesando RFCs {i+1} a {min(i+bucket_size, len(rfc_list))} de {len(rfc_list)}]')
+        logger.info(f'Procesando RFCs {i+1} a {min(i+bucket_size, len(rfc_list))} de {len(rfc_list)}')
         rfc_bucket = rfc_list[i:i+bucket_size]
         filter_rfc = " or ".join([f"CTAX_ID_NR eq '{rfc}'" for rfc in rfc_bucket])
         parameters['filter'] = [filter_rfc]
         provs_bucket = request_df(st.secrets['sap_odata_base_url'], report_name, parameters, username, password)
         if provs_bucket is not None:
-            print(f'[Proveedores obtenidos en este bucket: {len(provs_bucket)}]')
+            logger.info(f'Proveedores obtenidos en este bucket: {len(provs_bucket)}')
             provs = pd.concat([provs, provs_bucket], ignore_index=True)
     if provs.empty:
-        print('No se obtuvieron proveedores de SAP.')
+        logger.warning('No se obtuvieron proveedores de SAP.')
         return None
     # depuramos la fecha de creación
     provs['CCREATION_DT'] = pd.to_datetime(provs['CCREATION_DT'].str.split(' ').str[0], errors='raise', format='%d.%m.%Y')
@@ -191,7 +195,7 @@ def get_provs_from_sap(rfc_list:list,username,password, bucket_size: int = 30)->
     # quitamos duplicados por RFC, dejando la primera (la de fecha más reciente)
     provs = provs.drop_duplicates(subset=['CTAX_ID_NR'], keep='first').reset_index(drop=True)
     provs.rename(columns={'CBP_UUID':'ID Proveedor SAP', 'CTAX_ID_NR':'RFC Proveedor', 'CCREATION_DT':'Fecha creación proveedor', 'C1QITSQE6F9TSX3J3DUJRLUJGY5':'Ejecutivo CPP SAP'}, inplace=True)
-    print(f'Proveedores obtenidos: {len(provs)}')
+    logger.info(f'Proveedores obtenidos: {len(provs)}')
     return provs
 
 def get_provs_from_dwh(rfc_list:list)->pd.DataFrame:
@@ -199,7 +203,7 @@ def get_provs_from_dwh(rfc_list:list)->pd.DataFrame:
     provs = execute_query_from_path("dwh_queries/get_provs.sql",
             {'rfc_list':','.join(rfc_list)}) # rfc_list is declared in SQL as a CHARVAR and then casted to a list
     if provs.empty:
-        print('No se obtuvieron proveedores de SAP.')
+        logger.warning('No se obtuvieron proveedores desde el DWH.')
         return None
     # ordenamos descendentemente por ID de proveedor
     provs = provs.sort_values(by='ID Proveedor SAP', ascending=False)
@@ -275,9 +279,9 @@ def assign_ejecutivo_cxp(fact_sat: pd.DataFrame) -> pd.DataFrame:
             data = tomli.load(f)
         # Asumir que el archivo .toml tiene una sección 'ejecutivos' con una lista de entradas
         ejecutivos_cxp = pd.DataFrame(data.get('ejecutivos_cxp', []))
-        print(ejecutivos_cxp.head())
+        logger.debug(f'Ejecutivos CxP cargados desde "{ejecutivos_file}": {len(ejecutivos_cxp)} registros')
     except Exception as e:
-        print(f'Advertencia: no se pudo cargar el archivo de ejecutivos {env_vars.get("ejecutivos_file", "desconocido")}: {e}. Se usará solo información disponible.')
+        logger.warning(f'No se pudo cargar el archivo de ejecutivos "{env_vars.get("ejecutivos_file", "desconocido")}": {e}. Se usará solo información disponible.')
         ejecutivos_cxp = pd.DataFrame(columns=['rfc', 'moneda', 'ejecutivo_cxp'])
 
     fact_sat = fact_sat.merge(
@@ -298,13 +302,15 @@ def assign_ejecutivo_cxp(fact_sat: pd.DataFrame) -> pd.DataFrame:
     
     return fact_sat
 
-def get_most_recent_file(folder_path: str, extension: str) -> str:
+def get_most_recent_file(folder_path: str, extension: str, name_contains: str = None) -> str:
     """Obtiene la ruta del archivo más reciente en la carpeta con la extensión dada.
-    
+
     Args:
         folder_path (str): Ruta de la carpeta a buscar.
         extension (str): Extensión del archivo (ej. '.txt', 'txt').
-    
+        name_contains (str, optional): Si se especifica, sólo se consideran archivos cuyo
+            nombre contenga este texto (comparación insensible a mayúsculas/minúsculas).
+
     Returns:
         str or None: Ruta completa del archivo más reciente, o None si no se encuentra.
     """
@@ -314,12 +320,18 @@ def get_most_recent_file(folder_path: str, extension: str) -> str:
         extension = '.' + extension
 
     if not os.path.exists(folder_path):
-        print(f"La carpeta {folder_path} no existe.")
+        logger.error(f'La carpeta "{folder_path}" no existe.')
         return None
 
     files = [f for f in os.listdir(folder_path) if f.lower().endswith(extension.lower())]
+    if name_contains:
+        files = [f for f in files if name_contains.lower() in f.lower()]
     if not files:
-        print(f"No se encontraron archivos con extensión '{extension}' en {folder_path}.")
+        logger.error(
+            f"No se encontraron archivos con extensión '{extension}'"
+            + (f" que contengan '{name_contains}'" if name_contains else "")
+            + f' en "{folder_path}".'
+        )
         return None
     
     # Obtener el archivo con la fecha de modificación más reciente
