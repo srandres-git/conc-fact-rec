@@ -13,6 +13,9 @@ WITH balance AS (
         SUM(gross_price) AS gross_price,
         MIN(cleared_amount) AS cleared_amount -- not agg
     FROM dev_bronze.sap_bill_aging_balance
+    WHERE bill_date >= DATEFROMPARTS(@year, 1, 1) -- Limit to one year
+    AND bill_date < DATEFROMPARTS(@year+1, 1, 1)
+    AND document_number IS NOT NULL -- [TODO] Revisar los nulos
     GROUP BY document_number
 ),
 conformed AS (
@@ -27,6 +30,9 @@ conformed AS (
         MIN(iva_withholding_amount) AS iva_withholding_amount, -- not agg
         MIN(isr_withholding_amount) AS isr_withholding_amount -- not agg
     FROM dev_silver.f_conformed_cxp_bill
+    WHERE row_source_system_id = 103 -- Only SAP
+    AND document_date >= DATEFROMPARTS(@year, 1, 1) -- Limit to one year
+    AND document_date < DATEFROMPARTS(@year+1, 1, 1)
     GROUP BY document_number
 ),
 dstatus AS (
@@ -72,9 +78,3 @@ SELECT
 FROM conformed
 LEFT JOIN balance ON conformed.document_number = balance.document_number
 LEFT JOIN dstatus ON conformed.invoice_status_sk = dstatus.invoice_status_sk
-WHERE conformed.row_source_system_id = 103 -- Solo SAP
-AND conformed.document_date >= DATEFROMPARTS(@year, 1, 1) -- Limitamos a un solo año
-AND conformed.document_date < DATEFROMPARTS(@year+1, 1, 1)
-AND balance.bill_date >= DATEFROMPARTS(@year, 1, 1)
-AND balance.bill_date < DATEFROMPARTS(@year+1, 1, 1)
-AND balance.document_number IS NOT NULL -- [TODO] Revisar los nulos
