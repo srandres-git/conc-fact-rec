@@ -5,7 +5,7 @@ import streamlit.runtime as st_runtime
 from utils import clean_dtypes, sort_df
 from config import NUM_COLS_FACT_SAT, DATE_COLS_FACT_SAT, \
     NUM_COLS_FACT_SAP, DATE_COLS_FACT_SAP, DATE_COLS_BOX, \
-    NUM_COLS_CP, DATE_COLS_CP, \
+    NUM_COLS_CP, DATE_COLS_CP, NUM_COLS_CONCEP_SAT, EXPECTED_COLS, \
     MONTH_MAP_ENG_ESP, CLEANING_FUNCTIONS, PRIORITY_BOX_STATUS,\
     DEFAULT_DATE_FORMAT, DATE_FORMATS_BY_REPORT
 
@@ -117,6 +117,29 @@ def depurar_cp(cp: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT)-> pd.Da
     cp = sort_df(cp, 'Estatus', status_order_cp, drop_dup_col='UUIDRel')
 
     return cp
+
+def depurar_concep_sat(concep_sat: pd.DataFrame, date_format: str = DEFAULT_DATE_FORMAT)-> pd.DataFrame:
+    # solo se necesitan UUID, clave de objeto de impuesto e importe
+    concep_sat = concep_sat[EXPECTED_COLS['concep_sat']].copy()
+    # UUID a mayúsculas
+    concep_sat['UUID'] = concep_sat['UUID'].str.upper()
+    # solo conceptos con UUID no vacío
+    concep_sat = concep_sat[(concep_sat['UUID'].str.strip() != '')
+                            & (concep_sat['UUID'].str.strip() != '0')
+                            & (concep_sat['UUID'].notna())
+                        ].reset_index(drop=True)
+
+    # limpiamos los tipos de datos (CveObjetoImp queda como texto sin decimales)
+    concep_sat = clean_dtypes(concep_sat, NUM_COLS_CONCEP_SAT, [], date_format=date_format)
+
+    # el importe de los conceptos no objeto (CveObjetoImp = '01') ya viene en MXN
+    no_objeto = concep_sat['CveObjetoImp'].str.strip().str.split('.').str[0].str.zfill(2) == '01'
+    concep_sat['No objeto MXN'] = concep_sat['Importe'].where(no_objeto, 0)
+
+    # sumamos por UUID
+    concep_sat = concep_sat.groupby('UUID', as_index=False)['No objeto MXN'].sum()
+
+    return concep_sat
 
 # file reader functionality
 def read_excel_file(file, session_name:str, expected_columns:list, header:int=0, date_format = DEFAULT_DATE_FORMAT)->pd.DataFrame:

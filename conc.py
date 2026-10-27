@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 import streamlit as st
-from config import COLS_CONC, COMENTARIOS, ESTATUS_NA_PUE, ESTATUS_NA_NC, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
+from config import COLS_CONC, COLS_CONC_LOCAL, COMENTARIOS, ESTATUS_NA_PUE, ESTATUS_NA_NC, RENAME_COLS_SAP, EJECUTIVO_SAP_MAP
 from export import export_conciliacion_facturas
 from utils import assign_service_type, find_service, get_provs_from_sap, get_provs_from_dwh, assign_ejecutivo_cxp
 
@@ -53,6 +53,25 @@ def sat_x_cp(fact_sat: pd.DataFrame, cp: pd.DataFrame)->pd.DataFrame:
     fact_sat = fact_sat.merge(cp[['UUIDRel','Estatus']], left_on='UUID', right_on='UUIDRel', how='left', suffixes=('', ' CP'))
     # rellenamos los NaN en 'Estatus CP' con 'Sin CP'
     fact_sat['Estatus CP'] = fact_sat['Estatus CP'].fillna('Sin CP')
+
+    return fact_sat
+
+def sat_x_concep(fact_sat: pd.DataFrame, concep_sat: pd.DataFrame)->pd.DataFrame:
+    """Cruce de facturas de SAT vs reporte de conceptos SAT para obtener la parte no objeto de impuesto.
+    Ambos reportes iniciales previamente depurados."""
+    fact_sat = fact_sat.merge(concep_sat[['UUID','No objeto MXN']], on='UUID', how='left')
+    no_encontrada = fact_sat['No objeto MXN'].isna()
+    tc_cero = fact_sat['Tipo Cambio'] == 0
+
+    # multiplicar por -1 para notas de crédito (Egreso)
+    fact_sat.loc[fact_sat['Tipo'] == 'Egreso', 'No objeto MXN'] *= -1
+    # no objeto en moneda origen, usando el TC del reporte de facturas SAT
+    fact_sat['No objeto MO'] = (fact_sat['No objeto MXN'] / fact_sat['Tipo Cambio'].where(~tc_cero)).astype(object)
+    fact_sat.loc[tc_cero, 'No objeto MO'] = 'TC cero'
+
+    # las facturas no encontradas en el reporte de conceptos se marcan como 'No está Conceptos'
+    fact_sat['No objeto MXN'] = fact_sat['No objeto MXN'].astype(object)
+    fact_sat.loc[no_encontrada, ['No objeto MXN', 'No objeto MO']] = 'No está Conceptos'
 
     return fact_sat
 
@@ -148,7 +167,7 @@ def conciliar(output_file=""):#fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, b
     export_conciliacion_facturas(st.session_state['conciliacion'], output_file, COLS_CONC)
     st.session_state['output_file'] = output_file
 
-def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame, output_file: str)->pd.DataFrame:
+def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.DataFrame, cp: pd.DataFrame, concep_sat: pd.DataFrame, output_file: str)->pd.DataFrame:
     """Función para realizar la conciliación en un entorno local.
     La lógica de los cruces se mantiene exactamente igual y los mensajes se muestran en consola."""
     logger.info('Iniciando conciliación local...')
@@ -161,6 +180,9 @@ def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.Data
 
     fact_sat = sat_x_cp(fact_sat, cp)
     logger.info('Cruce SAT vs CP completado.')
+
+    fact_sat = sat_x_concep(fact_sat, concep_sat)
+    logger.info('Cruce SAT vs Conceptos completado.')
 
     rfc_list = fact_sat['Emisor RFC'].astype(str).str.upper().str.strip().replace({'nan': ''}).unique().tolist()
     rfc_list = [rfc for rfc in rfc_list if rfc]
@@ -204,13 +226,13 @@ def conciliar_local(fact_sat: pd.DataFrame, fact_sap: pd.DataFrame, box: pd.Data
     fact_sat['Tipo de servicio'] = fact_sat.apply(assign_service_type, axis=1)
     logger.info('Tipo de servicio asignado.')
 
-    conciliacion = fact_sat[COLS_CONC]
+    conciliacion = fact_sat[COLS_CONC_LOCAL]
     if output_file == '':
         output_file_obj = io.BytesIO()
-        export_conciliacion_facturas(conciliacion, output_file_obj, COLS_CONC)
+        export_conciliacion_facturas(conciliacion, output_file_obj, COLS_CONC_LOCAL)
         logger.info('Reporte de conciliación generado en memoria.')
     else:
-        export_conciliacion_facturas(conciliacion, output_file, COLS_CONC)
+        export_conciliacion_facturas(conciliacion, output_file, COLS_CONC_LOCAL)
         logger.info(f'Reporte de conciliación exportado a: {output_file}')
 
     return conciliacion

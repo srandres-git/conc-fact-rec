@@ -85,6 +85,9 @@ DATE_COLS_CP = [
     'Fecha', 'FechaPago',
 ]
 
+# columnas numéricas del reporte de conceptos SAT
+NUM_COLS_CONCEP_SAT = ['Importe']
+
 # Renombramiento de columnas de los reportes base
 RENAME_COLS_SAP = {
     'ID de factura oficial': 'UUID SAP',
@@ -130,6 +133,12 @@ COLS_CONC = [
     'Tipo Cambio', 'Moneda', 'Forma Pago', 'Método Pago', # verde
 ]
 
+# columnas de la parte no objeto de impuesto (solo conciliación local)
+COLS_NO_OBJETO = ['No objeto MXN', 'No objeto MO'] # azul
+# columnas de la conciliación local: COLS_CONC + no objeto entre 'IEPS' e 'Impto. Loc. Tras.'
+_idx_no_objeto = COLS_CONC.index('Impto. Loc. Tras.')
+COLS_CONC_LOCAL = COLS_CONC[:_idx_no_objeto] + COLS_NO_OBJETO + COLS_CONC[_idx_no_objeto:]
+
 # columnas esperadas en cada reporte inicial
 EXPECTED_COLS = {
     'fact_sat': NUM_COLS_FACT_SAT+DATE_COLS_FACT_SAT+[
@@ -150,6 +159,7 @@ EXPECTED_COLS = {
     'cp': NUM_COLS_CP+DATE_COLS_CP+[
         'UUIDRel', 'UUID', 'Estatus',
     ],
+    'concep_sat': ['UUID', 'CveObjetoImp', 'Importe'],
 }
 
 
@@ -252,7 +262,7 @@ MONTH_MAP_ENG_ESP = {
 
 """LOCAL"""
 # variables de entorno para acceso a la base de datos y rutas
-ENV_FILE_PATH = ""
+ENV_FILE_PATH = r""
 
 """GUI"""
 
@@ -286,4 +296,5 @@ CLEANING_FUNCTIONS = {
     'fact_sap': 'depurar_sap',
     'box': 'depurar_box',
     'cp': 'depurar_cp',
+    'concep_sat': 'depurar_concep_sat',
 }

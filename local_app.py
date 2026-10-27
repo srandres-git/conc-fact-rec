@@ -20,7 +20,7 @@ if test_provs is None:
 else:
     logger.info('Conexión a SAP exitosa.')
     # validamos que env_vars contenga los paths a los archivos de facturas SAT, SAP, Box y complementos de pago, así como output_path para guardar resultados
-    missing_paths = [key for key in ['fact_sat_path', 'box_path', 'cp_path', 'output_path', 'table_provs', 'table_saldos'] if key not in env_vars]
+    missing_paths = [key for key in ['fact_sat_path', 'concep_sat', 'box_path', 'cp_path', 'output_path', 'table_provs', 'table_saldos'] if key not in env_vars]
     if len(missing_paths) > 0:
         logger.error(f'Faltan las siguientes rutas de archivos en el archivo .env: {missing_paths}')
     else:
@@ -34,6 +34,13 @@ else:
             expected_columns=EXPECTED_COLS['fact_sat'],
             header=4,
             date_format=DATE_FORMATS_BY_REPORT.get('fact_sat', DEFAULT_DATE_FORMAT)
+        )
+        logger.info('Leyendo reporte de conceptos SAT...')
+        concep_sat = read_excel_file(
+            get_most_recent_file(env_vars['concep_sat'],'.xlsx'),
+            session_name='concep_sat',
+            expected_columns=EXPECTED_COLS['concep_sat'],
+            header=4,
         )
         logger.info('Leyendo reporte de Box...')
         box = read_excel_file(
@@ -58,7 +65,7 @@ else:
                                      date_formats={'fact_sap':'%Y-%m-%d'})
         logger.info('Reporte de saldos procesado.')
 
-        reportes = {'fact_sat': fact_sat, 'fact_sap': fact_sap, 'box': box, 'cp': cp}
+        reportes = {'fact_sat': fact_sat, 'concep_sat': concep_sat, 'fact_sap': fact_sap, 'box': box, 'cp': cp}
         reportes_fallidos = [nombre for nombre, df in reportes.items() if df is None]
         if reportes_fallidos:
             logger.error(
@@ -68,5 +75,5 @@ else:
         else:
             logger.info('Archivos leídos correctamente. Procediendo a conciliación...')
             timestamp = datetime.now().strftime('%y-%m-%d %H %M')
-            conciliacion = conciliar_local(fact_sat, fact_sap, box, cp, env_vars['output_path']+rf"\conc_fact_rec {timestamp}.xlsx")
+            conciliacion = conciliar_local(fact_sat, fact_sap, box, cp, concep_sat, env_vars['output_path']+rf"\conc_fact_rec {timestamp}.xlsx")
             logger.info(f'Conciliación completada: {len(conciliacion)} filas generadas.')

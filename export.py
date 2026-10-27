@@ -2,6 +2,7 @@ import logging
 import pandas as pd
 
 from utils import excel_col_letter, is_numeric
+from config import COLS_NO_OBJETO
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ def export_conciliacion_facturas(fact_sat: pd.DataFrame, output_file: str, cols_
         'Tipo de servicio', 'Tipo de documento', 'ID Proveedor SAP', 'Total SAP MXN', 'Dif. Total MXN', 'Total SAP XML', 'Dif. Total XML',
         'Pagado SAP XML'
     ]
-    azul_cols = ['Mes','Fecha de pago', 'Mes de pago']
+    azul_cols = ['Mes','Fecha de pago', 'Mes de pago'] + COLS_NO_OBJETO
 
     # Formato de encabezado por color
     def get_header_format(col_name, workbook):
@@ -59,7 +60,8 @@ def export_conciliacion_facturas(fact_sat: pd.DataFrame, output_file: str, cols_
                 max_len = 30 # Valor por defecto si hay error
             col_len = max_len + 2 if max_len < 30 else 30
             # Aplica formato numérico si corresponde
-            if is_numeric(fact_sat,col_name):
+            # (las de no objeto mezclan importes con marcas de texto, pero se formatean y suman igual)
+            if is_numeric(fact_sat,col_name) or col_name in COLS_NO_OBJETO:
                 worksheet.set_column(col_num, col_num, col_len, comma_format)
                 
                 # Subtotales en la primera fila
